@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/pages/settings/settings_page.dart';
 
 class SelectPage extends StatefulWidget {
   const SelectPage({super.key});
@@ -19,7 +20,7 @@ class SelectPageState extends State<SelectPage> {
     List<Widget> pages = [
       const Placeholder(),
       const Placeholder(),
-      const Placeholder(),
+      const SettingsPage(),
     ];
     return Scaffold(
       body: AnimatedSwitcher(

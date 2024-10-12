@@ -1,5 +1,7 @@
 {
     "home": "Home",
     "map": "Map",
-    "settings": "Settings"
+    "settings": "Settings",
+    "english": "English",
+    "vietnamese": "Tiếng Việt"
 }
