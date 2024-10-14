@@ -3,5 +3,15 @@
     "map": "Bản đồ",
     "settings": "Cài đặt",
     "english": "English",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "language": "Ngôn ngữ",
+
+    "accountSettings": "Cài đặt tài khoản",
+    "loginOrRegister": "Đăng nhập / Đăng ký",
+    "appSettings": "Cài đặt ứng dụng",
+    "about": "Thông tin",
+    "appVersion": "Phiên bản ứng dụng",
+    "login": "Đăng nhập",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu"
 }

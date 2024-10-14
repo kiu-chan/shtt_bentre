@@ -3,5 +3,15 @@
     "map": "Map",
     "settings": "Settings",
     "english": "English",
-    "vietnamese": "Tiếng Việt"
+    "vietnamese": "Tiếng Việt",
+    "language": "Language",
+
+    "accountSettings": "Account Settings",
+    "loginOrRegister": "Login / Register",
+    "appSettings": "App Settings",
+    "about": "About",
+    "appVersion": "App Version",
+    "login": "Login",
+    "username": "Username",
+    "password": "Password"
 }

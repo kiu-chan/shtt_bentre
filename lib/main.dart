@@ -7,7 +7,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => LanguageProvider(),
-      child: MyApp(),
+      child: const MyApp(),
       )
     );
 }
