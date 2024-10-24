@@ -1,9 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shtt_bentre/src/mainData/data/district.dart';
 import 'package:shtt_bentre/src/mainData/data/commune.dart';
+import 'package:shtt_bentre/src/mainData/data/district.dart';
 
 class MapPageView extends StatelessWidget {
   final MapController mapController;
@@ -16,6 +18,7 @@ class MapPageView extends StatelessWidget {
   final bool isRightMenuOpen;
   final bool isBorderEnabled;
   final bool isCommuneEnabled;
+  final bool isDistrictEnabled;
   final bool isBorderLoading;
   final bool isCommuneLoading;
   final String? selectedDistrictName;
@@ -25,6 +28,8 @@ class MapPageView extends StatelessWidget {
   final VoidCallback onToggleRightMenu;
   final VoidCallback onToggleBorder;
   final VoidCallback onToggleCommune;
+  final VoidCallback onToggleDistrict;
+  final Function(int) onToggleDistrictVisibility;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final Function(String) onShowDistrictInfo;
@@ -45,6 +50,7 @@ class MapPageView extends StatelessWidget {
     required this.isRightMenuOpen,
     required this.isBorderEnabled,
     required this.isCommuneEnabled,
+    required this.isDistrictEnabled,
     required this.isBorderLoading,
     required this.isCommuneLoading,
     required this.selectedDistrictName,
@@ -54,6 +60,8 @@ class MapPageView extends StatelessWidget {
     required this.onToggleRightMenu,
     required this.onToggleBorder,
     required this.onToggleCommune,
+    required this.onToggleDistrict,
+    required this.onToggleDistrictVisibility,
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onShowDistrictInfo,
@@ -106,65 +114,96 @@ class MapPageView extends StatelessWidget {
               ],
             ),
           ),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          if (isDistrictEnabled)
+            Flexible(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8),
+                shrinkWrap: true,
+                itemCount: districts.length,
+                itemBuilder: (context, index) {
+                  final district = districts[index];
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => onShowDistrictInfo(district.name),
+                      child: Opacity(
+                        opacity: district.isVisible ? 1.0 : 0.5,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 4,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: district.color,
+                                  border: Border.all(
+                                    color: district.color.withOpacity(1),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  district.name,
+                                  style: TextStyle(
+                                    fontWeight: selectedDistrictName == district.name
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  district.isVisible 
+                                      ? Icons.visibility 
+                                      : Icons.visibility_off,
+                                  size: 18,
+                                ),
+                                onPressed: () => onToggleDistrictVisibility(index),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          if (isCommuneEnabled && communes.isNotEmpty) ...[
+            const Divider(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: const Row(
                 children: [
-                  const Text(
-                    'Huyện',
+                  Icon(Icons.location_city, size: 16),
+                  SizedBox(width: 4),
+                  Text(
+                    'Xã',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  ...districts.map((district) => InkWell(
-                    onTap: () => onShowDistrictInfo(district.name),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 4,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: district.color,
-                              border: Border.all(
-                                color: district.color.withOpacity(1),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              district.name,
-                              style: TextStyle(
-                                fontWeight: selectedDistrictName == district.name
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )),
-                  if (isCommuneEnabled && communes.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Xã',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ...communes.map((commune) => InkWell(
+                ],
+              ),
+            ),
+            Flexible(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8),
+                shrinkWrap: true,
+                itemCount: communes.length,
+                itemBuilder: (context, index) {
+                  final commune = communes[index];
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       onTap: () => onShowCommuneInfo(commune),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -174,8 +213,8 @@ class MapPageView extends StatelessWidget {
                         child: Row(
                           children: [
                             Container(
-                              width: 20,
-                              height: 20,
+                              width: 16,
+                              height: 16,
                               decoration: BoxDecoration(
                                 color: commune.color,
                                 border: Border.all(
@@ -188,6 +227,7 @@ class MapPageView extends StatelessWidget {
                               child: Text(
                                 commune.name,
                                 style: TextStyle(
+                                  fontSize: 13,
                                   fontWeight: selectedCommuneName == commune.name
                                       ? FontWeight.bold
                                       : FontWeight.normal,
@@ -197,12 +237,12 @@ class MapPageView extends StatelessWidget {
                           ],
                         ),
                       ),
-                    )),
-                  ],
-                ],
+                    ),
+                  );
+                },
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -242,6 +282,16 @@ class MapPageView extends StatelessWidget {
               children: [
                 Card(
                   child: ListTile(
+                    leading: const Icon(Icons.map),
+                    title: const Text('Ranh giới huyện'),
+                    trailing: Switch(
+                      value: isDistrictEnabled,
+                      onChanged: (_) => onToggleDistrict(),
+                    ),
+                  ),
+                ),
+                Card(
+                  child: ListTile(
                     leading: const Icon(Icons.border_all),
                     title: const Text('Viền bản đồ'),
                     trailing: isBorderLoading
@@ -276,6 +326,41 @@ class MapPageView extends StatelessWidget {
                           ),
                   ),
                 ),
+                if (isDistrictEnabled) ...[
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Điều khiển hiển thị huyện',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  ...districts.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final district = entry.value;
+                    return Card(
+                      child: SwitchListTile(
+                        title: Text(district.name),
+                        value: district.isVisible,
+                        onChanged: (_) => onToggleDistrictVisibility(index),
+                        secondary: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: district.color,
+                            border: Border.all(
+                              color: district.color.withOpacity(1),
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               ],
             ),
           ),
@@ -284,245 +369,264 @@ class MapPageView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoPanel() {
-    if (selectedCommuneName == null) return const SizedBox.shrink();
-
-    final selectedCommune = communes.firstWhere(
-      (c) => c.name == selectedCommuneName,
-      orElse: () => communes.first,
-    );
-
-    return Positioned(
-      top: 70,
-      right: isRightMenuOpen ? 316 : 16,
-      child: Card(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          constraints: const BoxConstraints(
-            maxWidth: 300,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.map),
+        actions: [
+          IconButton(
+            icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
+            onPressed: onToggleLegend,
+            tooltip: 'Ẩn/Hiện chú thích',
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          IconButton(
+            icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
+            onPressed: onToggleRightMenu,
+            tooltip: 'Menu',
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              center: center,
+              zoom: currentZoom,
+              onTap: onMapTap,
+            ),
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Thông tin chi tiết',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              TileLayer(
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
+              ),
+              PolygonLayer(
+                polygons: polygons,
+              ),
+              if (borderLines.isNotEmpty)
+                PolylineLayer(
+                  polylines: borderLines,
+                ),
+            ],
+          ),
+          if (isLegendVisible)
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16, top: 16),
+                child: SlideTransition(
+                  position: legendSlideAnimation,
+                  child: _buildLegend(),
+                ),
+              ),
+            ),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            alignment: Alignment.centerRight,
+            transform: Matrix4.translationValues(
+              isRightMenuOpen ? 0 : 300,
+              0,
+              0,
+            ),
+            child: SizedBox(
+              width: 300,
+              height: double.infinity,
+              child: _buildRightMenu(context),
+            ),
+          ),
+          if (isBorderLoading || isCommuneLoading)
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 70),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          isBorderLoading
+                              ? 'Đang tải viền bản đồ...'
+                              : 'Đang tải ranh giới xã...',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => onMapTap(null, null),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    iconSize: 20,
+                ),
+              ),
+            ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: 16,
+                right: isRightMenuOpen ? 316 : 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    heroTag: "zoomIn",
+                    onPressed: onZoomIn,
+                    tooltip: 'Phóng to',
+child: const Icon(Icons.add),
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton(
+                    heroTag: "zoomOut",
+                    onPressed: onZoomOut,
+                    tooltip: 'Thu nhỏ',
+                    child: const Icon(Icons.remove),
                   ),
                 ],
               ),
-              const Divider(),
-              Text(
-                selectedCommune.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.straighten, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${currentZoom.toStringAsFixed(1)}x',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 2,
+                          color: Colors.black,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${(5000 / pow(2, currentZoom)).round()} m',
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '© OpenStreetMap contributors',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (selectedCommuneName != null)
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 70,
+                  right: isRightMenuOpen ? 316 : 16,
+                ),
+                child: Card(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    constraints: const BoxConstraints(
+                      maxWidth: 300,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Thông tin chi tiết',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => onMapTap(null, null),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              iconSize: 20,
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        ...communes
+                            .where((c) => c.name == selectedCommuneName)
+                            .map((commune) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                commune.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Diện tích: ${commune.area.toStringAsFixed(2)} km²'
+                              ),
+                              Text('Dân số: ${commune.population}'),
+                              Text('Cập nhật: ${commune.updatedYear}'),
+                            ],
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text('Diện tích: ${selectedCommune.area.toStringAsFixed(2)} km²'),
-              Text('Dân số: ${selectedCommune.population}'),
-              Text('Cập nhật: ${selectedCommune.updatedYear}'),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(AppLocalizations.of(context)!.map),
-      actions: [
-        IconButton(
-          icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: onToggleLegend,
-          tooltip: 'Ẩn/Hiện chú thích',
-        ),
-        IconButton(
-          icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
-          onPressed: onToggleRightMenu,
-          tooltip: 'Menu',
-        ),
-      ],
-    ),
-    body: Stack(
-      children: [
-        // Map Layer
-        FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            center: center,
-            zoom: currentZoom,
-            onTap: onMapTap,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.app',
-            ),
-            PolygonLayer(polygons: polygons),
-            if (borderLines.isNotEmpty) PolylineLayer(polylines: borderLines),
-          ],
-        ),
-
-        // Legend
-        if (isLegendVisible)
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16, top: 16),
-              child: SlideTransition(
-                position: legendSlideAnimation,
-                child: _buildLegend(),
-              ),
-            ),
-          ),
-
-        // Right Menu
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          alignment: Alignment.centerRight,
-          transform: Matrix4.translationValues(
-            isRightMenuOpen ? 0 : 300,
-            0,
-            0,
-          ),
-          child: SizedBox(
-            width: 300,
-            height: double.infinity,
-            child: _buildRightMenu(context),
-          ),
-        ),
-
-        // Loading Indicator
-        if (isBorderLoading || isCommuneLoading)
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 70),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        isBorderLoading
-                            ? 'Đang tải viền bản đồ...'
-                            : 'Đang tải ranh giới xã...',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-        // Zoom Controls
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: 16,
-              right: isRightMenuOpen ? 316 : 16,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  heroTag: "zoomIn",
-                  onPressed: onZoomIn,
-                  tooltip: 'Phóng to',
-                  child: const Icon(Icons.add),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: "zoomOut",
-                  onPressed: onZoomOut,
-                  tooltip: 'Thu nhỏ',
-                  child: const Icon(Icons.remove),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Scale
-        Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.straighten, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${currentZoom.toStringAsFixed(1)}x',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '© OpenStreetMap contributors',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.black.withOpacity(0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 }

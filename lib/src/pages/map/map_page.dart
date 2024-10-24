@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shtt_bentre/src/mainData/data/district.dart';
-import 'package:shtt_bentre/src/mainData/data/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/border.dart';
+import 'package:shtt_bentre/src/mainData/data/commune.dart';
+import 'package:shtt_bentre/src/mainData/data/district.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'map_page_view.dart';
 
@@ -28,6 +28,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   bool _isCommuneLoading = false;
   bool _isBorderEnabled = false;
   bool _isCommuneEnabled = false;
+  bool _isDistrictEnabled = true;
   String? _selectedDistrictName;
   String? _selectedCommuneName;
   bool _isLegendVisible = true;
@@ -125,23 +126,42 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _toggleDistrict() {
+    setState(() {
+      _isDistrictEnabled = !_isDistrictEnabled;
+      for (var district in _districts) {
+        district.isVisible = _isDistrictEnabled;
+      }
+    });
+  }
+
+  void _toggleDistrictVisibility(int index) {
+    if (index >= 0 && index < _districts.length) {
+      setState(() {
+        _districts[index].isVisible = !_districts[index].isVisible;
+      });
+    }
+  }
+
   List<Polygon> _buildPolygons() {
     List<Polygon> polygons = [];
     
     // Add district polygons
-    for (var district in _districts) {
-      if (!district.isVisible) continue;
-      
-      for (var points in district.polygons) {
-        polygons.add(Polygon(
-          points: points,
-          color: _selectedDistrictName == district.name
-              ? district.color.withOpacity(0.6)
-              : district.color,
-          borderStrokeWidth: 2.0,
-          borderColor: district.color.withOpacity(1),
-          isFilled: true,
-        ));
+    if (_isDistrictEnabled) {
+      for (var district in _districts) {
+        if (!district.isVisible) continue;
+        
+        for (var points in district.polygons) {
+          polygons.add(Polygon(
+            points: points,
+            color: _selectedDistrictName == district.name
+                ? district.color.withOpacity(0.6)
+                : district.color,
+            borderStrokeWidth: 2.0,
+            borderColor: district.color.withOpacity(1),
+            isFilled: true,
+          ));
+        }
       }
     }
 
@@ -209,11 +229,6 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   }
 
   void _showDistrictInfo(String name) {
-    _districts.firstWhere(
-      (d) => d.name == name,
-      orElse: () => _districts.first,
-    );
-    
     setState(() {
       _selectedDistrictName = name;
       _selectedCommuneName = null;
@@ -274,6 +289,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       isRightMenuOpen: _isRightMenuOpen,
       isBorderEnabled: _isBorderEnabled,
       isCommuneEnabled: _isCommuneEnabled,
+      isDistrictEnabled: _isDistrictEnabled,
       isBorderLoading: _isBorderLoading,
       isCommuneLoading: _isCommuneLoading,
       selectedDistrictName: _selectedDistrictName,
@@ -283,6 +299,8 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       onToggleRightMenu: _toggleRightMenu,
       onToggleBorder: _loadBorderData,
       onToggleCommune: _loadCommuneData,
+      onToggleDistrict: _toggleDistrict,
+      onToggleDistrictVisibility: _toggleDistrictVisibility,
       onZoomIn: _zoomIn,
       onZoomOut: _zoomOut,
       onShowDistrictInfo: _showDistrictInfo,

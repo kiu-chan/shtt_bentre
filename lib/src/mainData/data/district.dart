@@ -16,27 +16,6 @@ class District {
     this.isVisible = true,
   });
 
-  // Convert District to Map
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'isVisible': isVisible,
-    };
-  }
-
-  // Create District from Map
-  factory District.fromMap(Map<String, dynamic> map, List<List<LatLng>> polygons, Color color) {
-    return District(
-      id: map['id'],
-      name: map['name'],
-      polygons: polygons,
-      color: color,
-      isVisible: map['isVisible'] ?? true,
-    );
-  }
-
-  // Clone with modifications
   District copyWith({
     int? id,
     String? name,
