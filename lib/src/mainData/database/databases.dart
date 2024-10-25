@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shtt_bentre/src/mainData/data/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/district.dart';
 import 'package:shtt_bentre/src/mainData/data/border.dart';
+import 'package:shtt_bentre/src/mainData/data/patent.dart';
 
 class Database {
   static final Database _instance = Database._internal();
@@ -369,6 +370,51 @@ Future<List<Commune>> loadCommuneData() async {
       return [];
     }
   }
+
+Future<List<Patent>> loadPatentData() async {
+  return _retryOperation(() async {
+    await _ensureConnection();
+
+    final results = await _connection!.query('''
+      SELECT 
+        id,
+        district_id,
+        commune_id,
+        ST_AsText(geom) as geom_text,
+        user_id,
+        type_id,
+        COALESCE(title, 'Không có tiêu đề') as title,
+        COALESCE(inventor, 'Không có thông tin') as inventor,
+        COALESCE(inventor_address, 'Không có địa chỉ') as inventor_address,
+        COALESCE(applicant, 'Không có thông tin') as applicant,
+        COALESCE(applicant_address, 'Không có địa chỉ') as applicant_address
+      FROM public.patents
+      WHERE ST_AsText(geom) IS NOT NULL
+      ORDER BY id
+    ''');
+
+    List<Patent> patents = [];
+    
+    for (final row in results) {
+      try {
+        final patent = Patent.fromRow(row);
+        patents.add(patent);
+      } catch (e) {
+        print('Error processing patent row: $e');
+        if (row[3] != null) {
+          print(row[3]); // In ra giá trị POINT để debug
+        }
+        continue;
+      }
+    }
+
+    if (patents.isEmpty) {
+      throw DatabaseException('Không tìm thấy dữ liệu bằng sáng chế');
+    }
+
+    return patents;
+  });
+}
 
   Future<void> dispose() async {
     await _resetConnection();

@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/data/border.dart';
 import 'package:shtt_bentre/src/mainData/data/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/district.dart';
+import 'package:shtt_bentre/src/mainData/data/patent.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'map_page_view.dart';
 
@@ -20,21 +21,37 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   final Database _database = Database();
   final LatLng _center = LatLng(10.2433, 106.3752);
   
+  // Các biến điều khiển map
   double _currentZoom = 10.0;
   List<District> _districts = [];
   List<Commune> _communes = [];
   List<MapBorder> _borders = [];
+  List<Patent> _patents = [];
+  
+  // Các biến trạng thái loading
   bool _isLoading = true;
   bool _isBorderLoading = false;
   bool _isCommuneLoading = false;
+  bool _isPatentLoading = false;
+  bool _isDataLoading = false;
+  
+  // Các biến trạng thái hiển thị
   bool _isBorderEnabled = false;
   bool _isCommuneEnabled = false;
   bool _isDistrictEnabled = true;
+  bool _isPatentEnabled = false;
+  
+  // Các biến lựa chọn
   String? _selectedDistrictName;
   String? _selectedCommuneName;
+  Patent? _selectedPatent;
+  
+  // Các biến điều khiển UI
   bool _isLegendVisible = true;
   bool _isRightMenuOpen = false;
+  bool _isLegendAnimating = false;
   
+  // Các biến điều khiển animation
   late AnimationController _legendAnimationController;
   late Animation<Offset> _legendSlideAnimation;
 
@@ -65,60 +82,126 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   Future<void> _loadData() async {
     try {
       final districts = await _database.loadDistrictData();
+      if (!mounted) return;
+      
       setState(() {
         _districts = districts;
         _isLoading = false;
       });
+      
+      // Tự động load dữ liệu bằng sáng chế sau khi load districts
+      _loadPatentData();
     } catch (e) {
-      print('Error loading districts: $e');
+      print('Lỗi khi tải dữ liệu huyện: $e');
+      if (!mounted) return;
+      
       setState(() => _isLoading = false);
-      if (mounted) {
-        _showError(AppLocalizations.of(context)!.cannotLoadDistrictData);
-      }
+      _showError(AppLocalizations.of(context)!.cannotLoadDistrictData);
     }
   }
 
   Future<void> _loadCommuneData() async {
+    if (_isLegendAnimating || _isDataLoading) return;
+    
     if (_communes.isEmpty && !_isCommuneLoading) {
-      setState(() => _isCommuneLoading = true);
+      setState(() {
+        _isDataLoading = true;
+        _isCommuneLoading = true;
+      });
+      
       try {
         final communes = await _database.loadCommuneData();
+        if (!mounted) return;
+        
         setState(() {
           _communes = communes;
           _isCommuneLoading = false;
           _isCommuneEnabled = true;
+          _isDataLoading = false;
         });
       } catch (e) {
-        print('Error loading communes: $e');
-        setState(() => _isCommuneLoading = false);
-        if (mounted) {
-          _showError(AppLocalizations.of(context)!.cannotLoadCommuneData);
-        }
+        print('Lỗi khi tải dữ liệu xã: $e');
+        if (!mounted) return;
+        
+        setState(() {
+          _isCommuneLoading = false;
+          _isDataLoading = false;
+        });
+        _showError(AppLocalizations.of(context)!.cannotLoadCommuneData);
       }
     } else {
+      if (_isLegendAnimating) return;
       setState(() => _isCommuneEnabled = !_isCommuneEnabled);
     }
   }
 
   Future<void> _loadBorderData() async {
+    if (_isLegendAnimating || _isDataLoading) return;
+    
     if (_borders.isEmpty && !_isBorderLoading) {
-      setState(() => _isBorderLoading = true);
+      setState(() {
+        _isDataLoading = true;
+        _isBorderLoading = true;
+      });
+      
       try {
         final borders = await _database.loadBorderData();
+        if (!mounted) return;
+        
         setState(() {
           _borders = borders;
           _isBorderLoading = false;
           _isBorderEnabled = true;
+          _isDataLoading = false;
         });
       } catch (e) {
-        print('Error loading borders: $e');
-        setState(() => _isBorderLoading = false);
-        if (mounted) {
-          _showError(AppLocalizations.of(context)!.cannotLoadBorderData);
-        }
+        print('Lỗi khi tải dữ liệu đường biên: $e');
+        if (!mounted) return;
+        
+        setState(() {
+          _isBorderLoading = false;
+          _isDataLoading = false;
+        });
+        _showError(AppLocalizations.of(context)!.cannotLoadBorderData);
       }
     } else {
+      if (_isLegendAnimating) return;
       setState(() => _isBorderEnabled = !_isBorderEnabled);
+    }
+  }
+
+  Future<void> _loadPatentData() async {
+    if (_isLegendAnimating || _isDataLoading) return;
+    
+    if (_patents.isEmpty && !_isPatentLoading) {
+      setState(() {
+        _isDataLoading = true;
+        _isPatentLoading = true;
+      });
+      
+      try {
+        final patents = await _database.loadPatentData();
+        if (!mounted) return;
+        
+        setState(() {
+          _patents = patents;
+          _isPatentLoading = false;
+          _isPatentEnabled = true;
+          _isDataLoading = false;
+        });
+      } catch (e) {
+        print('Lỗi khi tải dữ liệu bằng sáng chế: $e');
+        if (!mounted) return;
+        
+        setState(() {
+          _isPatentLoading = false;
+          _isDataLoading = false;
+        });
+        _showError('Không thể tải dữ liệu bằng sáng chế');
+      }
+    } else {
+      if (_isLegendAnimating) return;
+      setState(() => _isPatentEnabled = !_isPatentEnabled);
     }
   }
 
@@ -133,7 +216,36 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _toggleLegend() {
+    if (_isLegendAnimating || _isDataLoading) return;
+    
+    setState(() {
+      _isLegendVisible = !_isLegendVisible;
+      _isLegendAnimating = true;
+      
+      if (_isLegendVisible) {
+        _legendAnimationController.forward().then((_) {
+          if (mounted) {
+            setState(() => _isLegendAnimating = false);
+          }
+        });
+      } else {
+        _legendAnimationController.reverse().then((_) {
+          if (mounted) {
+            setState(() => _isLegendAnimating = false);
+          }
+        });
+      }
+    });
+  }
+
+  void _toggleRightMenu() {
+    if (_isLegendAnimating) return;
+    setState(() => _isRightMenuOpen = !_isRightMenuOpen);
+  }
+
   void _toggleDistrict() {
+    if (_isLegendAnimating) return;
     setState(() {
       _isDistrictEnabled = !_isDistrictEnabled;
       for (var district in _districts) {
@@ -143,6 +255,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   }
 
   void _toggleDistrictVisibility(int index) {
+    if (_isLegendAnimating) return;
     if (index >= 0 && index < _districts.length) {
       setState(() {
         _districts[index].isVisible = !_districts[index].isVisible;
@@ -153,7 +266,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   List<Polygon> _buildPolygons() {
     List<Polygon> polygons = [];
     
-    // Add district polygons
+    // Thêm polygons cho huyện
     if (_isDistrictEnabled) {
       for (var district in _districts) {
         if (!district.isVisible) continue;
@@ -172,7 +285,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       }
     }
 
-    // Add commune polygons if enabled
+    // Thêm polygons cho xã
     if (_isCommuneEnabled) {
       for (var commune in _communes) {
         for (var points in commune.polygons) {
@@ -204,23 +317,6 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     }).toList();
   }
 
-  void _toggleLegend() {
-    setState(() {
-      _isLegendVisible = !_isLegendVisible;
-      if (_isLegendVisible) {
-        _legendAnimationController.forward();
-      } else {
-        _legendAnimationController.reverse();
-      }
-    });
-  }
-
-  void _toggleRightMenu() {
-    setState(() {
-      _isRightMenuOpen = !_isRightMenuOpen;
-    });
-  }
-
   void _zoomIn() {
     setState(() {
       _currentZoom = (_currentZoom + 0.5).clamp(1.0, 18.0);
@@ -236,9 +332,11 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   }
 
   void _showDistrictInfo(String name) {
+    if (_isLegendAnimating) return;
     setState(() {
       _selectedDistrictName = name;
       _selectedCommuneName = null;
+      _selectedPatent = null;
     });
     
     if (!mounted) return;
@@ -252,9 +350,11 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   }
 
   void _showCommuneInfo(Commune commune) {
+    if (_isLegendAnimating) return;
     setState(() {
       _selectedCommuneName = commune.name;
       _selectedDistrictName = null;
+      _selectedPatent = null;
     });
     
     if (!mounted) return;
@@ -272,10 +372,21 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _showPatentInfo(Patent patent) {
+    if (_isLegendAnimating) return;
+    setState(() {
+      _selectedPatent = patent;
+      _selectedDistrictName = null;
+      _selectedCommuneName = null;
+    });
+  }
+
   void _onMapTap(_, __) {
+    if (_isLegendAnimating) return;
     setState(() {
       _selectedDistrictName = null;
       _selectedCommuneName = null;
+      _selectedPatent = null;
     });
   }
 
@@ -295,27 +406,33 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       center: _center,
       districts: _districts,
       communes: _communes,
+      patents: _patents,
       isLoading: _isLoading,
       isLegendVisible: _isLegendVisible,
       isRightMenuOpen: _isRightMenuOpen,
       isBorderEnabled: _isBorderEnabled,
       isCommuneEnabled: _isCommuneEnabled,
       isDistrictEnabled: _isDistrictEnabled,
+      isPatentEnabled: _isPatentEnabled,
       isBorderLoading: _isBorderLoading,
       isCommuneLoading: _isCommuneLoading,
+      isPatentLoading: _isPatentLoading,
       selectedDistrictName: _selectedDistrictName,
       selectedCommuneName: _selectedCommuneName,
+      selectedPatent: _selectedPatent,
       legendSlideAnimation: _legendSlideAnimation,
-      onToggleLegend: _toggleLegend,
+      onToggleLegend: !_isLegendAnimating && !_isDataLoading ? _toggleLegend : null,
       onToggleRightMenu: _toggleRightMenu,
-      onToggleBorder: _loadBorderData,
-      onToggleCommune: _loadCommuneData,
-      onToggleDistrict: _toggleDistrict,
+      onToggleBorder: !_isLegendAnimating && !_isDataLoading ? _loadBorderData : null,
+      onToggleCommune: !_isLegendAnimating && !_isDataLoading ? _loadCommuneData : null,
+      onToggleDistrict: !_isLegendAnimating ? _toggleDistrict : null,
+      onTogglePatent: !_isLegendAnimating && !_isDataLoading ? _loadPatentData : null,
       onToggleDistrictVisibility: _toggleDistrictVisibility,
       onZoomIn: _zoomIn,
       onZoomOut: _zoomOut,
       onShowDistrictInfo: _showDistrictInfo,
       onShowCommuneInfo: _showCommuneInfo,
+      onShowPatentInfo: _showPatentInfo,
       onMapTap: _onMapTap,
       polygons: _buildPolygons(),
       borderLines: _buildBorderLines(),
