@@ -163,7 +163,7 @@ Future<List<Commune>> loadCommuneData() async {
           id,
           name,
           ST_AsText(geom) as geom_text
-        FROM public.districts
+        FROM public.map_districts
         ORDER BY id
       ''');
 

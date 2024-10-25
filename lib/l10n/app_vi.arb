@@ -1,4 +1,7 @@
 {
+    "menu": "Menu",
+    "update": "Cập nhật",
+
     "home": "Trang chủ",
     "map": "Bản đồ",
     "settings": "Cài đặt",
@@ -13,5 +16,31 @@
     "appVersion": "Phiên bản ứng dụng",
     "login": "Đăng nhập",
     "username": "Tên đăng nhập",
-    "password": "Mật khẩu"
+    "password": "Mật khẩu",
+
+    "notes": "Chú thích",
+    "communes": "Xã",
+    "mapControl": "Điều khiển lớp bản đồ",
+    "mapDistrict": "Ranh giới huyện",
+    "mapCommune": "Ranh giới xã",
+    "mapBorder": "Viền bản đồ",
+    "displayDistrictControl": "Điều khiển hiển thị huyện",
+    "hide_ShowLegend": "Ẩn/hiện chú thích",
+    "loadingMapBoundary": "Đang tải viền bản đồ...",
+    "loadingCommuneBoundaries": "Đang tải ranh giới xã...",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "linkMapApi": "© OpenStreetMap contributors",
+    "detailedInformation": "Thông tin chi tiết",
+    "area": "Diện tích",
+    "population": "Dân số",
+
+    "cannotLoadDistrictData": "Không thể tải dữ liệu huyện",
+    "cannotLoadCommuneData": "Không thể tải dữ liệu xã",
+    "cannotLoadBorderData": "Không thể tải dữ liệu viền bản đồ",
+    "districtLabel": "Huyện",
+    "communeLabel": "Xã",
+    "areaUnit": "km²",
+    "scaleBarUnit": "m",
+    "districtVisibilityControl": "Điều khiển hiển thị huyện"
 }

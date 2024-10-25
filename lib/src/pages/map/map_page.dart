@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/data/border.dart';
 import 'package:shtt_bentre/src/mainData/data/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/district.dart';
@@ -71,7 +72,9 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     } catch (e) {
       print('Error loading districts: $e');
       setState(() => _isLoading = false);
-      _showError('Không thể tải dữ liệu huyện');
+      if (mounted) {
+        _showError(AppLocalizations.of(context)!.cannotLoadDistrictData);
+      }
     }
   }
 
@@ -88,7 +91,9 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       } catch (e) {
         print('Error loading communes: $e');
         setState(() => _isCommuneLoading = false);
-        _showError('Không thể tải dữ liệu xã');
+        if (mounted) {
+          _showError(AppLocalizations.of(context)!.cannotLoadCommuneData);
+        }
       }
     } else {
       setState(() => _isCommuneEnabled = !_isCommuneEnabled);
@@ -108,7 +113,9 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       } catch (e) {
         print('Error loading borders: $e');
         setState(() => _isBorderLoading = false);
-        _showError('Không thể tải dữ liệu viền bản đồ');
+        if (mounted) {
+          _showError(AppLocalizations.of(context)!.cannotLoadBorderData);
+        }
       }
     } else {
       setState(() => _isBorderEnabled = !_isBorderEnabled);
@@ -235,9 +242,10 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     });
     
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Huyện: $name'),
+        content: Text('${l10n.districtLabel}: $name'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -246,16 +254,18 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   void _showCommuneInfo(Commune commune) {
     setState(() {
       _selectedCommuneName = commune.name;
+      _selectedDistrictName = null;
     });
     
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Xã: ${commune.name}\n'
-          'Diện tích: ${commune.area.toStringAsFixed(2)} km²\n'
-          'Dân số: ${commune.population}\n'
-          'Cập nhật: ${commune.updatedYear}',
+          '${l10n.communeLabel}: ${commune.name}\n'
+          '${l10n.area}: ${commune.area.toStringAsFixed(2)} ${l10n.areaUnit}\n'
+          '${l10n.population}: ${commune.population}\n'
+          '${l10n.update}: ${commune.updatedYear}',
         ),
         duration: const Duration(seconds: 3),
       ),
@@ -272,6 +282,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _legendAnimationController.dispose();
+    _mapController.dispose();
     _database.dispose();
     super.dispose();
   }

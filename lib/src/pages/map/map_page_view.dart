@@ -71,7 +71,7 @@ class MapPageView extends StatelessWidget {
     required this.borderLines,
   }) : super(key: key);
 
-  Widget _buildLegend() {
+  Widget _buildLegend(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
         maxWidth: 250,
@@ -100,13 +100,13 @@ class MapPageView extends StatelessWidget {
                 topRight: Radius.circular(8),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.map, color: Colors.white, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.map, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  'Chú thích',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.notes,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -158,8 +158,8 @@ class MapPageView extends StatelessWidget {
                               ),
                               IconButton(
                                 icon: Icon(
-                                  district.isVisible 
-                                      ? Icons.visibility 
+                                  district.isVisible
+                                      ? Icons.visibility
                                       : Icons.visibility_off,
                                   size: 18,
                                 ),
@@ -180,13 +180,13 @@ class MapPageView extends StatelessWidget {
             const Divider(),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.location_city, size: 16),
-                  SizedBox(width: 4),
+                  const Icon(Icons.location_city, size: 16),
+                  const SizedBox(width: 4),
                   Text(
-                    'Xã',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.communes,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -260,9 +260,9 @@ class MapPageView extends StatelessWidget {
               children: [
                 const Icon(Icons.layers, color: Colors.white),
                 const SizedBox(width: 8),
-                const Text(
-                  'Điều khiển lớp bản đồ',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.mapControl,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -283,7 +283,7 @@ class MapPageView extends StatelessWidget {
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.map),
-                    title: const Text('Ranh giới huyện'),
+                    title: Text(AppLocalizations.of(context)!.mapDistrict),
                     trailing: Switch(
                       value: isDistrictEnabled,
                       onChanged: (_) => onToggleDistrict(),
@@ -293,7 +293,7 @@ class MapPageView extends StatelessWidget {
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.border_all),
-                    title: const Text('Viền bản đồ'),
+                    title: Text(AppLocalizations.of(context)!.mapBorder),
                     trailing: isBorderLoading
                         ? const SizedBox(
                             width: 24,
@@ -311,7 +311,7 @@ class MapPageView extends StatelessWidget {
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.location_city),
-                    title: const Text('Ranh giới xã'),
+                    title: Text(AppLocalizations.of(context)!.mapCommune),
                     trailing: isCommuneLoading
                         ? const SizedBox(
                             width: 24,
@@ -328,11 +328,11 @@ class MapPageView extends StatelessWidget {
                 ),
                 if (isDistrictEnabled) ...[
                   const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Điều khiển hiển thị huyện',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.displayDistrictControl,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -378,12 +378,12 @@ class MapPageView extends StatelessWidget {
           IconButton(
             icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
             onPressed: onToggleLegend,
-            tooltip: 'Ẩn/Hiện chú thích',
+            tooltip: AppLocalizations.of(context)!.hide_ShowLegend,
           ),
           IconButton(
             icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
             onPressed: onToggleRightMenu,
-            tooltip: 'Menu',
+            tooltip: AppLocalizations.of(context)!.menu,
           ),
         ],
       ),
@@ -398,8 +398,7 @@ class MapPageView extends StatelessWidget {
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.app',
               ),
               PolygonLayer(
@@ -418,7 +417,7 @@ class MapPageView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16, top: 16),
                 child: SlideTransition(
                   position: legendSlideAnimation,
-                  child: _buildLegend(),
+                  child: _buildLegend(context),
                 ),
               ),
             ),
@@ -458,8 +457,8 @@ class MapPageView extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           isBorderLoading
-                              ? 'Đang tải viền bản đồ...'
-                              : 'Đang tải ranh giới xã...',
+                              ? AppLocalizations.of(context)!.loadingMapBoundary
+                              : AppLocalizations.of(context)!.loadingCommuneBoundaries,
                           style: const TextStyle(fontSize: 14),
                         ),
                       ],
@@ -481,14 +480,14 @@ class MapPageView extends StatelessWidget {
                   FloatingActionButton(
                     heroTag: "zoomIn",
                     onPressed: onZoomIn,
-                    tooltip: 'Phóng to',
-child: const Icon(Icons.add),
+                    tooltip: AppLocalizations.of(context)!.zoomIn,
+                    child: const Icon(Icons.add),
                   ),
                   const SizedBox(height: 8),
                   FloatingActionButton(
                     heroTag: "zoomOut",
                     onPressed: onZoomOut,
-                    tooltip: 'Thu nhỏ',
+                    tooltip: AppLocalizations.of(context)!.zoomOut,
                     child: const Icon(Icons.remove),
                   ),
                 ],
@@ -550,7 +549,7 @@ child: const Icon(Icons.add),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '© OpenStreetMap contributors',
+                    AppLocalizations.of(context)!.linkMapApi,
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.black.withOpacity(0.6),
@@ -581,9 +580,9 @@ child: const Icon(Icons.add),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Thông tin chi tiết',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.detailedInformation,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -612,10 +611,10 @@ child: const Icon(Icons.add),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Diện tích: ${commune.area.toStringAsFixed(2)} km²'
+                                '${AppLocalizations.of(context)!.area}: ${commune.area.toStringAsFixed(2)} km²'
                               ),
-                              Text('Dân số: ${commune.population}'),
-                              Text('Cập nhật: ${commune.updatedYear}'),
+                              Text('${AppLocalizations.of(context)!.population}: ${commune.population}'),
+                              Text('${AppLocalizations.of(context)!.update}: ${commune.updatedYear}'),
                             ],
                           );
                         }),

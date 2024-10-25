@@ -1,4 +1,7 @@
 {
+    "menu": "Menu",
+    "update": "Update",
+
     "home": "Home",
     "map": "Map",
     "settings": "Settings",
@@ -13,5 +16,31 @@
     "appVersion": "App Version",
     "login": "Login",
     "username": "Username",
-    "password": "Password"
+    "password": "Password",
+
+    "notes": "Notes",
+    "communes": "Communes",
+    "mapControl": "Map Layer Control",
+    "mapDistrict": "District Boundaries",
+    "mapCommune": "Commune Boundaries",
+    "mapBorder": "Map Border",
+    "displayDistrictControl": "District Display Control",
+    "hide_ShowLegend": "Hide/Show Legend",
+    "loadingMapBoundary": "Loading map boundary...",
+    "loadingCommuneBoundaries": "Loading commune boundaries...",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "linkMapApi": "© OpenStreetMap contributors",
+    "detailedInformation": "Detailed Information",
+    "area": "Area",
+    "population": "Population",
+
+    "cannotLoadDistrictData": "Cannot load district data",
+    "cannotLoadCommuneData": "Cannot load commune data",
+    "cannotLoadBorderData": "Cannot load map border data",
+    "districtLabel": "District",
+    "communeLabel": "Commune",
+    "areaUnit": "km²",
+    "scaleBarUnit": "m",
+    "districtVisibilityControl": "District Visibility Control"
 }
