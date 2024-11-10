@@ -14,12 +14,10 @@ class MenuSection {
 
 class MenuItem {
   final String title;
-  final VoidCallback onTap;
+  final Function(BuildContext context) onTap;
 
   MenuItem({
     required this.title,
     required this.onTap,
   });
 }
-
-typedef VoidCallback = void Function();

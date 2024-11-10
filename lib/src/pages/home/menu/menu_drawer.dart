@@ -14,7 +14,7 @@ class MenuDrawer extends StatelessWidget {
           Expanded(
             child: ListView(
               children: menuSections.map((section) {
-                return _buildMenuSection(section);
+                return _buildMenuSection(context, section);
               }).toList(),
             ),
           ),
@@ -46,7 +46,7 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuSection(MenuSection section) {
+  Widget _buildMenuSection(BuildContext context, MenuSection section) {
     return ExpansionTile(
       leading: Icon(section.icon),
       title: Text(
@@ -66,7 +66,7 @@ class MenuDrawer extends StatelessWidget {
               fontSize: 14,
             ),
           ),
-          onTap: item.onTap,
+          onTap: () => item.onTap(context),
         );
       }).toList(),
     );
