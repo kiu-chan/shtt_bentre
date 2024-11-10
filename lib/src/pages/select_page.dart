@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/pages/home/home_page.dart';
 import 'package:shtt_bentre/src/pages/map/map_page.dart';
 import 'package:shtt_bentre/src/pages/settings/settings_page.dart';
 
@@ -19,7 +20,7 @@ class SelectPageState extends State<SelectPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      const Placeholder(),
+      const HomePage(),
       const MapPage(),
       const SettingsPage(),
     ];
