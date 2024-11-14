@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
+import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
 
 final List<MenuSection> menuSections = [
   MenuSection(
@@ -40,7 +41,14 @@ final List<MenuSection> menuSections = [
     items: [
       MenuItem(
         title: 'Nhãn hiệu', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TrademarkGuidePage(),
+            ),
+          );
+        },
       ),
       MenuItem(
         title: 'Kiểu dáng công nghiệp', 

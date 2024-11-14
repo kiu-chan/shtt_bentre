@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_drawer.dart';
+import 'package:shtt_bentre/src/pages/home/news/news_detail_page.dart';
 import 'package:shtt_bentre/src/pages/home/news_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/news_model.dart';
 
@@ -126,7 +127,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNewsSlider() {
+Widget _buildNewsSlider() {
     return CarouselSlider.builder(
       itemCount: sliderItems.length,
       options: CarouselOptions(
@@ -148,7 +149,12 @@ class HomePageState extends State<HomePage> {
         final news = sliderItems[index];
         return GestureDetector(
           onTap: () {
-            // TODO: Navigate to news detail
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NewsDetailPage(news: news),
+              ),
+            );
           },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 5.0),

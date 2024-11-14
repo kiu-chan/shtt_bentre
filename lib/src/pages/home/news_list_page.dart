@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/pages/home/news/news_detail_page.dart';
 import 'package:shtt_bentre/src/pages/home/news_model.dart';
 
 class NewsListPage extends StatelessWidget {
@@ -138,7 +139,12 @@ class NewsCard extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Navigate to news detail page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NewsDetailPage(news: news),
+                        ),
+                      );
                     },
                     child: const Text('Xem thêm'),
                   ),
