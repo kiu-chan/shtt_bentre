@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:postgres/postgres.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shtt_bentre/src/mainData/data/commune.dart';
-import 'package:shtt_bentre/src/mainData/data/district.dart';
-import 'package:shtt_bentre/src/mainData/data/border.dart';
+import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
+import 'package:shtt_bentre/src/mainData/data/map/district.dart';
+import 'package:shtt_bentre/src/mainData/data/map/border.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
 
 class Database {

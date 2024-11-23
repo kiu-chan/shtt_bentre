@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shtt_bentre/src/mainData/data/commune.dart';
-import 'package:shtt_bentre/src/mainData/data/district.dart';
+import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
+import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
 
 class MapLegend extends StatelessWidget {

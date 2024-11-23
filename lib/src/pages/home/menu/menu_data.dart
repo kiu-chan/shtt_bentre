@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
+import 'package:shtt_bentre/src/pages/home/patentStatistics/patent_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
 
 final List<MenuSection> menuSections = [
@@ -66,7 +67,14 @@ final List<MenuSection> menuSections = [
     items: [
       MenuItem(
         title: 'Sáng chế toàn văn', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PatentStatisticsPage(),
+            ),
+          );
+        },
       ),
       MenuItem(
         title: 'Chỉ dẫn địa lý', 
