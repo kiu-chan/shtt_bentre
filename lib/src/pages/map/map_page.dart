@@ -10,7 +10,7 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'map_page_view.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({Key? key}) : super(key: key);
+  const MapPage({super.key});
 
   @override
   MapPageState createState() => MapPageState();

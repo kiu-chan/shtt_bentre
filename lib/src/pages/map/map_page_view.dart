@@ -121,7 +121,7 @@ class MapPageView extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text(AppLocalizations.of(context)!.map),
+      title: Text("Bình Định"),
       actions: [
         IconButton(
           icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),

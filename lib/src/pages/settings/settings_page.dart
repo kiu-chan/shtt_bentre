@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shtt_bentre/src/providers/language_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/pages/settings/login_page.dart';
+import 'package:shtt_bentre/src/providers/language_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -10,104 +11,140 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     final localizations = AppLocalizations.of(context)!;
-
+    
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.settings),
-        elevation: 0,
-      ),
+      backgroundColor: Colors.white,
       body: ListView(
         children: [
-          _buildSection(
-            context,
-            title: localizations.accountSettings,
-            children: [
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text(localizations.loginOrRegister),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  // TODO: Navigate to login page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                },
-              ),
-            ],
+          _buildListTile(
+            context: context,
+            icon: Icons.person,
+            iconColor: Colors.blue,
+            title: localizations.loginOrRegister,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
           ),
-          _buildSection(
-            context,
-            title: localizations.appSettings,
-            children: [
-              ListTile(
-                leading: Icon(Icons.language),
-                title: Text(localizations.language),
-                trailing: DropdownButton<String>(
-                  value: languageProvider.currentLanguage,
-                  items: [
-                    DropdownMenuItem(
-                      value: 'en',
-                      child: Text(localizations.english),
-                    ),
-                    DropdownMenuItem(
-                      value: 'vi',
-                      child: Text(localizations.vietnamese),
-                    ),
-                  ],
-                  onChanged: (String? value) {
-                    if (value != null) {
-                      languageProvider.changeLanguage(value);
-                    }
-                  },
-                ),
-              ),
-            ],
+          _buildDivider(),
+          _buildListTile(
+            context: context,
+            icon: Icons.language,
+            iconColor: Colors.purple,
+            title: localizations.language,
+            trailing: _buildLanguageDropdown(context, languageProvider, localizations),
           ),
-          _buildSection(
-            context,
-            title: localizations.about,
-            children: [
-              ListTile(
-                leading: Icon(Icons.info),
-                title: Text(localizations.appVersion),
-                trailing: Text('1.0.0'), // Replace with actual version
+          _buildDivider(),
+          _buildListTile(
+            context: context,
+            icon: Icons.info_outline,
+            iconColor: Colors.green,
+            title: localizations.appVersion,
+            trailing: const Text(
+              '1.0.0',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w500,
               ),
-            ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, {required String title, required List<Widget> children}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-        ...children,
-        Divider(),
-      ],
+  Widget _buildDivider() {
+    return const Divider(
+      height: 1,
+      thickness: 1,
+      indent: 56, // Matches the width of icon + spacing
     );
   }
-}
 
-// Placeholder for LoginPage
-class LoginPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.login),
+  Widget _buildListTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    Color? iconColor,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: iconColor ?? Theme.of(context).primaryColor,
+                size: 24,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (trailing != null) trailing,
+              if (onTap != null && trailing == null)
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+            ],
+          ),
+        ),
       ),
-      body: Center(
-        child: Text('Login page content goes here'),
+    );
+  }
+
+  Widget _buildLanguageDropdown(
+    BuildContext context,
+    LanguageProvider languageProvider,
+    AppLocalizations localizations,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: DropdownButton<String>(
+        value: languageProvider.currentLanguage,
+        underline: const SizedBox(),
+        items: [
+          _buildLanguageDropdownItem('en', localizations.english),
+          _buildLanguageDropdownItem('vi', localizations.vietnamese),
+        ],
+        onChanged: (String? value) {
+          if (value != null) {
+            languageProvider.changeLanguage(value);
+          }
+        },
+      ),
+    );
+  }
+
+  DropdownMenuItem<String> _buildLanguageDropdownItem(String value, String label) {
+    return DropdownMenuItem(
+      value: value,
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
