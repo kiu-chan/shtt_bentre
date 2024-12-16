@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shtt_bentre/src/pages/home/geo_indication/geo_indication_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/industrialDesign/industrial_design_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/initiative/initiative_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/patent/patent_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/productRegistration/product_registration_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/researchProject/research_project_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/technicalCompetition/technical_competition_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/trademark/trademark_list_page.dart';
 import '../../models/category_item.dart';
 
 class CategoryGrid extends StatelessWidget {
@@ -130,25 +137,46 @@ class CategoryGrid extends StatelessWidget {
         );
         break;
       case 'Chỉ dẫn địa lý':
-        // TODO: Implement navigation to Geographical Indication page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const GeoIndicationListPage()),
+        );
         break;
       case 'Bảo hộ nhãn hiệu':
-        // TODO: Implement navigation to Trademark Protection page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const TrademarkListPage()),
+        );
         break;
       case 'Kiểu dáng công nghiệp':
-        // TODO: Implement navigation to Industrial Design page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const IndustrialDesignListPage()),
+        );
         break;
       case 'Sáng kiến':
-        // TODO: Implement navigation to Initiative page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const InitiativeListPage()),
+        );
         break;
       case 'Sản phẩm đăng ký xây dựng':
-        // TODO: Implement navigation to Construction Registration page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const ProductRegistrationListPage()),
+        );
         break;
       case 'Nghiên cứu khoa học':
-        // TODO: Implement navigation to Scientific Research page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const ResearchProjectListPage()),
+        );
         break;
       case 'Hội thi sáng tạo':
-        // TODO: Implement navigation to Innovation Competition page
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => const TechnicalCompetitionListPage()),
+        );
         break;
     }
   }
