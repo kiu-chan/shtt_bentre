@@ -65,7 +65,7 @@ class Database {
         5432,
         'shtt_bentre',
         username: 'postgres',
-        password: 'yfti*m0xZYtRy3QfF)tV',
+        password: '2W34pRi%AEzYtRy3QfF)tV',
         timeoutInSeconds: _connectionTimeout.inSeconds,
         queryTimeoutInSeconds: _queryTimeout.inSeconds,
       );
