@@ -62,7 +62,7 @@ final List<MenuSection> menuSections = [
     ],
   ),
   MenuSection(
-    title: 'Tra cứu thống kê',
+    title: 'Thống kê',
     icon: Icons.search,
     items: [
       MenuItem(
