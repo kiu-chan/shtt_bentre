@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:shtt_bentre/src/pages/home/news_model.dart';
+import 'package:shtt_bentre/src/pages/models/news_model.dart';
 
 class NewsDetailPage extends StatelessWidget {
   final NewsModel news;

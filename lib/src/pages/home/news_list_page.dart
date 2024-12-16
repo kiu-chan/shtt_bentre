@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_detail_page.dart';
-import 'package:shtt_bentre/src/pages/home/news_model.dart';
+import 'package:shtt_bentre/src/pages/models/news_model.dart';
 
 class NewsListPage extends StatelessWidget {
   const NewsListPage({super.key});
