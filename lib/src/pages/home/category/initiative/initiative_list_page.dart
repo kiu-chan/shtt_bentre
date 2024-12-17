@@ -1,48 +1,74 @@
+// lib/src/pages/home/category/initiative/initiative_list_page.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
+import 'package:shtt_bentre/src/mainData/database/home/initiative.dart';
+import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_detail_page.dart';
 
-class InitiativeModel {
-  final String id;
-  final String name;
-  final String author;
-  final String owner;
-  final String field;
-  final int grantYear;
-  final String status;
-
-  InitiativeModel({
-    required this.id,
-    required this.name,
-    required this.author,
-    required this.owner,
-    required this.field,
-    required this.grantYear,
-    required this.status,
-  });
-}
-
-class InitiativeListPage extends StatelessWidget {
+class InitiativeListPage extends StatefulWidget {
   const InitiativeListPage({super.key});
 
-  List<InitiativeModel> get _initiatives => [
-    InitiativeModel(
-      id: '1',
-      name: 'Sáng kiến thứ hai',
-      author: 'Nguyễn Văn B',
-      owner: 'Nguyễn Văn BBB',
-      field: 'Lâm nghiệp',
-      grantYear: 2024,
-      status: 'Được phê duyệt',
-    ),
-    InitiativeModel(
-      id: '2',
-      name: 'Sáng kiến thứ nhất',
-      author: 'Nguyễn Văn A',
-      owner: 'Nguyễn Văn AAA',
-      field: 'Công nghiệp',
-      grantYear: 2020,
-      status: 'Được phê duyệt',
-    ),
-  ];
+  @override
+  State<InitiativeListPage> createState() => _InitiativeListPageState();
+}
+
+class _InitiativeListPageState extends State<InitiativeListPage> {
+  final InitiativeService _initiativeService = InitiativeService();
+  late Future<List<InitiativeModel>> _initiativesFuture;
+  final ScrollController _scrollController = ScrollController();
+  bool _showBackToTopButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initiativesFuture = _initiativeService.fetchInitiatives();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >= 400) {
+      if (!_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = true;
+        });
+      }
+    } else {
+      if (_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _onInitiativeTap(InitiativeModel initiative) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InitiativeDetailPage(id: initiative.id),
+      ),
+    );
+  }
+
+  Future<void> _refreshInitiatives() async {
+    setState(() {
+      _initiativesFuture = _initiativeService.fetchInitiatives();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +88,68 @@ class InitiativeListPage extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _initiatives.length,
-        itemBuilder: (context, index) {
-          return _InitiativeCard(initiative: _initiatives[index]);
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshInitiatives,
+        child: FutureBuilder<List<InitiativeModel>>(
+          future: _initiativesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Có lỗi xảy ra: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _refreshInitiatives,
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final initiatives = snapshot.data ?? [];
+            if (initiatives.isEmpty) {
+              return const Center(
+                child: Text('Không có dữ liệu sáng kiến'),
+              );
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: initiatives.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => _onInitiativeTap(initiatives[index]),
+                  child: _InitiativeCard(initiative: initiatives[index]),
+                );
+              },
+            );
+          },
+        ),
       ),
+      floatingActionButton: _showBackToTopButton
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              backgroundColor: const Color(0xFF1E88E5),
+              child: const Icon(Icons.arrow_upward),
+            )
+          : null,
     );
   }
 }
@@ -102,7 +183,6 @@ class _InitiativeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Field and Status
             Row(
               children: [
                 Container(
@@ -153,7 +233,6 @@ class _InitiativeCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // Initiative name
             Text(
               initiative.name,
               style: const TextStyle(
@@ -163,7 +242,6 @@ class _InitiativeCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Author and Owner info
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -217,11 +295,30 @@ class _InitiativeCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 20,
+                        color: const Color(0xFF1E88E5).withOpacity(0.8),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          initiative.address,
+                          style: const TextStyle(
+                            color: Color(0xFF455A64),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
-            // Year
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -241,7 +338,7 @@ class _InitiativeCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Năm công nhận: ${initiative.grantYear}',
+                    'Năm công nhận: ${initiative.recognitionYear}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,

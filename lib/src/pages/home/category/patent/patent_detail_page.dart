@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_html/flutter_html.dart';
-import 'dart:convert';
-import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
 
 class PatentDetailPage extends StatefulWidget {
   final String id;
@@ -17,35 +15,18 @@ class PatentDetailPage extends StatefulWidget {
 }
 
 class _PatentDetailPageState extends State<PatentDetailPage> {
+  final PatentsDatabase _database = PatentsDatabase();
   late Future<Map<String, dynamic>> _patentFuture;
 
   @override
   void initState() {
     super.initState();
-    _patentFuture = _fetchPatentDetail();
-  }
-
-  Future<Map<String, dynamic>> _fetchPatentDetail() async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://shttbentre.girc.edu.vn/api/patents/${widget.id}'),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        return jsonResponse['data'];
-      } else {
-        throw Exception('Không thể tải thông tin chi tiết sáng chế');
-      }
-    } catch (e) {
-      throw Exception('Không thể tải thông tin chi tiết sáng chế');
-    }
+    _patentFuture = _database.fetchPatentDetail(widget.id);
   }
 
   String _formatAbstract(String? abstract) {
     if (abstract == null) return '';
     
-    // Thay thế các ký tự đặc biệt Unicode
     return abstract
         .replaceAll('&aacute;', 'á')
         .replaceAll('&agrave;', 'à')
@@ -102,7 +83,7 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _patentFuture = _fetchPatentDetail();
+                        _patentFuture = _database.fetchPatentDetail(widget.id);
                       });
                     },
                     child: const Text('Thử lại'),
@@ -160,7 +141,7 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                       _buildInfoSection('Tác giả:', patent['inventor'] ?? ''),
                       const SizedBox(height: 8),
                       _buildInfoSection('Địa chỉ tác giả:', patent['inventor_address'] ?? ''),
-                      if (patent['other_inventor'] != null) ...[
+                      if (patent['other_inventor'] != null && patent['other_inventor'].toString().isNotEmpty) ...[
                         const SizedBox(height: 16),
                         _buildInfoSection('Đồng tác giả:', patent['other_inventor']),
                       ],
