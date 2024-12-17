@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shtt_bentre/src/pages/home/geo_indication/geo_indication_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/industrialDesign/industrial_design_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/initiative/initiative_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/patent/patent_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/productRegistration/product_registration_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/researchProject/research_project_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/technicalCompetition/technical_competition_list_page.dart';
-import 'package:shtt_bentre/src/pages/home/trademark/trademark_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/patent/patent_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_registration_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_list_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_list_page.dart';
 import '../../models/category_item.dart';
 
 class CategoryGrid extends StatelessWidget {
