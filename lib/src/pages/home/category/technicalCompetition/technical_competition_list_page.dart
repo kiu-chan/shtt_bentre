@@ -139,10 +139,10 @@ class _CompetitionCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.emoji_events,
                         size: 16,
-                        color: const Color(0xFFF57C00),
+                        color: Color(0xFFF57C00),
                       ),
                       const SizedBox(width: 4),
                       Text(

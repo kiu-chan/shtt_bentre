@@ -7,11 +7,11 @@ class LoadingIndicator extends StatelessWidget {
   final bool isPatentLoading;
 
   const LoadingIndicator({
-    Key? key,
+    super.key,
     required this.isBorderLoading,
     required this.isCommuneLoading,
     required this.isPatentLoading,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

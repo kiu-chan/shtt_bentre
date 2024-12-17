@@ -8,11 +8,11 @@ class MapZoomControls extends StatelessWidget {
   final VoidCallback onZoomOut;
 
   const MapZoomControls({
-    Key? key,
+    super.key,
     required this.isRightMenuOpen,
     required this.onZoomIn,
     required this.onZoomOut,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +50,9 @@ class MapScaleInfo extends StatelessWidget {
   final double currentZoom;
 
   const MapScaleInfo({
-    Key? key,
+    super.key,
     required this.currentZoom,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

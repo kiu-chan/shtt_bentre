@@ -29,7 +29,7 @@ class LineChartWidget extends StatefulWidget {
   final int? showEveryNthLabel;
 
   const LineChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
     required this.maxY,
@@ -43,7 +43,7 @@ class LineChartWidget extends StatefulWidget {
     this.smoothLine = true,
     this.rotateLabels = false,
     this.showEveryNthLabel,
-  }) : super(key: key);
+  });
 
   @override
   State<LineChartWidget> createState() => _LineChartWidgetState();
@@ -221,9 +221,9 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   FlBorderData _buildBorderData() {
     return FlBorderData(
       show: true,
-      border: Border(
-        left: const BorderSide(width: 1),
-        bottom: const BorderSide(width: 1),
+      border: const Border(
+        left: BorderSide(width: 1),
+        bottom: BorderSide(width: 1),
         right: BorderSide.none,
         top: BorderSide.none,
       ),

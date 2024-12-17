@@ -169,7 +169,7 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                           style: {
                             "body": Style(
                               fontSize: FontSize(16),
-                              lineHeight: LineHeight(1.5),
+                              lineHeight: const LineHeight(1.5),
                             ),
                           },
                         ),

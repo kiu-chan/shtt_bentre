@@ -55,7 +55,7 @@ class MapPageView extends StatelessWidget {
   final List<Polyline> borderLines;
 
   const MapPageView({
-    Key? key,
+    super.key,
     required this.mapController,
     required this.currentZoom,
     required this.center,
@@ -91,7 +91,7 @@ class MapPageView extends StatelessWidget {
     required this.onMapTap,
     required this.polygons,
     required this.borderLines,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +121,7 @@ class MapPageView extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Text("Bình Định"),
+      title: const Text("Bình Định"),
       actions: [
         IconButton(
           icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),

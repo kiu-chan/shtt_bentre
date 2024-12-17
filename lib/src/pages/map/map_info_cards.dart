@@ -10,12 +10,12 @@ class CommuneInfoCard extends StatelessWidget {
   final bool isRightMenuOpen;
 
   const CommuneInfoCard({
-    Key? key,
+    super.key,
     required this.selectedCommuneName,
     required this.communes,
     required this.onMapTap,
     required this.isRightMenuOpen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -99,11 +99,11 @@ class PatentInfoCard extends StatelessWidget {
   final bool isRightMenuOpen;
 
   const PatentInfoCard({
-    Key? key,
+    super.key,
     required this.selectedPatent,
     required this.onMapTap,
     required this.isRightMenuOpen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

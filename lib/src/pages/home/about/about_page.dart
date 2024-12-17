@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:shtt_bentre/src/mainData/data/home/about.dart';
@@ -71,7 +69,7 @@ class _AboutPageState extends State<AboutPage> {
                     style: {
                       "body": Style(
                         fontSize: FontSize(15),
-                        lineHeight: LineHeight(1.5),
+                        lineHeight: const LineHeight(1.5),
                         textAlign: TextAlign.justify,
                         color: Colors.black87,
                       ),

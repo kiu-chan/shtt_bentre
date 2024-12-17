@@ -19,7 +19,7 @@ class MapRightMenu extends StatelessWidget {
   final Function(int) onToggleDistrictVisibility;
 
   const MapRightMenu({
-    Key? key,
+    super.key,
     required this.districts,
     required this.isDistrictEnabled,
     required this.isBorderEnabled,
@@ -34,7 +34,7 @@ class MapRightMenu extends StatelessWidget {
     required this.onToggleDistrict,
     required this.onTogglePatent,
     required this.onToggleDistrictVisibility,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -25,7 +25,7 @@ class BarChartWidget extends StatefulWidget {
   final bool rotateLabels;
 
   const BarChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
     required this.maxY,
@@ -35,7 +35,7 @@ class BarChartWidget extends StatefulWidget {
     this.height,
     this.showGridLines = true,
     this.rotateLabels = true,
-  }) : super(key: key);
+  });
 
   @override
   State<BarChartWidget> createState() => _BarChartWidgetState();
@@ -182,9 +182,9 @@ class _BarChartWidgetState extends State<BarChartWidget> {
   FlBorderData _buildBorderData() {
     return FlBorderData(
       show: true,
-      border: Border(
-        left: const BorderSide(width: 1),
-        bottom: const BorderSide(width: 1),
+      border: const Border(
+        left: BorderSide(width: 1),
+        bottom: BorderSide(width: 1),
         right: BorderSide.none,
         top: BorderSide.none,
       ),

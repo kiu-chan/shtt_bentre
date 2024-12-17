@@ -21,13 +21,13 @@ class PieChartWidget extends StatefulWidget {
   final double? height;
 
   const PieChartWidget({
-    Key? key,
+    super.key,
     required this.data,
     required this.title,
     this.enableInteraction = true,
     this.showLegend = true,
     this.height,
-  }) : super(key: key);
+  });
 
   @override
   State<PieChartWidget> createState() => _PieChartWidgetState();
@@ -134,7 +134,7 @@ class _PieChartWidgetState extends State<PieChartWidget> {
       child: Column(
         children: [
           _buildLegendHeader(),
-          ...widget.data.map((item) => _buildLegendRow(item)).toList(),
+          ...widget.data.map((item) => _buildLegendRow(item)),
         ],
       ),
     );

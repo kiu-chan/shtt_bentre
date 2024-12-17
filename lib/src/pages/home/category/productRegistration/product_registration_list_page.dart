@@ -117,19 +117,19 @@ class _ProductRegistrationCard extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.business_center,
                         size: 16,
-                        color: const Color(0xFFE65100),
+                        color: Color(0xFFE65100),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6),
                       Text(
                         'Sản phẩm',
                         style: TextStyle(
-                          color: const Color(0xFFE65100),
+                          color: Color(0xFFE65100),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

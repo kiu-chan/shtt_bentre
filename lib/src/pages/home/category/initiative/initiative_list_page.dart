@@ -1,6 +1,5 @@
 // lib/src/pages/home/category/initiative/initiative_list_page.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
 import 'package:shtt_bentre/src/mainData/database/home/initiative.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_detail_page.dart';

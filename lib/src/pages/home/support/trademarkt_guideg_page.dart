@@ -499,7 +499,7 @@ class DocumentTypeCard extends StatelessWidget {
                   ),
                 ],
               ),
-            )).toList(),
+            )),
           ],
         ),
       ),

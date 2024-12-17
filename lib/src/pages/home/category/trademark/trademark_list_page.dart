@@ -122,12 +122,12 @@ class _TrademarkCard extends StatelessWidget {
           // Content section
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Colors.white, const Color(0xFFFAFAFA)],
+                colors: [Colors.white, Color(0xFFFAFAFA)],
               ),
             ),
             child: Column(
