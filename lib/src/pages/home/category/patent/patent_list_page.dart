@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
-import 'package:shtt_bentre/src/mainData/database/home/patent.dart';
+import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_detail_page.dart';
 
@@ -14,7 +14,7 @@ class PatentListPage extends StatefulWidget {
 }
 
 class _PatentListPageState extends State<PatentListPage> {
-  final PatentService _patentService = PatentService();
+  final PatentsDatabase _patentService = PatentsDatabase();
   late Future<List<PatentModel>> _patentsFuture;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
