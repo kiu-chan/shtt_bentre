@@ -1,53 +1,74 @@
+// trademark_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
+import 'package:shtt_bentre/src/mainData/database/home/trademark.dart';
+import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
 
-class TrademarkModel {
-  final String id;
-  final String industry;
-  final String name;
-  final String owner;
-  final String address;
-  final String image;
-  final DateTime publishDate;
-  final String status;
-
-  TrademarkModel({
-    required this.id,
-    required this.industry,
-    required this.name,
-    required this.owner,
-    required this.address,
-    required this.image,
-    required this.publishDate,
-    required this.status,
-  });
-}
-
-class TrademarkListPage extends StatelessWidget {
+class TrademarkListPage extends StatefulWidget {
   const TrademarkListPage({super.key});
 
-  List<TrademarkModel> get _trademarks => [
-    TrademarkModel(
-      id: 'TM-001',
-      industry: 'Thực phẩm & Đồ uống',
-      name: 'COCOXIM',
-      owner: 'Công ty TNHH Chế biến dừa Lương Quới',
-      address: 'Ấp Quới Thạnh, Xã Quới Thạnh, Huyện Châu Thành, Tỉnh Bến Tre',
-      image: 'assets/trademark/cocoxim.jpg',
-      publishDate: DateTime(2024, 1, 15),
-      status: 'Đã đăng ký',
-    ),
-    TrademarkModel(
-      id: 'TM-002',
-      industry: 'Nông sản',
-      name: 'BẾN TRE XANH',
-      owner: 'Công ty TNHH Nông sản Bến Tre',
-      address: 'Số 123, Đường 30/4, Phường 4, TP Bến Tre, Tỉnh Bến Tre',
-      image: 'assets/trademark/bentrexanh.jpg',
-      publishDate: DateTime(2024, 2, 20),
-      status: 'Đang xử lý',
-    ),
-  ];
+  @override
+  State<TrademarkListPage> createState() => _TrademarkListPageState();
+}
+
+class _TrademarkListPageState extends State<TrademarkListPage> {
+  final TrademarkService _service = TrademarkService();
+  late Future<List<TrademarkModel>> _trademarksFuture;
+  final ScrollController _scrollController = ScrollController();
+  bool _showBackToTopButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _trademarksFuture = _service.fetchTrademarks();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >= 400) {
+      if (!_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = true;
+        });
+      }
+    } else {
+      if (_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _refreshTrademarks() async {
+    setState(() {
+      _trademarksFuture = _service.fetchTrademarks();
+    });
+  }
+
+  void _onTrademarkTap(TrademarkModel trademark) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TrademarkDetailPage(id: trademark.id),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +88,68 @@ class TrademarkListPage extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _trademarks.length,
-        itemBuilder: (context, index) {
-          return _TrademarkCard(trademark: _trademarks[index]);
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshTrademarks,
+        child: FutureBuilder<List<TrademarkModel>>(
+          future: _trademarksFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Có lỗi xảy ra: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _refreshTrademarks,
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final trademarks = snapshot.data ?? [];
+            if (trademarks.isEmpty) {
+              return const Center(
+                child: Text('Không có dữ liệu nhãn hiệu'),
+              );
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: trademarks.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => _onTrademarkTap(trademarks[index]),
+                  child: _TrademarkCard(trademark: trademarks[index]),
+                );
+              },
+            );
+          },
+        ),
       ),
+      floatingActionButton: _showBackToTopButton
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              backgroundColor: const Color(0xFF1E88E5),
+              child: const Icon(Icons.arrow_upward),
+            )
+          : null,
     );
   }
 }
@@ -97,43 +173,33 @@ class _TrademarkCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image section
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.asset(
-              trademark.image,
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: double.infinity,
-                  height: 200,
-                  color: Colors.grey.withOpacity(0.1),
-                  child: Icon(
-                    Icons.image_outlined,
-                    size: 48,
-                    color: Colors.grey.withOpacity(0.3),
-                  ),
-                );
-              },
-            ),
-          ),
-          // Content section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.white, Color(0xFFFAFAFA)],
+          if (trademark.imageUrl.isNotEmpty)
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Image.network(
+                trademark.imageUrl,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: double.infinity,
+                    height: 200,
+                    color: Colors.grey.withOpacity(0.1),
+                    child: Icon(
+                      Icons.image_outlined,
+                      size: 48,
+                      color: Colors.grey.withOpacity(0.3),
+                    ),
+                  );
+                },
               ),
             ),
+          Container(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Industry and Status row
                 Row(
                   children: [
                     Container(
@@ -150,7 +216,7 @@ class _TrademarkCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        trademark.industry,
+                        trademark.typeName,
                         style: const TextStyle(
                           color: Color(0xFF7B1FA2),
                           fontSize: 12,
@@ -165,23 +231,17 @@ class _TrademarkCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: trademark.status == 'Đã đăng ký' 
-                          ? const Color(0xFF4CAF50).withOpacity(0.1)
-                          : const Color(0xFFFFA726).withOpacity(0.1),
+                        color: const Color(0xFF4CAF50).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: trademark.status == 'Đã đăng ký'
-                            ? const Color(0xFF4CAF50).withOpacity(0.2)
-                            : const Color(0xFFFFA726).withOpacity(0.2),
+                          color: const Color(0xFF4CAF50).withOpacity(0.2),
                           width: 1,
                         ),
                       ),
                       child: Text(
                         trademark.status,
-                        style: TextStyle(
-                          color: trademark.status == 'Đã đăng ký'
-                            ? const Color(0xFF2E7D32)
-                            : const Color(0xFFE65100),
+                        style: const TextStyle(
+                          color: Color(0xFF2E7D32),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -190,9 +250,8 @@ class _TrademarkCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Trademark name
                 Text(
-                  trademark.name,
+                  trademark.mark,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -200,7 +259,6 @@ class _TrademarkCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Owner info
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -258,7 +316,6 @@ class _TrademarkCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Publish date
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -280,7 +337,7 @@ class _TrademarkCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Ngày công bố: ${DateFormat('dd/MM/yyyy').format(trademark.publishDate)}',
+                            'Ngày nộp đơn: ${DateFormat('dd/MM/yyyy').format(trademark.filingDate)}',
                             style: const TextStyle(
                               color: Color(0xFF1565C0),
                               fontSize: 13,
@@ -288,13 +345,6 @@ class _TrademarkCard extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    Text(
-                      'Mã số: ${trademark.id}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
                       ),
                     ),
                   ],

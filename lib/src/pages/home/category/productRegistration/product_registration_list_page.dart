@@ -1,48 +1,125 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_detail_page.dart';
 
 class ProductRegistrationModel {
   final String id;
   final String name;
   final String owner;
   final String representative;
-  final DateTime registrationTime;
+  final String address;
+  final String contact;
+  final DateTime createdAt;
+  final String? status;
+  final String slug;
 
   ProductRegistrationModel({
     required this.id,
     required this.name,
     required this.owner,
     required this.representative,
-    required this.registrationTime,
+    required this.address,
+    required this.contact,
+    required this.createdAt,
+    this.status,
+    required this.slug,
   });
+
+  factory ProductRegistrationModel.fromJson(Map<String, dynamic> json) {
+    return ProductRegistrationModel(
+      id: json['id'].toString(),
+      name: json['name'] ?? '',
+      owner: json['owner'] ?? '',
+      representative: json['representatives'] ?? '',
+      address: json['address'] ?? '',
+      contact: json['contact'] ?? '',
+      createdAt: DateTime.parse(json['created_at']),
+      status: json['status'],
+      slug: json['slug'] ?? '',
+    );
+  }
 }
 
-class ProductRegistrationListPage extends StatelessWidget {
+class ProductRegistrationService {
+  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api/products';
+
+  Future<List<ProductRegistrationModel>> fetchProducts() async {
+    try {
+      final response = await http.get(Uri.parse(baseUrl));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == 'success' && jsonResponse['data'] is List) {
+          final List<dynamic> data = jsonResponse['data'];
+          return data.map((json) => ProductRegistrationModel.fromJson(json)).toList();
+        }
+        throw Exception('Invalid data format');
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+}
+
+class ProductRegistrationListPage extends StatefulWidget {
   const ProductRegistrationListPage({super.key});
 
-  List<ProductRegistrationModel> get _products => [
-    ProductRegistrationModel(
-      id: '1',
-      name: 'Máy KKKK',
-      owner: 'kkkk',
-      representative: 'kkaaa',
-      registrationTime: DateTime(2022, 2, 2, 12, 0),
-    ),
-    ProductRegistrationModel(
-      id: '2',
-      name: 'Tẩy',
-      owner: 'AAAA',
-      representative: 'AABB',
-      registrationTime: DateTime(2024, 9, 5, 12, 0),
-    ),
-    ProductRegistrationModel(
-      id: '3',
-      name: 'Hộp',
-      owner: 'BBBB',
-      representative: 'BBBCCCC',
-      registrationTime: DateTime(2023, 6, 5, 12, 0),
-    ),
-  ];
+  @override
+  State<ProductRegistrationListPage> createState() => _ProductRegistrationListPageState();
+}
+
+class _ProductRegistrationListPageState extends State<ProductRegistrationListPage> {
+  final ProductRegistrationService _service = ProductRegistrationService();
+  late Future<List<ProductRegistrationModel>> _productsFuture;
+  final ScrollController _scrollController = ScrollController();
+  bool _showBackToTopButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = _service.fetchProducts();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.offset >= 400) {
+      if (!_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = true;
+        });
+      }
+    } else {
+      if (_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Future<void> _refreshProducts() async {
+    setState(() {
+      _productsFuture = _service.fetchProducts();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +139,73 @@ class ProductRegistrationListPage extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _products.length,
-        itemBuilder: (context, index) {
-          return _ProductRegistrationCard(product: _products[index]);
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshProducts,
+        child: FutureBuilder<List<ProductRegistrationModel>>(
+          future: _productsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Có lỗi xảy ra: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _refreshProducts,
+                      child: const Text('Thử lại'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            final products = snapshot.data ?? [];
+            if (products.isEmpty) {
+              return const Center(
+                child: Text('Không có dữ liệu sản phẩm'),
+              );
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailPage(id: products[index].id),
+                    ),
+                  ),
+                  child: _ProductRegistrationCard(product: products[index]),
+                );
+              },
+            );
+          },
+        ),
       ),
+      floatingActionButton: _showBackToTopButton
+          ? FloatingActionButton(
+              onPressed: _scrollToTop,
+              backgroundColor: const Color(0xFF1E88E5),
+              child: const Icon(Icons.arrow_upward),
+            )
+          : null,
     );
   }
 }
@@ -191,6 +328,28 @@ class _ProductRegistrationCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (product.address.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 20,
+                          color: const Color(0xFF1E88E5).withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            product.address,
+                            style: const TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -234,7 +393,7 @@ class _ProductRegistrationCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Thời gian: ${DateFormat('dd.MM.yyyy HH:mm').format(product.registrationTime)}',
+                    'Thời gian: ${DateFormat('dd.MM.yyyy HH:mm').format(product.createdAt)}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,
