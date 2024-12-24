@@ -1,53 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
+import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
+import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_detail_page.dart';
 
-class ResearchProjectModel {
-  final String id;
-  final String type;
-  final String projectName;
-  final String researcher;
-  final String organization;
-  final DateTime startDate;
-  final String image;
-  final String status;
-
-  ResearchProjectModel({
-    required this.id,
-    required this.type,
-    required this.projectName,
-    required this.researcher,
-    required this.organization,
-    required this.startDate,
-    required this.image,
-    required this.status,
-  });
-}
-
-class ResearchProjectListPage extends StatelessWidget {
+class ResearchProjectListPage extends StatefulWidget {
   const ResearchProjectListPage({super.key});
 
-  List<ResearchProjectModel> get _projects => [
-    ResearchProjectModel(
-      id: '1',
-      type: 'Nghiên cứu ứng dụng',
-      projectName: 'BBBBBBBB',
-      researcher: 'BF1',
-      organization: 'BG1',
-      startDate: DateTime(2023, 2, 6),
-      image: '',
-      status: 'Đang thực hiện',
-    ),
-    ResearchProjectModel(
-      id: '2',
-      type: 'Phát triển sản phẩm',
-      projectName: 'AAAAAAAAAAAA',
-      researcher: 'AO1',
-      organization: 'AC1',
-      startDate: DateTime(2024, 9, 18),
-      image: 'assets/research/project2.jpg',
-      status: 'Đã được cấp bằng',
-    ),
-  ];
+  @override
+  State<ResearchProjectListPage> createState() => _ResearchProjectListPageState();
+}
+
+class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
+  final ResearchProjectService _service = ResearchProjectService();
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +32,36 @@ class ResearchProjectListPage extends StatelessWidget {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _projects.length,
-        itemBuilder: (context, index) {
-          return _ResearchProjectCard(project: _projects[index]);
+      body: FutureBuilder<List<ResearchProjectModel>>(
+        future: _service.fetchResearchProjects(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (snapshot.hasError) {
+            return Center(child: Text('Lỗi khi tải dữ liệu: ${snapshot.error}'));
+          }
+            
+          final projects = snapshot.data ?? [];
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: projects.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ResearchProjectDetailPage(id: projects[index].id),
+                    ),
+                  );
+                },
+                child: _ResearchProjectCard(project: projects[index]),
+              );
+            },
+          );
         },
       ),
     );
@@ -111,7 +101,7 @@ class _ResearchProjectCard extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
-                child: Image.asset(
+                child: Image.network(
                   project.image,
                   width: double.infinity,
                   height: 200,

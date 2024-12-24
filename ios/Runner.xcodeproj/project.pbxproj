@@ -105,7 +105,6 @@
 				78CB0F5AE126C5BD9E7C908B /* Pods-RunnerTests.release.xcconfig */,
 				8C2D0020783F21597ABA3E04 /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -474,11 +473,13 @@
 				DEVELOPMENT_TEAM = XXTLRLR6R3;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.shttBentre;
+				MARKETING_VERSION = 0.5.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.girc.shttbentre;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -657,11 +658,13 @@
 				DEVELOPMENT_TEAM = XXTLRLR6R3;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.shttBentre;
+				MARKETING_VERSION = 0.5.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.girc.shttbentre;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -680,11 +683,13 @@
 				DEVELOPMENT_TEAM = XXTLRLR6R3;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.shttBentre;
+				MARKETING_VERSION = 0.5.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.girc.shttbentre;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
