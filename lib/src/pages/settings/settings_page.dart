@@ -16,18 +16,18 @@ class SettingsPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: ListView(
         children: [
-          _buildListTile(
-            context: context,
-            icon: Icons.person,
-            iconColor: Colors.blue,
-            title: localizations.loginOrRegister,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-          ),
+          // _buildListTile(
+          //   context: context,
+          //   icon: Icons.person,
+          //   iconColor: Colors.blue,
+          //   title: localizations.loginOrRegister,
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => const LoginPage()),
+          //     );
+          //   },
+          // ),
           _buildDivider(),
           _buildListTile(
             context: context,

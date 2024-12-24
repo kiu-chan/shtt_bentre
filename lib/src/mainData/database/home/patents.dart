@@ -7,7 +7,7 @@ class PatentsDatabase {
 
     Future<List<PatentModel>> fetchPatents() async {
     try {
-      final response = await http.get(Uri.parse(baseUrl));
+      final response = await http.get(Uri.parse('$baseUrl/patents/'));
       
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);

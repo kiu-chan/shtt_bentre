@@ -1,4 +1,4 @@
-package com.example.shtt_bentre
+package com.girc.shtt_bentre
 
 import io.flutter.embedding.android.FlutterActivity
 

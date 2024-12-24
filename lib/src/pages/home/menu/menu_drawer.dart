@@ -86,14 +86,14 @@ class MenuDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Điện thoại: 0123456789',
+            'Điện thoại: +8490 403 11 03',
             style: TextStyle(
               color: Colors.grey[600],
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Email: support@shttbentre.vn',
+            'Email: girc.tuaf@gmail.com',
             style: TextStyle(
               color: Colors.grey[600],
             ),

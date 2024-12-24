@@ -37,31 +37,14 @@ class HomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.asset(
-                  'lib/assets/logo.png',
-                  height: 32,
-                  width: 32,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'SHTT - BẾN TRE',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
+          const Text(
+            'SHTT - BẾN TRE',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+              letterSpacing: 0.5,
+            ),
           ),
           Builder(
             builder: (context) => IconButton(
