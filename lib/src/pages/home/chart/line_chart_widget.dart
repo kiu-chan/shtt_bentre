@@ -58,7 +58,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         SizedBox(
           height: widget.height ?? 300,
           child: LineChart(
@@ -72,8 +72,8 @@ class _LineChartWidgetState extends State<LineChartWidget> {
               maxX: (widget.data.length - 1).toDouble(),
               minY: 0,
               maxY: widget.maxY,
+              clipData: const FlClipData.all(),
             ),
-            // swapAnimationDuration: const Duration(milliseconds: 250),
           ),
         ),
       ],
@@ -81,14 +81,12 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   Widget _buildTitle() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        widget.title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+    return Text(
+      widget.title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF2D3748),
       ),
     );
   }
@@ -97,11 +95,10 @@ class _LineChartWidgetState extends State<LineChartWidget> {
     return LineTouchData(
       enabled: widget.enableTooltip,
       touchTooltipData: LineTouchTooltipData(
-        // tooltipBgColor: Colors.black87,
         tooltipRoundedRadius: 8,
         tooltipPadding: const EdgeInsets.symmetric(
           horizontal: 12,
-          vertical: 6,
+          vertical: 8,
         ),
         getTooltipItems: (List<LineBarSpot> touchedSpots) {
           return touchedSpots.map((spot) {
@@ -110,16 +107,16 @@ class _LineChartWidgetState extends State<LineChartWidget> {
               '${dataPoint.label}\n',
               const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
               children: [
                 TextSpan(
                   text: spot.y.toStringAsFixed(1),
                   style: TextStyle(
-                    color: widget.lineColor ?? Colors.blue,
+                    color: widget.lineColor?.withOpacity(0.9) ?? Colors.white,
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -145,13 +142,13 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   FlGridData _buildGridData() {
     return FlGridData(
       show: widget.showGridLines,
-      drawHorizontalLine: true,
       drawVerticalLine: false,
       horizontalInterval: widget.interval,
       getDrawingHorizontalLine: (value) {
         return FlLine(
-          color: Colors.grey[300],
+          color: Colors.black.withOpacity(0.05),
           strokeWidth: 1,
+          dashArray: [5, 5],
         );
       },
     );
@@ -162,46 +159,48 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: widget.rotateLabels ? 40 : 30,
-          interval: widget.showEveryNthLabel?.toDouble(),
+          reservedSize: 40,
           getTitlesWidget: (value, meta) {
-            if (value < 0 || value >= widget.data.length) {
-              return const SizedBox();
-            }
-
-            // Show every Nth label if specified
-            if (widget.showEveryNthLabel != null &&
-                value.toInt() % widget.showEveryNthLabel! != 0) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                widget.data[value.toInt()].label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black87,
+            // Hiển thị 5 mốc đều nhau trên trục x
+            final dataLength = widget.data.length;
+            final interval = (dataLength - 1) / 4; // Chia thành 4 khoảng để có 5 điểm
+            final currentIndex = value.toInt();
+            
+            // Chỉ hiển thị label tại các điểm mốc
+            if (currentIndex == 0 || // Điểm đầu
+                currentIndex == dataLength - 1 || // Điểm cuối
+                (currentIndex % interval).round() == 0) { // Các điểm ở giữa
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  widget.data[currentIndex].label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black.withOpacity(0.7),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            );
+              );
+            }
+            return const SizedBox();
           },
         ),
       ),
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: 28, // Reduced from previous value
+          reservedSize: 40,
           interval: widget.interval,
           getTitlesWidget: (value, meta) {
             return Padding(
-              padding: const EdgeInsets.only(right: 4),
+              padding: const EdgeInsets.only(right: 8),
               child: Text(
                 value.toInt().toString(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black.withOpacity(0.7),
                 ),
                 textAlign: TextAlign.right,
               ),
@@ -221,11 +220,9 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   FlBorderData _buildBorderData() {
     return FlBorderData(
       show: true,
-      border: const Border(
-        left: BorderSide(width: 1),
-        bottom: BorderSide(width: 1),
-        right: BorderSide.none,
-        top: BorderSide.none,
+      border: Border(
+        left: BorderSide(color: Colors.black.withOpacity(0.1)),
+        bottom: BorderSide(color: Colors.black.withOpacity(0.1)),
       ),
     );
   }
@@ -257,6 +254,14 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       belowBarData: BarAreaData(
         show: widget.showArea,
         color: (widget.lineColor ?? Colors.blue).withOpacity(0.15),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            (widget.lineColor ?? Colors.blue).withOpacity(0.15),
+            (widget.lineColor ?? Colors.blue).withOpacity(0.05),
+          ],
+        ),
       ),
     );
   }

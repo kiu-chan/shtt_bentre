@@ -67,5 +67,21 @@
     "sendRequestDescription": "Gửi yêu cầu hỗ trợ tới admin",
     "notifications": "Thông báo",
     "privacyPolicy": "Chính sách bảo mật",
-    "termsOfService": "Điều khoản sử dụng"
+    "termsOfService": "Điều khoản sử dụng",
+
+    "categories": "Danh mục",
+    "inventions": "Sáng chế toàn văn",
+    "geoIndications": "Chỉ dẫn địa lý",
+    "trademarks": "Bảo hộ nhãn hiệu",
+    "industrialDesigns": "Kiểu dáng công nghiệp",
+    "initiatives": "Sáng kiến",
+    "productRegistrations": "Sản phẩm đăng ký xây dựng",
+    "researchProjects": "Nghiên cứu khoa học",
+    "technicalCompetitions": "Hội thi sáng tạo",
+    "patentInventions": "Sáng chế toàn văn",
+    "geographicalIndications": "Chỉ dẫn địa lý",
+    "trademarkProtection": "Bảo hộ nhãn hiệu",
+    "registeredConstructionProducts": "Sản phẩm đăng ký xây dựng",
+    "scientificResearch": "Nghiên cứu khoa học",
+    "technicalInnovationCompetitions": "Hội thi sáng tạo"
 }

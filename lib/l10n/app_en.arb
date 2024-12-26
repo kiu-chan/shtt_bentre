@@ -67,5 +67,21 @@
     "sendRequestDescription": "Send request description",
     "notifications": "Notifications",
     "privacyPolicy": "Privacy Policy",
-    "termsOfService": "terms of service"
+    "termsOfService": "terms of service",
+
+    "categories": "Categories",
+    "inventions": "Patent inventions",
+    "geoIndications": "Geographical indications",
+    "trademarks": "Trademark protection",
+    "industrialDesigns": "Industrial designs",
+    "initiatives": "Initiatives",
+    "productRegistrations": "Registered construction products",
+    "researchProjects": "Scientific research",
+    "technicalCompetitions": "Technical innovation competitions",
+    "patentInventions": "Patent inventions",
+    "geographicalIndications": "Geographical indications",
+    "trademarkProtection": "Trademark protection",
+    "registeredConstructionProducts": "Registered construction products",
+    "scientificResearch": "Scientific research",
+    "technicalInnovationCompetitions": "Technical innovation competitions"
 }

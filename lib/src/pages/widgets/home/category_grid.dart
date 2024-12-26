@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_list_page.dart';
@@ -7,55 +8,64 @@ import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_
 import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_list_page.dart';
-import '../../models/category_item.dart';
 
 class CategoryGrid extends StatelessWidget {
   const CategoryGrid({super.key});
 
-  static final List<CategoryItem> categories = [
-    CategoryItem(
-      title: 'Sáng chế toàn văn',
-      icon: Icons.description,
-    ),
-    CategoryItem(
-      title: 'Chỉ dẫn địa lý',
-      icon: Icons.location_on,
-    ),
-    CategoryItem(
-      title: 'Bảo hộ nhãn hiệu',
-      icon: Icons.verified,
-    ),
-    CategoryItem(
-      title: 'Kiểu dáng công nghiệp',
-      icon: Icons.architecture,
-    ),
-    CategoryItem(
-      title: 'Sáng kiến',
-      icon: Icons.lightbulb,
-    ),
-    CategoryItem(
-      title: 'Sản phẩm đăng ký xây dựng',
-      icon: Icons.business,
-    ),
-    CategoryItem(
-      title: 'Nghiên cứu khoa học',
-      icon: Icons.science,
-    ),
-    CategoryItem(
-      title: 'Hội thi sáng tạo',
-      icon: Icons.emoji_events,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    
+    final categories = [
+      _Category(
+        title: localizations.inventions,
+        icon: Icons.description,
+        route: const PatentListPage(),
+      ),
+      _Category(
+        title: localizations.geoIndications,
+        icon: Icons.location_on,
+        route: const GeoIndicationListPage(),
+      ),
+      _Category(
+        title: localizations.trademarks,
+        icon: Icons.verified, 
+        route: const TrademarkListPage(),
+      ),
+      _Category(
+        title: localizations.industrialDesigns,
+        icon: Icons.architecture,
+        route: const IndustrialDesignListPage(),
+      ),
+      _Category(
+        title: localizations.initiatives,
+        icon: Icons.lightbulb,
+        route: const InitiativeListPage(),
+      ),
+      _Category(
+        title: localizations.productRegistrations,
+        icon: Icons.business,
+        route: const ProductRegistrationListPage(),
+      ),
+      _Category(
+        title: localizations.researchProjects,
+        icon: Icons.science,
+        route: const ResearchProjectListPage(),
+      ),
+      _Category(
+        title: localizations.technicalCompetitions,
+        icon: Icons.emoji_events,
+        route: const TechnicalCompetitionListPage(),
+      ),
+    ];
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       child: Column(
         children: [
-          const Text(
-            'DANH MỤC',
-            style: TextStyle(
+          Text(
+            localizations.categories.toUpperCase(),  
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.blue,
@@ -74,17 +84,39 @@ class CategoryGrid extends StatelessWidget {
             ),
             itemCount: categories.length,
             itemBuilder: (context, index) {
-              return _buildCategoryItem(context, categories[index]);
+              final category = categories[index];
+              return _CategoryItem(category: category);
             },
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildCategoryItem(BuildContext context, CategoryItem category) {
+class _Category {
+  final String title;
+  final IconData icon;
+  final Widget route;
+
+  _Category({
+    required this.title,
+    required this.icon,
+    required this.route,
+  });
+}
+
+class _CategoryItem extends StatelessWidget {
+  const _CategoryItem({required this.category});
+
+  final _Category category;
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => _handleCategoryTap(context, category.title),
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => category.route));
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -126,58 +158,5 @@ class CategoryGrid extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _handleCategoryTap(BuildContext context, String categoryTitle) {
-    switch (categoryTitle) {
-      case 'Sáng chế toàn văn':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const PatentListPage()),
-        );
-        break;
-      case 'Chỉ dẫn địa lý':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const GeoIndicationListPage()),
-        );
-        break;
-      case 'Bảo hộ nhãn hiệu':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const TrademarkListPage()),
-        );
-        break;
-      case 'Kiểu dáng công nghiệp':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const IndustrialDesignListPage()),
-        );
-        break;
-      case 'Sáng kiến':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const InitiativeListPage()),
-        );
-        break;
-      case 'Sản phẩm đăng ký xây dựng':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const ProductRegistrationListPage()),
-        );
-        break;
-      case 'Nghiên cứu khoa học':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const ResearchProjectListPage()),
-        );
-        break;
-      case 'Hội thi sáng tạo':
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const TechnicalCompetitionListPage()),
-        );
-        break;
-    }
   }
 }
