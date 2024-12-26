@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shtt_bentre/src/pages/home/chart/%20line_chart_widget.dart';
+import 'package:shtt_bentre/src/pages/home/chart/line_chart_widget.dart';
 import 'package:shtt_bentre/src/pages/home/chart/bar_chart_widget.dart';
-import 'dart:convert';
-
 import 'package:shtt_bentre/src/pages/home/chart/pie_chart_widget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PatentStatisticsPage extends StatefulWidget {
   const PatentStatisticsPage({super.key});
@@ -26,75 +26,79 @@ class _PatentStatisticsPageState extends State<PatentStatisticsPage> {
 
   Future<void> _loadData() async {
     try {
-      // Simulate API call with delay
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Initialize data
-      _fieldStatistics = [
-        ChartDataItem(
-          title: 'Không được phân loại',
-          value: 60.0,
-          color: Colors.amber,
-        ),
-        ChartDataItem(
-          title: 'Hóa học',
-          value: 20.0,
-          color: Colors.blue,
-        ),
-        ChartDataItem(
-          title: 'Kỹ thuật cơ khí',
-          value: 10.0,
-          color: Colors.pink[100]!,
-        ),
-        ChartDataItem(
-          title: 'Kỹ thuật điện',
-          value: 6.7,
-          color: Colors.green[200]!,
-        ),
-        ChartDataItem(
-          title: 'Dụng cụ',
-          value: 3.3,
-          color: Colors.purple[200]!,
-        ),
-      ];
+      setState(() => _isLoading = true);
 
-      _locationStatistics = [
-        BarChartItem(label: 'Giồng\nTrôm', value: 5.0),
-        BarChartItem(label: 'Bến\nTre', value: 10.0),
-        BarChartItem(label: 'Mỏ Cày\nNam', value: 2.0),
-        BarChartItem(label: 'Châu\nThành', value: 7.0),
-        BarChartItem(label: 'Bình\nĐại', value: 2.0),
-        BarChartItem(label: 'Ba\nTri', value: 1.0),
-        BarChartItem(label: 'Chợ\nLách', value: 2.0),
-        BarChartItem(label: 'Thạnh\nPhú', value: 1.0),
-      ];
+      // Fetch data from all three endpoints
+      final typeResponse = await http.get(Uri.parse(
+          'https://shttbentre.girc.edu.vn/api/patents/stats/by-type'));
+      final yearResponse = await http.get(Uri.parse(
+          'https://shttbentre.girc.edu.vn/api/patents/stats/by-year'));
+      final districtResponse = await http.get(Uri.parse(
+          'https://shttbentre.girc.edu.vn/api/patents/stats/by-district'));
 
-      _yearlyStatistics = [
-        TimeSeriesItem(label: '1996', value: 1),
-        TimeSeriesItem(label: '2005', value: 1),
-        TimeSeriesItem(label: '2006', value: 1),
-        TimeSeriesItem(label: '2007', value: 3),
-        TimeSeriesItem(label: '2008', value: 1),
-        TimeSeriesItem(label: '2009', value: 1),
-        TimeSeriesItem(label: '2010', value: 1),
-        TimeSeriesItem(label: '2011', value: 1),
-        TimeSeriesItem(label: '2013', value: 1),
-        TimeSeriesItem(label: '2015', value: 1),
-        TimeSeriesItem(label: '2016', value: 4),
-        TimeSeriesItem(label: '2017', value: 1),
-        TimeSeriesItem(label: '2018', value: 1),
-        TimeSeriesItem(label: '2019', value: 1),
-        TimeSeriesItem(label: '2021', value: 3),
-        TimeSeriesItem(label: '2022', value: 1),
-        TimeSeriesItem(label: '2023', value: 5),
-        TimeSeriesItem(label: '2024', value: 1),
-      ];
+      if (typeResponse.statusCode == 200 &&
+          yearResponse.statusCode == 200 &&
+          districtResponse.statusCode == 200) {
+        
+        // Parse field statistics
+        final typeData = json.decode(typeResponse.body);
+        _fieldStatistics = (typeData['data'] as List).map((item) {
+          return ChartDataItem(
+            title: item['type'],
+            value: double.parse(item['percentage']),
+            color: _getFieldColor(item['type']),
+          );
+        }).toList();
 
-      setState(() => _isLoading = false);
+        // Parse location statistics
+        final districtData = json.decode(districtResponse.body);
+        _locationStatistics = (districtData['data'] as List).map((item) {
+          return BarChartItem(
+            label: _formatDistrictName(item['district_name']),
+            value: double.parse(item['percentage']),
+          );
+        }).toList();
+
+        // Parse yearly statistics and sort by year
+        final yearData = json.decode(yearResponse.body);
+        _yearlyStatistics = (yearData['data'] as List).map((item) {
+          return TimeSeriesItem(
+            label: item['year'],
+            value: item['count'].toDouble(),
+          );
+        }).toList()..sort((a, b) => int.parse(a.label).compareTo(int.parse(b.label)));
+
+        setState(() => _isLoading = false);
+      } else {
+        throw Exception('Failed to load data');
+      }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Có lỗi khi tải dữ liệu');
+      _showError('Có lỗi khi tải dữ liệu: ${e.toString()}');
     }
+  }
+
+  Color _getFieldColor(String fieldType) {
+    switch (fieldType) {
+      case 'Không được phân loại':
+        return Colors.amber;
+      case 'Hóa học':
+        return Colors.blue;
+      case 'Kỹ thuật cơ khí':
+        return Colors.pink[100]!;
+      case 'Kỹ thuật điện':
+        return Colors.green[200]!;
+      case 'Dụng cụ':
+        return Colors.purple[200]!;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatDistrictName(String name) {
+    // Remove 'Huyện ' or 'Thành phố ' prefix and split into two lines
+    name = name.replaceAll('Huyện ', '').replaceAll('Thành phố ', '');
+    return name.replaceAll(' ', '\n');
   }
 
   void _showError(String message) {
@@ -115,10 +119,7 @@ class _PatentStatisticsPageState extends State<PatentStatisticsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              setState(() => _isLoading = true);
-              _loadData();
-            },
+            onPressed: _loadData,
           ),
           IconButton(
             icon: const Icon(Icons.download),
@@ -170,8 +171,8 @@ class _PatentStatisticsPageState extends State<PatentStatisticsPage> {
         child: BarChartWidget(
           title: 'Thống kê số liệu sáng chế theo đơn vị hành chính',
           data: _locationStatistics,
-          maxY: 12,
-          interval: 2,
+          maxY: _calculateMaxY(_locationStatistics),
+          interval: 5,
           enableTooltip: true,
           showGridLines: true,
           height: 400,
@@ -189,7 +190,7 @@ class _PatentStatisticsPageState extends State<PatentStatisticsPage> {
         child: LineChartWidget(
           title: 'Thống kê sáng chế theo năm',
           data: _yearlyStatistics,
-          maxY: 6,
+          maxY: _calculateMaxY(_yearlyStatistics),
           interval: 1,
           enableTooltip: true,
           showGridLines: true,
@@ -202,6 +203,18 @@ class _PatentStatisticsPageState extends State<PatentStatisticsPage> {
         ),
       ),
     );
+  }
+
+  double _calculateMaxY(List<dynamic> items) {
+    double maxValue = 0;
+    for (var item in items) {
+      if (item is TimeSeriesItem && item.value > maxValue) {
+        maxValue = item.value;
+      } else if (item is BarChartItem && item.value > maxValue) {
+        maxValue = item.value;
+      }
+    }
+    return (maxValue * 1.2).ceilToDouble(); // Add 20% padding
   }
 
   Future<void> _exportData() async {

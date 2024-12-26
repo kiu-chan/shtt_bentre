@@ -49,7 +49,7 @@ class GuidePage extends StatefulWidget {
   State<GuidePage> createState() => _GuidePageState();
 }
 
-class _GuidePageState extends State<GuidePage> {
+class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMixin {
   int _selectedTabIndex = 0;
   List<GuideContent> _items = [];
   bool _isLoading = true;
@@ -58,6 +58,8 @@ class _GuidePageState extends State<GuidePage> {
   ChewieController? _chewieController;
   bool _isVideoLoading = true;
   String? _videoError;
+  late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -74,7 +76,21 @@ class _GuidePageState extends State<GuidePage> {
   void dispose() {
     _videoController?.dispose();
     _chewieController?.dispose();
+    _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _initTabController() {
+    _tabController = TabController(
+      length: _items.length,
+      vsync: this,
+    );
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _onTabSelected(_tabController.index);
+      }
+    });
   }
 
   Future<void> _fetchVideo() async {
@@ -99,14 +115,19 @@ class _GuidePageState extends State<GuidePage> {
             looping: false,
             showControls: true,
             placeholder: Container(
-              color: Colors.grey[200],
-              child: const Center(child: CircularProgressIndicator()),
+              color: Colors.grey[100],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: Colors.blue,
+                ),
+              ),
             ),
             materialProgressColors: ChewieProgressColors(
-              playedColor: Colors.blue,
-              handleColor: Colors.blue,
-              backgroundColor: Colors.grey,
-              bufferedColor: Colors.grey[300]!,
+              playedColor: Colors.blue.shade600,
+              handleColor: Colors.blue.shade600,
+              backgroundColor: Colors.grey.shade300,
+              bufferedColor: Colors.blue.shade100,
             ),
           );
 
@@ -139,6 +160,8 @@ class _GuidePageState extends State<GuidePage> {
             _items = documents.map((doc) => GuideContent.fromJson(doc)).toList();
             _isLoading = false;
           });
+
+          _initTabController();
 
           if (_items.isNotEmpty) {
             _fetchContent(_items[0].id);
@@ -173,6 +196,13 @@ class _GuidePageState extends State<GuidePage> {
             _items[itemIndex].content = data['data']['content'];
             _items[itemIndex].isLoading = false;
           });
+          
+          // Scroll to top when content changes
+          _scrollController.animateTo(
+            widget.videoId != null ? 250 : 0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
         }
       }
     } catch (e) {
@@ -198,14 +228,69 @@ class _GuidePageState extends State<GuidePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
         centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
       ),
       body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: Colors.blue,
+            ),
+          )
         : _error != null
-          ? Center(child: Text(_error!))
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _error = null;
+                          _isLoading = true;
+                        });
+                        _fetchList();
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Thử lại'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 children: [
                   if (widget.videoId != null) _buildVideo(),
@@ -218,67 +303,102 @@ class _GuidePageState extends State<GuidePage> {
   }
 
   Widget _buildVideo() {
-    if (_isVideoLoading) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_videoError != null) {
-      return Container(
-        height: 200,
-        color: Colors.grey[200],
-        child: Center(child: Text(_videoError!)),
-      );
-    }
-
-    if (_chewieController != null) {
-      return AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Chewie(controller: _chewieController!),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildTabBar() {
     return Container(
-      color: Colors.white,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return _buildTab(item.title, index);
-          }).toList(),
-        ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_isVideoLoading)
+            const SizedBox(
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: Colors.blue,
+                ),
+              ),
+            )
+          else if (_videoError != null)
+            Container(
+              height: 200,
+              color: Colors.grey[100],
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 36,
+                      color: Colors.red[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _videoError!,
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (_chewieController != null)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Chewie(controller: _chewieController!),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildTab(String text, int index) {
-    return GestureDetector(
-      onTap: () => _onTabSelected(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: _selectedTabIndex == index ? Colors.blue : Colors.grey.shade300,
-              width: 2,
+  Widget _buildTabBar() {
+    if (_items.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            indicatorColor: Colors.blue,
+            indicatorWeight: 3,
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.grey[600],
+            labelStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.normal,
+            ),
+            tabs: _items.map((item) {
+              return Tab(
+                text: item.title,
+              );
+            }).toList(),
           ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: _selectedTabIndex == index ? Colors.blue : Colors.grey[600],
-            fontWeight: _selectedTabIndex == index ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
+          const Divider(height: 1),
+        ],
       ),
     );
   }
@@ -293,75 +413,154 @@ class _GuidePageState extends State<GuidePage> {
 
     final selectedItem = _items[_selectedTabIndex];
     
-    if (selectedItem.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            selectedItem.title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+      padding: const EdgeInsets.all(24.0),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: selectedItem.isLoading
+          ? SizedBox(
+              height: 200,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Đang tải nội dung...',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (selectedItem.content != null)
+                  Html(
+                    data: selectedItem.content!,
+                    style: {
+                      "body": Style(
+                        fontSize: FontSize(15),
+                        lineHeight: LineHeight(1.6),
+                        color: Colors.black87,
+                        margin: Margins.zero,
+                        padding: HtmlPaddings.zero,
+                        textAlign: TextAlign.justify,
+                      ),
+                      "p": Style(
+                        margin: Margins.only(bottom: 12),
+                        textAlign: TextAlign.justify,
+                      ),
+                      "strong": Style(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      "em": Style(
+                        fontStyle: FontStyle.italic,
+                      ),
+                      "a": Style(
+                        color: Colors.blue[700],
+                        textDecoration: TextDecoration.none,
+                      ),
+                      "ul": Style(
+                        margin: Margins.only(left: 20, bottom: 16, top: 8),
+                      ),
+                      "ol": Style(
+                        margin: Margins.only(left: 20, bottom: 16, top: 8),
+                      ),
+                      "li": Style(
+                        margin: Margins.only(bottom: 8),
+                      ),
+                      "table": Style(
+                        backgroundColor: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        margin: Margins.only(bottom: 16),
+                      ),
+                      "th": Style(
+                        backgroundColor: Colors.grey.shade50,
+                        padding: HtmlPaddings.all(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      "td": Style(
+                        padding: HtmlPaddings.all(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      "h1": Style(
+                        fontSize: FontSize(24),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        margin: Margins.only(bottom: 16, top: 24),
+                      ),
+                      "h2": Style(
+                        fontSize: FontSize(20),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        margin: Margins.only(bottom: 16, top: 24),
+                      ),
+                      "h3": Style(
+                        fontSize: FontSize(18),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        margin: Margins.only(bottom: 12, top: 20),
+                      ),
+                      "blockquote": Style(
+                        backgroundColor: Colors.blue.shade50,
+                        padding: HtmlPaddings.all(16),
+                        border: Border(
+                          left: BorderSide(
+                            color: Colors.blue.shade200,
+                            width: 4,
+                          ),
+                        ),
+                        margin: Margins.symmetric(vertical: 16),
+                      ),
+                      "code": Style(
+                        backgroundColor: Colors.grey.shade100,
+                        padding: HtmlPaddings.symmetric(horizontal: 4),
+                        fontFamily: 'monospace',
+                      ),
+                      "pre": Style(
+                        backgroundColor: Colors.grey.shade100,
+                        padding: HtmlPaddings.all(16),
+                        margin: Margins.symmetric(vertical: 16),
+                      ),
+                    },
+                    onLinkTap: (String? url, _, __) {
+                      if (url != null) {
+                        debugPrint('Tapped link: $url');
+                        // TODO: Handle link tap
+                      }
+                    },
+                  ),
+                if (selectedItem.content == null && !selectedItem.isLoading)
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.article_outlined,
+                          size: 48,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Không có nội dung hiển thị',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          if (selectedItem.content != null)
-            Html(
-              data: selectedItem.content!,
-              style: {
-                "body": Style(
-                  fontSize: FontSize(15),
-                  lineHeight: LineHeight(1.5),
-                  color: Colors.black87,
-                  margin: Margins.zero,
-                  padding: HtmlPaddings.zero,
-                  textAlign: TextAlign.justify,
-                ),
-                "p": Style(
-                  margin: Margins.only(bottom: 8),
-                  textAlign: TextAlign.justify,
-                ),
-                "strong": Style(
-                  fontWeight: FontWeight.bold,
-                ),
-                "em": Style(
-                  fontStyle: FontStyle.italic,
-                ),
-                "a": Style(
-                  color: Colors.blue,
-                  textDecoration: TextDecoration.underline,
-                ),
-                "ul": Style(
-                  margin: Margins.only(left: 20, bottom: 8),
-                ),
-                "ol": Style(
-                  margin: Margins.only(left: 20, bottom: 8),
-                ),
-                "li": Style(
-                  margin: Margins.only(bottom: 4),
-                ),
-              },
-              onLinkTap: (String? url, _, __) {
-                if (url != null) {
-                  debugPrint('Tapped link: $url');
-                }
-              },
-            ),
-          if (selectedItem.content == null && !selectedItem.isLoading)
-            const Text('Không có nội dung hiển thị'),
-        ],
       ),
     );
   }
