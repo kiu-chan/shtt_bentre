@@ -3,6 +3,8 @@ import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/patentStatistics/patent_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/support/industrial_design_page.dart';
+import 'package:shtt_bentre/src/pages/home/support/patent_guide_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
 
 final List<MenuSection> menuSections = [
@@ -61,11 +63,25 @@ final List<MenuSection> menuSections = [
       ),
       MenuItem(
         title: 'Kiểu dáng công nghiệp', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const IndustrialDesignPage(),
+            ),
+          );
+        },
       ),
       MenuItem(
         title: 'Sáng chế và giải pháp hữu ích', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PatentGuidePage(),
+            ),
+          );
+        },
       ),
     ],
   ),
