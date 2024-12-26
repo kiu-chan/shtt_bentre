@@ -1,8 +1,9 @@
-// widgets/news_slider.dart
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:shtt_bentre/src/pages/models/news_model.dart';
+import 'package:shtt_bentre/src/mainData/data/home/news.dart';
+import 'package:shtt_bentre/src/mainData/database/home/news.dart';
 import '../../home/news/news_detail_page.dart';
+import 'dart:math';
 
 class NewsSlider extends StatefulWidget {
   const NewsSlider({super.key});
@@ -12,41 +13,99 @@ class NewsSlider extends StatefulWidget {
 }
 
 class NewsSliderState extends State<NewsSlider> {
+  final NewsService _newsService = NewsService();
   int _currentIndex = 0;
+  List<NewsModel> _sliderItems = [];
+  bool _isLoading = true;
+  String? _error;
 
-  static final List<NewsModel> sliderItems = [
-    NewsModel(
-      id: '1',
-      image: 'lib/assets/bt1.jpg',
-      title: 'Chợ nổi Cái Răng - Điểm đến không thể bỏ qua khi ghé thăm Bến Tre',
-      content: 'Chợ nổi Cái Răng là một trong những điểm du lịch hấp dẫn nhất tại Bến Tre...',
-      publishDate: DateTime(2024, 11, 10),
-      views: 1234,
-    ),
-    NewsModel(
-      id: '2',
-      image: 'lib/assets/bt2.jpg', 
-      title: 'Làng nghề dừa - Khám phá nghề truyền thống của người dân địa phương',
-      content: 'Làng nghề dừa tại Bến Tre là điểm đến không thể bỏ qua cho du khách...',
-      publishDate: DateTime(2024, 11, 9),
-      views: 856,
-    ),
-    NewsModel(
-      id: '3', 
-      image: 'lib/assets/bt3.jpg',
-      title: 'Cồn Phụng - Hòn đảo xinh đẹp giữa sông nước miền Tây',
-      content: 'Cồn Phụng là một trong những điểm du lịch sinh thái hấp dẫn tại Bến Tre...',
-      publishDate: DateTime(2024, 11, 8),
-      views: 2145,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadNews();
+  }
+
+  Future<void> _loadNews() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      final newsData = await _newsService.fetchNews();
+      final allNews = newsData.map((item) => NewsModel.fromJson(item)).toList();
+      
+      // Randomly select 3 news items
+      final random = Random();
+      final selectedNews = <NewsModel>[];
+      final newsCount = min(3, allNews.length);
+      
+      while (selectedNews.length < newsCount) {
+        final randomIndex = random.nextInt(allNews.length);
+        if (!selectedNews.contains(allNews[randomIndex])) {
+          selectedNews.add(allNews[randomIndex]);
+        }
+      }
+
+      setState(() {
+        _sliderItems = selectedNews;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return SizedBox(
+        height: 200,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Có lỗi xảy ra\n$_error',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red[700]),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: _loadNews,
+                child: const Text('Thử lại'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_sliderItems.isEmpty) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: Text('Không có tin tức'),
+        ),
+      );
+    }
+
     return Column(
       children: [
         CarouselSlider.builder(
-          itemCount: sliderItems.length,
+          itemCount: _sliderItems.length,
           options: CarouselOptions(
             height: 200.0,
             enlargeCenterPage: true,
@@ -63,7 +122,7 @@ class NewsSliderState extends State<NewsSlider> {
             },
           ),
           itemBuilder: (context, index, realIndex) {
-            return _buildNewsCard(sliderItems[index]);
+            return _buildNewsCard(_sliderItems[index]);
           },
         ),
         const SizedBox(height: 16),
@@ -78,7 +137,7 @@ class NewsSliderState extends State<NewsSlider> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NewsDetailPage(news: news),
+            builder: (context) => NewsDetailPage(newsId: news.id),
           ),
         );
       },
@@ -100,9 +159,19 @@ class NewsSliderState extends State<NewsSlider> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                news.image,
+              Image.network(
+                news.fullImageUrl,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      size: 50,
+                      color: Colors.grey,
+                    ),
+                  );
+                },
               ),
               Container(
                 decoration: BoxDecoration(
@@ -148,7 +217,7 @@ class NewsSliderState extends State<NewsSlider> {
   Widget _buildSliderIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: sliderItems.asMap().entries.map((entry) {
+      children: _sliderItems.asMap().entries.map((entry) {
         return Container(
           width: 8.0,
           height: 8.0,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
+import 'package:shtt_bentre/src/pages/home/news/news_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/patentStatistics/patent_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
 
@@ -28,7 +29,14 @@ final List<MenuSection> menuSections = [
     items: [
       MenuItem(
         title: 'Tin tức', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewsListPage(),
+            ),
+          );
+        },
       ),
       MenuItem(
         title: 'Hoạt động khoa học, công nghệ', 
