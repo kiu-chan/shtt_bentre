@@ -26,8 +26,8 @@ abstract class BaseStatisticsPage extends StatefulWidget {
 abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends State<T> {
   bool _isLoading = true;
   List<ChartDataItem>? _fieldStatistics;
-  late List<BarChartItem> _locationStatistics;
-  late List<TimeSeriesItem> _yearlyStatistics;
+  List<BarChartItem> _locationStatistics = [];
+  List<TimeSeriesItem> _yearlyStatistics = [];
 
   @override
   void initState() {
@@ -42,11 +42,15 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
       final yearResponse = await http.get(
         Uri.parse('${widget.baseUrl}/stats/by-year'),
       );
-      final districtResponse = await http.get(
-        Uri.parse('${widget.baseUrl}/stats/by-district'),
-      );
 
-      var responses = [yearResponse, districtResponse];
+      var responses = [yearResponse];
+      
+      if (!widget.baseUrl.contains('initiatives')) {
+        final districtResponse = await http.get(
+          Uri.parse('${widget.baseUrl}/stats/by-district'),
+        );
+        responses.add(districtResponse);
+      }
       
       if (widget.showFieldChart) {
         final typeResponse = await http.get(
@@ -56,32 +60,41 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
       }
 
       if (responses.every((response) => response.statusCode == 200)) {
-        // Parse location statistics
-        final districtData = json.decode(districtResponse.body);
-        _locationStatistics = (districtData['data'] as List).map((item) {
-          return BarChartItem(
-            label: _formatDistrictName(item['district_name']),
-            value: double.parse(item['percentage']),
-          );
-        }).toList();
-
-        // Parse yearly statistics
         final yearData = json.decode(yearResponse.body);
         _yearlyStatistics = (yearData['data'] as List).map((item) {
+          final year = item['year']?.toString() ?? '';
+          final count = item['count']?.toString() ?? '0';
           return TimeSeriesItem(
-            label: item['year'],
-            value: item['count'].toDouble(),
+            label: year,
+            value: double.tryParse(count) ?? 0.0,
           );
-        }).toList()..sort((a, b) => int.parse(a.label).compareTo(int.parse(b.label)));
+        }).where((item) => item.label.isNotEmpty)
+        .toList()
+        ..sort((a, b) => int.tryParse(a.label) ?? 0
+            .compareTo(int.tryParse(b.label) ?? 0));
 
-        // Parse field statistics if needed
-        if (widget.showFieldChart) {
-          final typeData = json.decode(responses[2].body);
+        if (!widget.baseUrl.contains('initiatives')) {
+          final districtResponse = responses[1];
+          final districtData = json.decode(districtResponse.body);
+          _locationStatistics = (districtData['data'] as List).map((item) {
+            final districtName = item['district_name']?.toString() ?? 'Unknown';
+            final percentage = item['percentage']?.toString() ?? '0';
+            return BarChartItem(
+              label: _formatDistrictName(districtName),
+              value: double.tryParse(percentage) ?? 0.0,
+            );
+          }).toList();
+        }
+
+        if (widget.showFieldChart && responses.length > 2) {
+          final typeData = json.decode(responses.last.body);
           _fieldStatistics = (typeData['data'] as List).map((item) {
+            final type = item['type']?.toString() ?? 'Unknown';
+            final percentage = item['percentage']?.toString() ?? '0';
             return ChartDataItem(
-              title: item['type'],
-              value: double.parse(item['percentage']),
-              color: _getFieldColor(item['type']),
+              title: type,
+              value: double.tryParse(percentage) ?? 0.0,
+              color: _getFieldColor(type),
             );
           }).toList();
         }
@@ -171,10 +184,12 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
               ),
             if (widget.showFieldChart && _fieldStatistics != null)
               const SizedBox(height: 24),
-            _buildChartCard(
-              child: _buildLocationStatistics(),
-            ),
-            const SizedBox(height: 24),
+            if (!widget.baseUrl.contains('initiatives'))
+              _buildChartCard(
+                child: _buildLocationStatistics(),
+              ),
+            if (!widget.baseUrl.contains('initiatives'))
+              const SizedBox(height: 24),
             _buildChartCard(
               child: _buildYearlyStatistics(),
             ),

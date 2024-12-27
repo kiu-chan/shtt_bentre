@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/geographical_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/chartPage/industrial_design_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/chartPage/initiative_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/chartPage/trademark_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/patent_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/industrial_design_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/patent_guide_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/providers/language_provider.dart';
 
 final List<MenuSection> menuSections = [
   MenuSection(
@@ -110,15 +115,36 @@ final List<MenuSection> menuSections = [
       ),
       MenuItem(
         title: 'Bảo hộ nhãn hiệu', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TrademarkStatisticsPage(),
+            )
+          );
+        },
       ),
       MenuItem(
-        title: 'Kiểu dáng công nghiệp', 
-        onTap: (context) {},
-      ),
+          title: 'Kiểu dáng công nghiệp', 
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const IndustrialDesignStatisticsPage(),
+              ),
+            );
+          },
+        ),
       MenuItem(
         title: 'Sáng kiến', 
-        onTap: (context) {},
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const InitiativeStatisticsPage(),
+            ),
+          );
+        },
       ),
       MenuItem(
         title: 'Sản phẩm đăng ký xây dựng, phát triển thương hiệu',
