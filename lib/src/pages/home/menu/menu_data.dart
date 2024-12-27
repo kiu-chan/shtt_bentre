@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/geographical_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/industrial_design_statistics_page.dart';
@@ -10,122 +11,123 @@ import 'package:shtt_bentre/src/pages/home/chartPage/patent_statistics_page.dart
 import 'package:shtt_bentre/src/pages/home/support/industrial_design_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/patent_guide_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shtt_bentre/src/providers/language_provider.dart';
 
-final List<MenuSection> menuSections = [
-  MenuSection(
-    title: 'Giới thiệu',
-    icon: Icons.info,
-    items: [
-      MenuItem(
-        title: 'Về chúng tôi',
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AboutPage(),
-            ),
-          );
-        },
-      ),
-    ],
-  ),
-  MenuSection(
-    title: 'Tin tức sự kiện',
-    icon: Icons.newspaper,
-    items: [
-      MenuItem(
-        title: 'Tin tức', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewsListPage(),
-            ),
-          );
-        },
-      ),
-    ],
-  ),
-  MenuSection(
-    title: 'Thông tin tư vấn',
-    icon: Icons.info_outline,
-    items: [
-      MenuItem(
-        title: 'Nhãn hiệu', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const TrademarkGuidePage(),
-            ),
-          );
-        },
-      ),
-      MenuItem(
-        title: 'Kiểu dáng công nghiệp', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const IndustrialDesignPage(),
-            ),
-          );
-        },
-      ),
-      MenuItem(
-        title: 'Sáng chế và giải pháp hữu ích', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PatentGuidePage(),
-            ),
-          );
-        },
-      ),
-    ],
-  ),
-  MenuSection(
-    title: 'Thống kê',
-    icon: Icons.search,
-    items: [
-      MenuItem(
-        title: 'Sáng chế toàn văn', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PatentStatisticsPage(),
-            ),
-          );
-        },
-      ),
-      MenuItem(
-        title: 'Chỉ dẫn địa lý', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const GeographicalStatisticsPage(),
-            ),
-          );
-        },
-      ),
-      MenuItem(
-        title: 'Bảo hộ nhãn hiệu', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const TrademarkStatisticsPage(),
-            )
-          );
-        },
-      ),
-      MenuItem(
-          title: 'Kiểu dáng công nghiệp', 
+List<MenuSection> getLocalizedMenuSections(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
+  
+  return [
+    MenuSection(
+      title: l10n.introduction,  // 'Giới thiệu' in Vietnamese
+      icon: Icons.info,
+      items: [
+        MenuItem(
+          title: l10n.aboutUs,  // 'Về chúng tôi' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AboutPage(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
+      title: l10n.newsAndEvents,  // 'Tin tức sự kiện' in Vietnamese
+      icon: Icons.newspaper,
+      items: [
+        MenuItem(
+          title: l10n.news,  // 'Tin tức' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NewsListPage(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
+      title: l10n.consultingInformation,  // 'Thông tin tư vấn' in Vietnamese
+      icon: Icons.info_outline,
+      items: [
+        MenuItem(
+          title: l10n.trademark,  // 'Nhãn hiệu' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TrademarkGuidePage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.industrialDesign,  // 'Kiểu dáng công nghiệp' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const IndustrialDesignPage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.patentsAndUtility,  // 'Sáng chế và giải pháp hữu ích' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PatentGuidePage(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+    MenuSection(
+      title: l10n.statistics,  // 'Thống kê' in Vietnamese
+      icon: Icons.search,
+      items: [
+        MenuItem(
+          title: l10n.fullTextPatent,  // 'Sáng chế toàn văn' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PatentStatisticsPage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.geographicalIndication,  // 'Chỉ dẫn địa lý' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const GeographicalStatisticsPage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.trademarkProtection,  // 'Bảo hộ nhãn hiệu' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TrademarkStatisticsPage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.industrialDesignStats,  // 'Kiểu dáng công nghiệp' in Vietnamese
           onTap: (context) {
             Navigator.push(
               context,
@@ -135,25 +137,26 @@ final List<MenuSection> menuSections = [
             );
           },
         ),
-      MenuItem(
-        title: 'Sáng kiến', 
-        onTap: (context) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const InitiativeStatisticsPage(),
-            ),
-          );
-        },
-      ),
-      MenuItem(
-        title: 'Sản phẩm đăng ký xây dựng, phát triển thương hiệu',
-        onTap: (context) {},
-      ),
-      MenuItem(
-        title: 'Nghiên cứu khoa học và đổi mới sáng tạo',
-        onTap: (context) {},
-      ),
-    ],
-  ),
-];
+        MenuItem(
+          title: l10n.initiative,  // 'Sáng kiến' in Vietnamese
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const InitiativeStatisticsPage(),
+              ),
+            );
+          },
+        ),
+        MenuItem(
+          title: l10n.brandDevelopment,  // 'Sản phẩm đăng ký xây dựng, phát triển thương hiệu' in Vietnamese
+          onTap: (context) {},
+        ),
+        MenuItem(
+          title: l10n.scientificResearch,  // 'Nghiên cứu khoa học và đổi mới sáng tạo' in Vietnamese
+          onTap: (context) {},
+        ),
+      ],
+    ),
+  ];
+}

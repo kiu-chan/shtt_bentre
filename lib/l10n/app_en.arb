@@ -83,5 +83,25 @@
     "trademarkProtection": "Trademark protection",
     "registeredConstructionProducts": "Registered construction products",
     "scientificResearch": "Scientific research",
-    "technicalInnovationCompetitions": "Technical innovation competitions"
+    "technicalInnovationCompetitions": "Technical innovation competitions",
+
+    "introduction": "Introduction",
+    "aboutUs": "About Us",
+    "newsAndEvents": "News & Events",
+    "news": "News",
+    "consultingInformation": "Consulting Information",
+    "trademark": "Trademark",
+    "industrialDesign": "Industrial Design",
+    "patentsAndUtility": "Patents and Utility Solutions",
+    "statistics": "Statistics",
+    "fullTextPatent": "Full Text Patent",
+    "geographicalIndication": "Geographical Indication",
+    "trademarkProtection": "Trademark Protection",
+    "industrialDesignStats": "Industrial Design",
+    "initiative": "Initiative",
+    "brandDevelopment": "Brand Development Registration Products",
+    "scientificResearch": "Scientific Research and Innovation",
+    "appTitle": "SHTT BEN TRE",
+    "appSubtitle": "INTELLECTUAL PROPERTY MANAGEMENT SYSTEM",
+    "contactSupport": "Contact Support"
 }

@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_data.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MenuDrawer extends StatelessWidget {
   const MenuDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final menuSections = getLocalizedMenuSections(context);
+    
     return Drawer(
       backgroundColor: Colors.white,
       child: Column(
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -21,13 +25,14 @@ class MenuDrawer extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, color: Colors.grey),
-          _buildContactInfo(),
+          _buildContactInfo(context),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
       width: double.infinity,
@@ -44,9 +49,9 @@ class MenuDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'SHTT BẾN TRE',
-            style: TextStyle(
+          Text(
+            l10n.appTitle,  // Add this to ARB files: "SHTT BẾN TRE"
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -55,7 +60,7 @@ class MenuDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'HỆ THỐNG QUẢN LÝ SỞ HỮU TRÍ TUỆ',
+            l10n.appSubtitle,  // Add this to ARB files: "HỆ THỐNG QUẢN LÝ SỞ HỮU TRÍ TUỆ"
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 12,
@@ -125,7 +130,8 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildContactInfo() {
+  Widget _buildContactInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -140,17 +146,17 @@ class MenuDrawer extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.headset_mic,
                 color: Colors.blue,
                 size: 20,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
-                'Liên hệ hỗ trợ',
-                style: TextStyle(
+                l10n.contactSupport,  // Add this to ARB files: "Liên hệ hỗ trợ"
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
