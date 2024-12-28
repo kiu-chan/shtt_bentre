@@ -36,7 +36,6 @@ class MapPageView extends StatelessWidget {
   
   final Animation<Offset> legendSlideAnimation;
   
-  // Cập nhật các callback để có thể null
   final VoidCallback? onToggleLegend;
   final VoidCallback onToggleRightMenu;
   final VoidCallback? onToggleBorder;
@@ -125,7 +124,7 @@ class MapPageView extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: onToggleLegend, // Có thể null
+          onPressed: onToggleLegend,
           tooltip: AppLocalizations.of(context)!.hide_ShowLegend,
         ),
         IconButton(
@@ -165,10 +164,10 @@ class MapPageView extends StatelessWidget {
         point: patent.location,
         builder: (ctx) => GestureDetector(
           onTap: () => onShowPatentInfo(patent),
-          child: Icon(
-            Icons.lightbulb,
-            color: selectedPatent?.id == patent.id ? Colors.orange : Colors.blue,
-            size: selectedPatent?.id == patent.id ? 30 : 24,
+          child: Image.asset(
+            'lib/assets/map/patent.png',
+            width: selectedPatent?.id == patent.id ? 30 : 24,
+            height: selectedPatent?.id == patent.id ? 30 : 24,
           ),
         ),
       )).toList(),

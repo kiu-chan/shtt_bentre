@@ -68,4 +68,39 @@ class Patent {
       rethrow;
     }
   }
+
+  factory Patent.fromJson(Map<String, dynamic> json) {
+    try {
+      String geomText = json['geom_text'] as String;
+      
+      // Xử lý chuỗi POINT an toàn hơn
+      final pointRegex = RegExp(r'POINT\(([0-9.-]+)\s+([0-9.-]+)\)');
+      final match = pointRegex.firstMatch(geomText.replaceAll('SRID=4326;', ''));
+      
+      if (match == null || match.groupCount != 2) {
+        throw FormatException('Invalid POINT format: $geomText');
+      }
+
+      final longitude = double.parse(match.group(1)!);
+      final latitude = double.parse(match.group(2)!);
+
+      return Patent(
+        id: json['id'] as int,
+        districtId: json['district_id'] as int,
+        communeId: json['commune_id'] as int?,
+        location: LatLng(latitude, longitude),
+        userId: json['user_id'] as int,
+        typeId: json['type_id'] as int,
+        title: json['title'] as String? ?? 'Không có tiêu đề',
+        inventor: json['inventor'] as String? ?? 'Không có thông tin',
+        inventorAddress: json['inventor_address'] as String? ?? 'Không có địa chỉ',
+        applicant: json['applicant'] as String? ?? 'Không có thông tin',
+        applicantAddress: json['applicant_address'] as String? ?? 'Không có địa chỉ',
+      );
+    } catch (e) {
+      print('Error parsing patent JSON data: $e');
+      print('Raw JSON: $json');
+      rethrow;
+    }
+  }
 }

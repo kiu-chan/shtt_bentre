@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:postgres/postgres.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
@@ -14,6 +15,9 @@ class Database {
   }
 
   Database._internal();
+
+  // Base URL for API
+  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
 
   final List<Color> districtColors = [
     Colors.red.withOpacity(0.3),
@@ -39,230 +43,130 @@ class Database {
     Colors.indigo.withOpacity(0.3),
   ];
 
-  PostgreSQLConnection? _connection;
-  bool _isConnecting = false;
-  
-  static const int _maxRetries = 3;
-  static const Duration _connectionTimeout = Duration(seconds: 30);
-  static const Duration _queryTimeout = Duration(seconds: 20);
-
-  Future<void> _ensureConnection() async {
-    if (_connection != null && !_connection!.isClosed) return;
-    
-    if (_isConnecting) {
-      int attempts = 0;
-      while (_isConnecting && attempts < 50) {
-        await Future.delayed(const Duration(milliseconds: 100));
-        attempts++;
-      }
-      if (_connection != null && !_connection!.isClosed) return;
-    }
-
-    _isConnecting = true;
+  Future<List<Commune>> loadCommuneData() async {
     try {
-      _connection = PostgreSQLConnection(
-        '163.44.193.74',
-        5432,
-        'shtt_bentre',
-        username: 'postgres',
-        password: '2W34pRi%AEzYtRy3QfF)tV',
-        timeoutInSeconds: _connectionTimeout.inSeconds,
-        queryTimeoutInSeconds: _queryTimeout.inSeconds,
-      );
-      await _connection!.open();
+      final response = await http.get(Uri.parse('$baseUrl/map/communes'));
+      
+      if (response.statusCode != 200) {
+        throw DatabaseException('Lỗi khi tải dữ liệu: ${response.statusCode}');
+      }
+
+      final data = json.decode(response.body);
+      if (!data['success']) {
+        throw DatabaseException(data['message'] ?? 'Không thể lấy dữ liệu xã');
+      }
+
+      List<Commune> communes = [];
+      for (var i = 0; i < data['data'].length; i++) {
+        final item = data['data'][i];
+        try {
+          List<List<LatLng>> polygons = _parseMultiPolygon(item['geom_text']);
+          if (polygons.isNotEmpty) {
+            communes.add(Commune(
+              id: item['id'],
+              name: item['name'],
+              districtId: item['district_id'],
+              polygons: polygons,
+              color: communeColors[i % communeColors.length],
+              area: double.tryParse(item['area'].toString()) ?? 0.0,
+              population: int.tryParse(item['population'].toString()) ?? 0,
+              updatedYear: item['updated_year'],
+            ));
+          }
+        } catch (e) {
+          print('Error processing commune data at index $i: $e');
+          continue;
+        }
+      }
+
+      if (communes.isEmpty) {
+        throw DatabaseException('Không tìm thấy dữ liệu xã hợp lệ');
+      }
+
+      return communes;
     } catch (e) {
-      print('Error establishing database connection: $e');
-      _connection = null;
-      throw DatabaseException('Không thể kết nối tới cơ sở dữ liệu');
-    } finally {
-      _isConnecting = false;
+      throw DatabaseException('Lỗi khi tải dữ liệu xã: $e');
     }
   }
 
-// Trong phương thức loadCommuneData(), thay đổi cách xử lý dữ liệu:
-
-Future<List<Commune>> loadCommuneData() async {
-  return _retryOperation(() async {
-    await _ensureConnection();
-    
-    final results = await _connection!.query('''
-      SELECT 
-        id,
-        name,
-        district_id,
-        ST_AsText(geom) as geom_text,
-        TRIM(area) as area_str,
-        TRIM(population) as population_str,
-        COALESCE(updated_year, '') as updated_year
-      FROM public.map_communes
-      ORDER BY district_id, id
-    ''');
-
-    List<Commune> communes = [];
-    
-    for (int i = 0; i < results.length; i++) {
-      try {
-        final row = results[i];
-        final id = row[0] as int;
-        final name = row[1] as String;
-        final districtId = row[2] as int;
-        final geomText = row[3] as String;
-        
-        // Parse area safely
-        double area = 0.0;
-        try {
-          final areaStr = (row[4] as String).replaceAll(' ', '');
-          area = double.tryParse(areaStr) ?? 0.0;
-        } catch (e) {
-          print('Error parsing area for row $i: ${row[4]}');
-        }
-
-        // Parse population safely
-        int population = 0;
-        try {
-          final popStr = (row[5] as String).replaceAll(' ', '');
-          population = int.tryParse(popStr) ?? 0;
-        } catch (e) {
-          print('Error parsing population for row $i: ${row[5]}');
-        }
-
-        final updatedYear = row[6] as String;
-        
-        List<List<LatLng>> polygons = _parseMultiPolygon(geomText);
-        if (polygons.isNotEmpty) {
-          communes.add(Commune(
-            id: id,
-            name: name,
-            districtId: districtId,
-            polygons: polygons,
-            color: communeColors[i % communeColors.length],
-            area: area,
-            population: population,
-            updatedYear: updatedYear,
-          ));
-        }
-      } catch (e) {
-        print('Error processing commune row $i: $e');
-        continue;
-      }
-    }
-
-    if (communes.isEmpty) {
-      throw DatabaseException('Không tìm thấy dữ liệu xã');
-    }
-
-    return communes;
-  });
-}
-
   Future<List<District>> loadDistrictData() async {
-    return _retryOperation(() async {
-      await _ensureConnection();
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/map/districts'));
+      
+      if (response.statusCode != 200) {
+        throw DatabaseException('Lỗi khi tải dữ liệu: ${response.statusCode}');
+      }
 
-      final results = await _connection!.query('''
-        SELECT 
-          id,
-          name,
-          ST_AsText(geom) as geom_text
-        FROM public.map_districts
-        ORDER BY id
-      ''');
+      final data = json.decode(response.body);
+      if (!data['success']) {
+        throw DatabaseException(data['message'] ?? 'Không thể lấy dữ liệu huyện');
+      }
 
       List<District> districts = [];
-      
-      for (int i = 0; i < results.length; i++) {
+      for (var i = 0; i < data['data'].length; i++) {
+        final item = data['data'][i];
         try {
-          final row = results[i];
-          final id = row[0] as int;
-          final name = row[1] as String;
-          final geomText = row[2] as String;
-          
-          List<List<LatLng>> polygons = _parseMultiPolygon(geomText);
+          List<List<LatLng>> polygons = _parseMultiPolygon(item['geom_text']);
           if (polygons.isNotEmpty) {
             districts.add(District(
-              id: id,
-              name: name,
+              id: item['id'],
+              name: item['name'],
               polygons: polygons,
               color: districtColors[i % districtColors.length],
             ));
           }
         } catch (e) {
-          print('Error processing district row $i: $e');
+          print('Error processing district data at index $i: $e');
           continue;
         }
       }
 
       if (districts.isEmpty) {
-        throw DatabaseException('Không tìm thấy dữ liệu huyện');
+        throw DatabaseException('Không tìm thấy dữ liệu huyện hợp lệ');
       }
 
       return districts;
-    });
+    } catch (e) {
+      throw DatabaseException('Lỗi khi tải dữ liệu huyện: $e');
+    }
   }
 
   Future<List<MapBorder>> loadBorderData() async {
-    return _retryOperation(() async {
-      await _ensureConnection();
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/map/borders'));
+      
+      if (response.statusCode != 200) {
+        throw DatabaseException('Lỗi khi tải dữ liệu: ${response.statusCode}');
+      }
 
-      final results = await _connection!.query('''
-        SELECT 
-          id,
-          ST_AsText(geom) as geom_text
-        FROM public.map_borders
-        ORDER BY id
-      ''');
+      final data = json.decode(response.body);
+      if (!data['success']) {
+        throw DatabaseException(data['message'] ?? 'Không thể lấy dữ liệu viền bản đồ');
+      }
 
       List<MapBorder> borders = [];
-      
-      for (final row in results) {
+      for (final item in data['data']) {
         try {
-          final id = row[0] as int;
-          final geomText = row[1] as String;
-          
-          List<LatLng> points = _parseMultiLineString(geomText);
+          List<LatLng> points = _parseMultiLineString(item['geom_text']);
           if (points.isNotEmpty) {
             borders.add(MapBorder(
-              id: id,
+              id: item['id'],
               points: points,
             ));
           }
         } catch (e) {
-          print('Error processing border row: $e');
+          print('Error processing border data: $e');
           continue;
         }
       }
 
       if (borders.isEmpty) {
-        throw DatabaseException('Không tìm thấy dữ liệu viền bản đồ');
+        throw DatabaseException('Không tìm thấy dữ liệu viền bản đồ hợp lệ');
       }
 
       return borders;
-    });
-  }
-
-  Future<T> _retryOperation<T>(Future<T> Function() operation) async {
-    int attempts = 0;
-    while (attempts < _maxRetries) {
-      try {
-        return await operation();
-      } on PostgreSQLException catch (e) {
-        attempts++;
-        print('Database operation failed (attempt $attempts): ${e.message}');
-        if (attempts == _maxRetries) rethrow;
-        await Future.delayed(Duration(milliseconds: 500 * attempts));
-        await _resetConnection();
-      }
-    }
-    throw DatabaseException('Thao tác không thành công sau $_maxRetries lần thử');
-  }
-
-  Future<void> _resetConnection() async {
-    try {
-      await _connection?.close();
     } catch (e) {
-      print('Error closing connection: $e');
-    } finally {
-      _connection = null;
+      throw DatabaseException('Lỗi khi tải dữ liệu viền bản đồ: $e');
     }
   }
 
@@ -371,53 +275,79 @@ Future<List<Commune>> loadCommuneData() async {
     }
   }
 
-Future<List<Patent>> loadPatentData() async {
-  return _retryOperation(() async {
-    await _ensureConnection();
-
-    final results = await _connection!.query('''
-      SELECT 
-        id,
-        district_id,
-        commune_id,
-        ST_AsText(geom) as geom_text,
-        user_id,
-        type_id,
-        COALESCE(title, 'Không có tiêu đề') as title,
-        COALESCE(inventor, 'Không có thông tin') as inventor,
-        COALESCE(inventor_address, 'Không có địa chỉ') as inventor_address,
-        COALESCE(applicant, 'Không có thông tin') as applicant,
-        COALESCE(applicant_address, 'Không có địa chỉ') as applicant_address
-      FROM public.patents
-      WHERE ST_AsText(geom) IS NOT NULL
-      ORDER BY id
-    ''');
-
-    List<Patent> patents = [];
-    
-    for (final row in results) {
-      try {
-        final patent = Patent.fromRow(row);
-        patents.add(patent);
-      } catch (e) {
-        print('Error processing patent row: $e');
-        if (row[3] != null) {
-          print(row[3]); // In ra giá trị POINT để debug
+  Future<List<Patent>> loadPatentData() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/patent-locations'));
+      
+      if (response.statusCode != 200) {
+        print('API Error - Status Code: ${response.statusCode}');
+        print('API Response Body: ${response.body}');
+        
+        // Check if response is HTML (error page)
+        if (response.body.trim().toLowerCase().startsWith('<!doctype html>') ||
+            response.body.trim().toLowerCase().startsWith('<html')) {
+          throw DatabaseException('API endpoint not found. Please check the URL configuration.');
         }
-        continue;
+        
+        throw DatabaseException('API request failed with status: ${response.statusCode}');
       }
+
+      // Check if response is HTML despite 200 status
+      if (response.body.trim().toLowerCase().startsWith('<!doctype html>') ||
+          response.body.trim().toLowerCase().startsWith('<html')) {
+        throw DatabaseException('Received HTML response instead of JSON. Please check the API endpoint.');
+      }
+
+      final data = json.decode(response.body);
+      
+      if (!data['success']) {
+        throw DatabaseException(data['message'] ?? 'Failed to fetch patent data');
+      }
+
+      List<Patent> patents = [];
+      for (final item in data['data']) {
+        try {
+          if (item != null && item['coordinates'] != null) {
+            final coordinates = item['coordinates'];
+            if (coordinates['latitude'] != null && coordinates['longitude'] != null) {
+              patents.add(Patent(
+                id: item['id'],
+                location: LatLng(
+                  double.parse(coordinates['latitude'].toString()),
+                  double.parse(coordinates['longitude'].toString())
+                ),
+                districtId: 0,
+                title: item['title'] ?? '',
+                inventor: item['inventor'] ?? '',
+                inventorAddress: item['inventor_address'] ?? '',
+                applicant: item['applicant'] ?? '',
+                applicantAddress: item['applicant_address'] ?? '',
+                typeId: item['type_id'] ?? 0,
+                userId: item['user_id'] ?? 0,
+              ));
+            }
+          }
+        } catch (e) {
+          print('Error processing patent item: $e');
+          print('Problematic data: $item');
+          continue;
+        }
+      }
+
+      if (patents.isEmpty) {
+        throw DatabaseException('No valid patent locations found in response');
+      }
+
+      print('Successfully loaded ${patents.length} patent locations'); // Debug log
+      return patents;
+    } catch (e) {
+      print('Patent data loading error: $e'); 
+      rethrow;
     }
+  }
 
-    if (patents.isEmpty) {
-      throw DatabaseException('Không tìm thấy dữ liệu bằng sáng chế');
-    }
-
-    return patents;
-  });
-}
-
-  Future<void> dispose() async {
-    await _resetConnection();
+  void dispose() {
+    // Cleanup if needed
   }
 }
 

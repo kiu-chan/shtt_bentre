@@ -149,47 +149,57 @@ class MapLegend extends StatelessWidget {
     );
   }
 
-  Widget _buildPatentsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: const Row(
-            children: [
-              Icon(Icons.lightbulb, size: 16),
-              SizedBox(width: 4),
-              Text(
-                'Bằng sáng chế',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+Widget _buildPatentsSection() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: Image.asset(
+                'lib/assets/map/patent.png',
+                color: Colors.black,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              'Bằng sáng chế',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.lightbulb,
+      ),
+      Container(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: Image.asset(
+                'lib/assets/map/patent.png',
                 color: Colors.blue,
-                size: 16,
               ),
-              const SizedBox(width: 8),
-              Text(
-                'Vị trí bằng sáng chế',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[800],
-                ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Vị trí bằng sáng chế',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[800],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 }
