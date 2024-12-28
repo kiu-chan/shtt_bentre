@@ -5,17 +5,19 @@ class LoadingIndicator extends StatelessWidget {
   final bool isBorderLoading;
   final bool isCommuneLoading;
   final bool isPatentLoading;
+  final bool isTrademarkLoading;
 
   const LoadingIndicator({
     super.key,
     required this.isBorderLoading,
     required this.isCommuneLoading,
     required this.isPatentLoading,
+    required this.isTrademarkLoading,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!isBorderLoading && !isCommuneLoading && !isPatentLoading) {
+    if (!isBorderLoading && !isCommuneLoading && !isPatentLoading && !isTrademarkLoading) {
       return const SizedBox.shrink();
     }
 
@@ -80,9 +82,10 @@ class LoadingIndicator extends StatelessWidget {
       return l10n.loadingCommuneBoundaries;
     } else if (isPatentLoading) {
       return 'Đang tải dữ liệu bằng sáng chế...';
+    } else if (isTrademarkLoading) {
+      return 'Đang tải dữ liệu nhãn hiệu...';
     }
     
-    // Fallback message (should never reach here due to build() check)
     return 'Đang tải...';
   }
 }

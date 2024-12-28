@@ -1,9 +1,10 @@
+// lib/src/pages/map/map_state_manager.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MapStateManager {
@@ -22,11 +23,13 @@ class MapStateManager {
   bool isCommuneEnabled = false;
   bool isDistrictEnabled = true;
   bool isPatentEnabled = false;
+  bool isTrademarkEnabled = false;
   bool isLegendAnimating = false;
 
   String? selectedDistrictName;
   String? selectedCommuneName;
   Patent? selectedPatent;
+  TrademarkMapModel? selectedTrademark;
 
   MapStateManager({
     required this.vsync,
@@ -127,6 +130,13 @@ class MapStateManager {
     }
   }
 
+  void toggleTrademark() {
+    if (!isLegendAnimating) {
+      isTrademarkEnabled = !isTrademarkEnabled;
+      onStateChanged();
+    }
+  }
+
   void zoom(MapController mapController, bool zoomIn) {
     currentZoom = (currentZoom + (zoomIn ? 0.5 : -0.5)).clamp(1.0, 18.0);
     mapController.move(mapController.center, currentZoom);
@@ -138,17 +148,16 @@ class MapStateManager {
     selectedDistrictName = name;
     selectedCommuneName = null;
     selectedPatent = null;
+    selectedTrademark = null;
     onStateChanged();
     
-    if (_context != null) {
-      final l10n = AppLocalizations.of(_context)!;
-      ScaffoldMessenger.of(_context).showSnackBar(
-        SnackBar(
-          content: Text('${l10n.districtLabel}: $name'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
+    final l10n = AppLocalizations.of(_context)!;
+    ScaffoldMessenger.of(_context).showSnackBar(
+      SnackBar(
+        content: Text('${l10n.districtLabel}: $name'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void showCommuneInfo(Commune commune) {
@@ -156,22 +165,21 @@ class MapStateManager {
     selectedCommuneName = commune.name;
     selectedDistrictName = null;
     selectedPatent = null;
+    selectedTrademark = null;
     onStateChanged();
     
-    if (_context != null) {
-      final l10n = AppLocalizations.of(_context)!;
-      ScaffoldMessenger.of(_context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${l10n.communeLabel}: ${commune.name}\n'
-            '${l10n.area}: ${commune.area.toStringAsFixed(2)} ${l10n.areaUnit}\n'
-            '${l10n.population}: ${commune.population}\n'
-            '${l10n.update}: ${commune.updatedYear}',
-          ),
-          duration: const Duration(seconds: 3),
+    final l10n = AppLocalizations.of(_context)!;
+    ScaffoldMessenger.of(_context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${l10n.communeLabel}: ${commune.name}\n'
+          '${l10n.area}: ${commune.area.toStringAsFixed(2)} ${l10n.areaUnit}\n'
+          '${l10n.population}: ${commune.population}\n'
+          '${l10n.update}: ${commune.updatedYear}',
         ),
-      );
-    }
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void showPatentInfo(Patent patent) {
@@ -179,6 +187,16 @@ class MapStateManager {
     selectedPatent = patent;
     selectedDistrictName = null;
     selectedCommuneName = null;
+    selectedTrademark = null;
+    onStateChanged();
+  }
+
+  void showTrademarkInfo(TrademarkMapModel trademark) {
+    if (isLegendAnimating) return;
+    selectedTrademark = trademark;
+    selectedDistrictName = null;
+    selectedCommuneName = null;
+    selectedPatent = null;
     onStateChanged();
   }
 
@@ -187,6 +205,7 @@ class MapStateManager {
     selectedDistrictName = null;
     selectedCommuneName = null;
     selectedPatent = null;
+    selectedTrademark = null;
     onStateChanged();
   }
 

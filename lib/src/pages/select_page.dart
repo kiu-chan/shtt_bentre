@@ -13,7 +13,6 @@ class SelectPage extends StatefulWidget {
 class SelectPageState extends State<SelectPage> with SingleTickerProviderStateMixin {
   int currentIndex = 0;
   late AnimationController _controller;
-  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -21,10 +20,6 @@ class SelectPageState extends State<SelectPage> with SingleTickerProviderStateMi
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
     );
   }
 

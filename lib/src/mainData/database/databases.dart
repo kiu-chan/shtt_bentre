@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
 import 'dart:convert';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 
 class Database {
   static final Database _instance = Database._internal();
@@ -345,6 +347,64 @@ class Database {
       rethrow;
     }
   }
+
+// Trong file databases.dart
+Future<List<TrademarkMapModel>> loadTrademarkLocations() async {
+  try {
+    final response = await http.get(Uri.parse('$baseUrl/trademark-locations'));
+    
+    if (response.statusCode != 200) {
+      throw DatabaseException('Lỗi khi tải dữ liệu: ${response.statusCode}');
+    }
+
+    final data = json.decode(response.body);
+    if (!data['success']) {
+      throw DatabaseException(data['message'] ?? 'Không thể lấy dữ liệu nhãn hiệu');
+    }
+
+    List<TrademarkMapModel> trademarks = [];
+    for (final item in data['data']) {
+      try {
+        if (item != null && item['coordinates'] != null) {
+          final coordinates = item['coordinates'];
+          if (coordinates['latitude'] != null && coordinates['longitude'] != null) {
+            // Xử lý ngày tháng an toàn hơn
+            DateTime filingDate;
+            try {
+              filingDate = item['filing_date'] != null ? 
+                DateTime.parse(item['filing_date']) : 
+                DateTime.now();
+            } catch (e) {
+              // Nếu parse lỗi thì dùng ngày hiện tại
+              filingDate = DateTime.now();
+            }
+            
+            trademarks.add(TrademarkMapModel(
+              id: item['id'] ?? 0,
+              mark: item['mark'] ?? '',
+              owner: item['owner'] ?? '',
+              address: item['address'] ?? '',
+              status: item['status'] ?? '',
+              filingDate: filingDate,
+              filingNumber: item['filing_number'] ?? '',
+              registrationNumber: item['registration_number'] ?? '',
+              imageUrl: item['image_url'] ?? '',
+              latitude: double.parse(coordinates['latitude'].toString()),
+              longitude: double.parse(coordinates['longitude'].toString()),
+            ));
+          }
+        }
+      } catch (e) {
+        print('Error processing trademark data: $e');
+        continue;
+      }
+    }
+
+    return trademarks;
+  } catch (e) {
+    throw DatabaseException('Lỗi khi tải dữ liệu nhãn hiệu: $e');
+  }
+}
 
   void dispose() {
     // Cleanup if needed

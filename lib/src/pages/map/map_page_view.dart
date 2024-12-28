@@ -5,11 +5,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/commune_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/legend.dart';
 import 'package:shtt_bentre/src/pages/map/loading_indicator.dart';
 import 'package:shtt_bentre/src/pages/map/map_controls.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/patent_info_card.dart';
+import 'package:shtt_bentre/src/pages/map/info_cart/trademark_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/right_menu.dart';
 
 class MapPageView extends StatelessWidget {
@@ -19,6 +21,7 @@ class MapPageView extends StatelessWidget {
   final List<District> districts;
   final List<Commune> communes;
   final List<Patent> patents;
+  final List<TrademarkMapModel> trademarks;
   
   final bool isLoading;
   final bool isLegendVisible;
@@ -27,13 +30,16 @@ class MapPageView extends StatelessWidget {
   final bool isCommuneEnabled;
   final bool isDistrictEnabled;
   final bool isPatentEnabled;
+  final bool isTrademarkEnabled;
   final bool isBorderLoading;
   final bool isCommuneLoading;
   final bool isPatentLoading;
+  final bool isTrademarkLoading;
   
   final String? selectedDistrictName;
   final String? selectedCommuneName;
   final Patent? selectedPatent;
+  final TrademarkMapModel? selectedTrademark;
   
   final Animation<Offset> legendSlideAnimation;
   
@@ -43,12 +49,14 @@ class MapPageView extends StatelessWidget {
   final VoidCallback? onToggleCommune;
   final VoidCallback? onToggleDistrict;
   final VoidCallback? onTogglePatent;
+  final VoidCallback? onToggleTrademark;
   final Function(int) onToggleDistrictVisibility;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final Function(String) onShowDistrictInfo;
   final Function(Commune) onShowCommuneInfo;
   final Function(Patent) onShowPatentInfo;
+  final Function(TrademarkMapModel) onShowTrademarkInfo;
   final Function(dynamic, dynamic) onMapTap;
   
   final List<Polygon> polygons;
@@ -62,6 +70,7 @@ class MapPageView extends StatelessWidget {
     required this.districts,
     required this.communes,
     required this.patents,
+    required this.trademarks,
     required this.isLoading,
     required this.isLegendVisible,
     required this.isRightMenuOpen,
@@ -69,12 +78,15 @@ class MapPageView extends StatelessWidget {
     required this.isCommuneEnabled,
     required this.isDistrictEnabled,
     required this.isPatentEnabled,
+    required this.isTrademarkEnabled,
     required this.isBorderLoading,
     required this.isCommuneLoading,
     required this.isPatentLoading,
+    required this.isTrademarkLoading,
     required this.selectedDistrictName,
     required this.selectedCommuneName,
     required this.selectedPatent,
+    required this.selectedTrademark,
     required this.legendSlideAnimation,
     required this.onToggleLegend,
     required this.onToggleRightMenu,
@@ -82,12 +94,14 @@ class MapPageView extends StatelessWidget {
     required this.onToggleCommune,
     required this.onToggleDistrict,
     required this.onTogglePatent,
+    required this.onToggleTrademark,
     required this.onToggleDistrictVisibility,
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onShowDistrictInfo,
     required this.onShowCommuneInfo,
     required this.onShowPatentInfo,
+    required this.onShowTrademarkInfo,
     required this.onMapTap,
     required this.polygons,
     required this.borderLines,
@@ -113,6 +127,7 @@ class MapPageView extends StatelessWidget {
             isBorderLoading: isBorderLoading,
             isCommuneLoading: isCommuneLoading,
             isPatentLoading: isPatentLoading,
+            isTrademarkLoading: isTrademarkLoading,
           ),
         ],
       ),
@@ -121,7 +136,7 @@ class MapPageView extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: const Text("Bình Định"),
+      title: const Text("Bến Tre"),
       actions: [
         IconButton(
           icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
@@ -153,6 +168,7 @@ class MapPageView extends StatelessWidget {
         PolygonLayer(polygons: polygons),
         if (borderLines.isNotEmpty) PolylineLayer(polylines: borderLines),
         if (isPatentEnabled) _buildPatentMarkers(),
+        if (isTrademarkEnabled) _buildTrademarkMarkers(),
       ],
     );
   }
@@ -175,6 +191,24 @@ class MapPageView extends StatelessWidget {
     );
   }
 
+  Widget _buildTrademarkMarkers() {
+    return MarkerLayer(
+      markers: trademarks.map((trademark) => Marker(
+        width: 30.0,
+        height: 30.0,
+        point: trademark.location,
+        builder: (ctx) => GestureDetector(
+          onTap: () => onShowTrademarkInfo(trademark),
+          child: Image.asset(
+            'lib/assets/map/trademark.png',
+            width: selectedTrademark?.id == trademark.id ? 30 : 24,
+            height: selectedTrademark?.id == trademark.id ? 30 : 24,
+          ),
+        ),
+      )).toList(),
+    );
+  }
+
   Widget _buildLegend(BuildContext context) {
     if (!isLegendVisible) return const SizedBox.shrink();
     
@@ -188,9 +222,11 @@ class MapPageView extends StatelessWidget {
             districts: districts,
             communes: communes,
             patents: patents,
+            trademarks: trademarks,
             isDistrictEnabled: isDistrictEnabled,
             isCommuneEnabled: isCommuneEnabled,
             isPatentEnabled: isPatentEnabled,
+            isTrademarkEnabled: isTrademarkEnabled,
             selectedDistrictName: selectedDistrictName,
             selectedCommuneName: selectedCommuneName,
             onToggleDistrictVisibility: onToggleDistrictVisibility,
@@ -220,14 +256,17 @@ class MapPageView extends StatelessWidget {
           isBorderEnabled: isBorderEnabled,
           isCommuneEnabled: isCommuneEnabled,
           isPatentEnabled: isPatentEnabled,
+          isTrademarkEnabled: isTrademarkEnabled,
           isBorderLoading: isBorderLoading,
           isCommuneLoading: isCommuneLoading,
           isPatentLoading: isPatentLoading,
+          isTrademarkLoading: isTrademarkLoading,
           onToggleRightMenu: onToggleRightMenu,
           onToggleBorder: onToggleBorder,
           onToggleCommune: onToggleCommune,
           onToggleDistrict: onToggleDistrict,
           onTogglePatent: onTogglePatent,
+          onToggleTrademark: onToggleTrademark,
           onToggleDistrictVisibility: onToggleDistrictVisibility,
         ),
       ),
@@ -247,6 +286,12 @@ class MapPageView extends StatelessWidget {
         if (selectedPatent != null)
           PatentInfoCard(
             selectedPatent: selectedPatent!,
+            onMapTap: onMapTap,
+            isRightMenuOpen: isRightMenuOpen,
+          ),
+        if (selectedTrademark != null)
+          TrademarkInfoCard(
+            selectedTrademark: selectedTrademark!,
             onMapTap: onMapTap,
             isRightMenuOpen: isRightMenuOpen,
           ),

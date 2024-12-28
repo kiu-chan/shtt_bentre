@@ -8,14 +8,17 @@ class MapRightMenu extends StatelessWidget {
   final bool isBorderEnabled;
   final bool isCommuneEnabled;
   final bool isPatentEnabled;
+  final bool isTrademarkEnabled;
   final bool isBorderLoading;
   final bool isCommuneLoading;
   final bool isPatentLoading;
+  final bool isTrademarkLoading;
   final VoidCallback onToggleRightMenu;
   final VoidCallback? onToggleBorder;
   final VoidCallback? onToggleCommune;
   final VoidCallback? onToggleDistrict;
   final VoidCallback? onTogglePatent;
+  final VoidCallback? onToggleTrademark;
   final Function(int) onToggleDistrictVisibility;
 
   const MapRightMenu({
@@ -25,14 +28,17 @@ class MapRightMenu extends StatelessWidget {
     required this.isBorderEnabled,
     required this.isCommuneEnabled,
     required this.isPatentEnabled,
+    required this.isTrademarkEnabled,
     required this.isBorderLoading,
     required this.isCommuneLoading,
     required this.isPatentLoading,
+    required this.isTrademarkLoading,
     required this.onToggleRightMenu,
     required this.onToggleBorder,
     required this.onToggleCommune,
     required this.onToggleDistrict,
     required this.onTogglePatent,
+    required this.onToggleTrademark,
     required this.onToggleDistrictVisibility,
   });
 
@@ -134,6 +140,15 @@ class MapRightMenu extends StatelessWidget {
           value: isPatentEnabled,
           onChanged: onTogglePatent,
           isLoading: isPatentLoading,
+        ),
+        const SizedBox(height: 4),
+        _buildLayerSwitch(
+          context,
+          icon: Icons.bookmark,
+          title: 'Nhãn hiệu',
+          value: isTrademarkEnabled,
+          onChanged: onToggleTrademark,
+          isLoading: isTrademarkLoading,
         ),
       ],
     );

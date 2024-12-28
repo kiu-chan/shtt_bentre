@@ -18,7 +18,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final bgBlue = const Color(0xFFE8F0FE);
   
   String _version = '';
-  String _buildNumber = '';
 
   @override
   void initState() {
@@ -30,7 +29,6 @@ class _SettingsPageState extends State<SettingsPage> {
     final packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       _version = packageInfo.version;
-      _buildNumber = packageInfo.buildNumber;
     });
   }
 

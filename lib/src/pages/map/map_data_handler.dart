@@ -5,6 +5,7 @@ import 'package:shtt_bentre/src/mainData/data/map/border.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class MapDataHandler {
@@ -15,11 +16,13 @@ class MapDataHandler {
   List<Commune> communes = [];
   List<MapBorder> borders = [];
   List<Patent> patents = [];
+  List<TrademarkMapModel> trademarks = [];
 
   bool isLoading = true;
   bool isBorderLoading = false;
   bool isCommuneLoading = false;
   bool isPatentLoading = false;
+  bool isTrademarkLoading = false;
   bool isDataLoading = false;
 
   Future<void> loadInitialData() async {
@@ -123,6 +126,38 @@ class MapDataHandler {
     } catch (e) {
       print('Error loading patent data: $e');
       isPatentLoading = false;
+      isDataLoading = false;
+      if (setState != null) {
+        setState(() {});
+      }
+    }
+  }
+
+  Future<void> loadTrademarkData(Function(void Function())? setState) async {
+    if (isDataLoading || trademarks.isNotEmpty) {
+      if (setState != null) {
+        setState(() {});
+      }
+      return;
+    }
+
+    isDataLoading = true;
+    isTrademarkLoading = true;
+    if (setState != null) {
+      setState(() {});
+    }
+
+    try {
+      final response = await _database.loadTrademarkLocations();
+      trademarks = response;
+      isTrademarkLoading = false;
+      isDataLoading = false;
+      if (setState != null) {
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error loading trademark data: $e');
+      isTrademarkLoading = false;
       isDataLoading = false;
       if (setState != null) {
         setState(() {});

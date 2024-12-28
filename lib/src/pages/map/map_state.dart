@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
-import 'package:shtt_bentre/src/mainData/data/map/district.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
 import 'package:shtt_bentre/src/pages/map/map_data_handler.dart';
 import 'package:shtt_bentre/src/pages/map/map_state_manager.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
 import 'map_page_view.dart';
 import 'map_page.dart';
 
@@ -58,6 +55,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       districts: _dataHandler.districts,
       communes: _dataHandler.communes,
       patents: _dataHandler.patents,
+      trademarks: _dataHandler.trademarks,
       isLoading: _dataHandler.isLoading,
       isLegendVisible: _stateManager.isLegendVisible,
       isRightMenuOpen: _stateManager.isRightMenuOpen,
@@ -65,12 +63,15 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       isCommuneEnabled: _stateManager.isCommuneEnabled,
       isDistrictEnabled: _stateManager.isDistrictEnabled,
       isPatentEnabled: _stateManager.isPatentEnabled,
+      isTrademarkEnabled: _stateManager.isTrademarkEnabled,
       isBorderLoading: _dataHandler.isBorderLoading,
       isCommuneLoading: _dataHandler.isCommuneLoading,
       isPatentLoading: _dataHandler.isPatentLoading,
+      isTrademarkLoading: _dataHandler.isTrademarkLoading,
       selectedDistrictName: _stateManager.selectedDistrictName,
       selectedCommuneName: _stateManager.selectedCommuneName,
       selectedPatent: _stateManager.selectedPatent,
+      selectedTrademark: _stateManager.selectedTrademark,
       legendSlideAnimation: _stateManager.legendSlideAnimation,
       onToggleLegend: _stateManager.toggleLegend,
       onToggleRightMenu: _stateManager.toggleRightMenu,
@@ -87,12 +88,17 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         _stateManager.togglePatent();
         _dataHandler.loadPatentData(setState);
       },
+      onToggleTrademark: () {
+        _stateManager.toggleTrademark();
+        _dataHandler.loadTrademarkData(setState);
+      },
       onToggleDistrictVisibility: _stateManager.toggleDistrictVisibility,
       onZoomIn: () => _stateManager.zoom(_mapController, true),
       onZoomOut: () => _stateManager.zoom(_mapController, false),
       onShowDistrictInfo: _stateManager.showDistrictInfo,
       onShowCommuneInfo: _stateManager.showCommuneInfo,
       onShowPatentInfo: _stateManager.showPatentInfo,
+      onShowTrademarkInfo: _stateManager.showTrademarkInfo,
       onMapTap: _stateManager.onMapTap,
       polygons: _dataHandler.buildPolygons(
         _stateManager.isDistrictEnabled,

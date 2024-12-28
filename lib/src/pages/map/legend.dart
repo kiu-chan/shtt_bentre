@@ -3,14 +3,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 
 class MapLegend extends StatelessWidget {
   final List<District> districts;
   final List<Commune> communes;
   final List<Patent> patents;
+  final List<TrademarkMapModel> trademarks;
   final bool isDistrictEnabled;
   final bool isCommuneEnabled;
   final bool isPatentEnabled;
+  final bool isTrademarkEnabled;
   final String? selectedDistrictName;
   final String? selectedCommuneName;
   final Function(int) onToggleDistrictVisibility;
@@ -22,9 +25,11 @@ class MapLegend extends StatelessWidget {
     required this.districts,
     required this.communes,
     required this.patents,
+    required this.trademarks,
     required this.isDistrictEnabled,
     required this.isCommuneEnabled,
     required this.isPatentEnabled,
+    required this.isTrademarkEnabled,
     required this.selectedDistrictName,
     required this.selectedCommuneName,
     required this.onToggleDistrictVisibility,
