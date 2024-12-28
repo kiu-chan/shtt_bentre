@@ -137,15 +137,6 @@ class MapLegend extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    district.isVisible ? Icons.visibility : Icons.visibility_off,
-                    size: 18,
-                  ),
-                  onPressed: () => onToggleDistrictVisibility(index),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
               ],
             ),
           ),

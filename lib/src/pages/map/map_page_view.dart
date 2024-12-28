@@ -122,7 +122,6 @@ class MapPageView extends StatelessWidget {
             onZoomIn: onZoomIn,
             onZoomOut: onZoomOut,
           ),
-          MapScaleInfo(currentZoom: currentZoom),
           LoadingIndicator(
             isBorderLoading: isBorderLoading,
             isCommuneLoading: isCommuneLoading,

@@ -94,10 +94,6 @@ class MapRightMenu extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildLayerSwitches(context),
-          if (isDistrictEnabled) ...[
-            const Divider(height: 24),
-            _buildDistrictControls(context),
-          ],
         ],
       ),
     );
@@ -186,28 +182,6 @@ class MapRightMenu extends StatelessWidget {
                 onChanged: onChanged != null ? (_) => onChanged() : null,
                 activeColor: Theme.of(context).primaryColor,
               ),
-      ),
-    );
-  }
-
-  Widget _buildDistrictControls(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Text(
-              AppLocalizations.of(context)!.displayDistrictControl,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          _buildDistrictList(),
-        ],
       ),
     );
   }
