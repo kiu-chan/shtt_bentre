@@ -5,10 +5,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/pages/map/info_cart/commune_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/legend.dart';
 import 'package:shtt_bentre/src/pages/map/loading_indicator.dart';
 import 'package:shtt_bentre/src/pages/map/map_controls.dart';
-import 'package:shtt_bentre/src/pages/map/map_info_cards.dart';
+import 'package:shtt_bentre/src/pages/map/info_cart/patent_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/right_menu.dart';
 
 class MapPageView extends StatelessWidget {
