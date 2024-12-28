@@ -1,7 +1,7 @@
 // lib/src/pages/home/category/initiative/initiative_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/database/home/initiative.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class InitiativeDetailPage extends StatefulWidget {
   final String id;
@@ -16,7 +16,7 @@ class InitiativeDetailPage extends StatefulWidget {
 }
 
 class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
-  final InitiativeService _initiativeService = InitiativeService();
+  final Database _initiativeService = Database();
   late Future<Map<String, dynamic>> _initiativeFuture;
 
   @override

@@ -1,7 +1,7 @@
 // lib/src/pages/home/category/initiative/initiative_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
-import 'package:shtt_bentre/src/mainData/database/home/initiative.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_detail_page.dart';
 
 class InitiativeListPage extends StatefulWidget {
@@ -12,7 +12,7 @@ class InitiativeListPage extends StatefulWidget {
 }
 
 class _InitiativeListPageState extends State<InitiativeListPage> {
-  final InitiativeService _initiativeService = InitiativeService();
+  final Database _initiativeService = Database();
   late Future<List<InitiativeModel>> _initiativesFuture;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;

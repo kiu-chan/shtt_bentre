@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/news.dart';
-import 'package:shtt_bentre/src/mainData/database/home/news.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class NewsDetailPage extends StatefulWidget {
   final String newsId;
@@ -17,7 +17,7 @@ class NewsDetailPage extends StatefulWidget {
 }
 
 class _NewsDetailPageState extends State<NewsDetailPage> {
-  final NewsService _newsService = NewsService();
+  final Database _newsService = Database();
   NewsModel? _news;
   bool _isLoading = true;
   String? _error;

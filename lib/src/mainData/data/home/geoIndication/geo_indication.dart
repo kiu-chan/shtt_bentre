@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class GeoIndicationModel {
   final int stt;
   final String? soDon;

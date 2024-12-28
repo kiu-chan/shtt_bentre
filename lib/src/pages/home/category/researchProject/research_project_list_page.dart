@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
-import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_detail_page.dart';
 
 class ResearchProjectListPage extends StatefulWidget {
@@ -12,7 +12,7 @@ class ResearchProjectListPage extends StatefulWidget {
 }
 
 class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
-  final ResearchProjectService _service = ResearchProjectService();
+  final Database _service = Database();
 
   @override
   Widget build(BuildContext context) {

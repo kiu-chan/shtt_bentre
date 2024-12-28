@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/news.dart';
-import 'package:shtt_bentre/src/mainData/database/home/news.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_detail_page.dart';
 
 // Định nghĩa màu chủ đạo
@@ -16,7 +16,7 @@ class NewsListPage extends StatefulWidget {
 }
 
 class _NewsListPageState extends State<NewsListPage> {
-  final NewsService _newsService = NewsService();
+  final Database _newsService = Database();
   List<NewsModel> _newsList = [];
   bool _isLoading = true;
   String? _error;

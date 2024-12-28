@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:shtt_bentre/src/pages/map/map_data_handler.dart';
 import 'package:shtt_bentre/src/pages/map/map_state_manager.dart';
-import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
 import 'map_page_view.dart';
 import 'map_page.dart';
 

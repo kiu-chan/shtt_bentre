@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
 
 class IndustrialDesignService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
+  static String industrialDesignUrl = MainUrl.industrialDesignUrl;
 
   Future<List<IndustrialDesignModel>> fetchIndustrialDesigns() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/industrial-designs'),
+        Uri.parse(industrialDesignUrl),
       );
 
       if (response.statusCode == 200) {
@@ -30,7 +31,7 @@ class IndustrialDesignService {
   Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/industrial-designs/$id'),
+        Uri.parse('$industrialDesignUrl/$id'),
       );
 
       if (response.statusCode == 200) {

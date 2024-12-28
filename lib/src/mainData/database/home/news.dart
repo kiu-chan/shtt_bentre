@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 
 class NewsService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
+  static String postUrl = MainUrl.postUrl;
   
   Future<List<Map<String, dynamic>>> fetchNews() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/posts'));
+      final response = await http.get(Uri.parse(postUrl));
       
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -22,7 +23,7 @@ class NewsService {
 
   Future<Map<String, dynamic>> fetchNewsDetail(String id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/posts/$id'));
+      final response = await http.get(Uri.parse('$postUrl/$id'));
       
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);

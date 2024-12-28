@@ -1,3 +1,5 @@
+import 'package:shtt_bentre/src/mainData/config/url.dart';
+
 class TrademarkModel {
   final int id;
   final String filingNumber;
@@ -24,6 +26,9 @@ class TrademarkModel {
   });
 
   factory TrademarkModel.fromJson(Map<String, dynamic> json) {
+
+    String storageUrl = MainUrl.storageUrl;
+
     return TrademarkModel(
       id: json['id'] ?? 0,
       filingNumber: json['filing_number'] ?? '',
@@ -31,7 +36,7 @@ class TrademarkModel {
       owner: json['owner'] ?? '',
       address: json['address'] ?? '',
       imageUrl: json['image_url'] != null 
-          ? 'https://shttbentre.girc.edu.vn/storage/${json['image_url']}' 
+          ? '$storageUrl/${json['image_url']}' 
           : '',
       filingDate: _parseDate(json['filing_date']),
       status: json['status'] ?? '',

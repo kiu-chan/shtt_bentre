@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:shtt_bentre/src/mainData/data/home/about.dart';
-import 'package:shtt_bentre/src/mainData/database/home/about.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -12,11 +12,12 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   late Future<AboutModel> futureAbout;
+  late Database db = Database();
 
   @override
   void initState() {
     super.initState();
-    futureAbout = fetchAboutData();
+    futureAbout = db.fetchAboutData();
   }
 
   @override

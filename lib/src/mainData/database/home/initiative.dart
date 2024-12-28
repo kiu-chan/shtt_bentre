@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
 
 class InitiativeService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
+  static String initiativeUrl = MainUrl.initiativeUrl;
 
   Future<List<InitiativeModel>> fetchInitiatives() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/initiatives'),
+        Uri.parse(initiativeUrl),
       );
 
       if (response.statusCode == 200) {
@@ -23,10 +24,10 @@ class InitiativeService {
     }
   }
 
-    Future<Map<String, dynamic>> fetchInitiativeDetail(String id) async {
+  Future<Map<String, dynamic>> fetchInitiativeDetail(String id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/initiatives/$id'),
+        Uri.parse('$initiativeUrl/$id'),
       );
 
       if (response.statusCode == 200) {

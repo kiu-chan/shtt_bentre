@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
-import 'package:shtt_bentre/src/mainData/database/home/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class IndustrialDesignDetailPage extends StatefulWidget {
   final String id;
@@ -16,7 +16,7 @@ class IndustrialDesignDetailPage extends StatefulWidget {
 }
 
 class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage> {
-  final IndustrialDesignService _service = IndustrialDesignService();
+  final Database _service = Database();
   late Future<IndustrialDesignDetailModel> _detailFuture;
   final ScrollController _scrollController = ScrollController();
 

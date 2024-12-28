@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
-import 'package:shtt_bentre/src/mainData/database/home/geo_indication.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_detail_page.dart';
 
 class GeoIndicationListPage extends StatefulWidget {
@@ -12,7 +12,7 @@ class GeoIndicationListPage extends StatefulWidget {
 }
 
 class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
-  final GeoIndicationService _service = GeoIndicationService();
+  final Database _service = Database();
   late Future<List<GeoIndicationModel>> _geoIndicationsFuture;
 
   @override

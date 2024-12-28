@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
-import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class ResearchProjectDetailPage extends StatefulWidget {
   final String id;
@@ -15,7 +15,7 @@ class ResearchProjectDetailPage extends StatefulWidget {
 
 class _ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
   late Future<ResearchProjectModel> _projectFuture;
-  final ResearchProjectService _service = ResearchProjectService();
+  final Database _service = Database();
 
   @override
   void initState() {

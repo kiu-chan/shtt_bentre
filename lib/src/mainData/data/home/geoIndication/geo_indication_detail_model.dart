@@ -1,4 +1,3 @@
-// geo_indication_detail_model.dart
 class GeoIndicationDetailModel {
   final int id;
   final String tenSanPham;

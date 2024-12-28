@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 
 class PatentDetailModel {
   final String id;
@@ -91,7 +92,7 @@ class PatentDetailModel {
 }
 
 class PatentDetailService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api/patents';
+  static String baseUrl = MainUrl.patentsUrl;
 
   Future<PatentDetailModel> getPatentDetail(String id) async {
     final response = await http.get(Uri.parse('$baseUrl/$id'));

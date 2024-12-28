@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
-import 'package:shtt_bentre/src/mainData/database/home/trademark.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
 
 class TrademarkListPage extends StatefulWidget {
@@ -13,7 +13,7 @@ class TrademarkListPage extends StatefulWidget {
 }
 
 class _TrademarkListPageState extends State<TrademarkListPage> {
-  final TrademarkService _service = TrademarkService();
+  final Database _service = Database();
   late Future<List<TrademarkModel>> _trademarksFuture;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;

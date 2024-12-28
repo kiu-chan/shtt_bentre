@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
 
 class PatentsDatabase {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
+  static String patentUrl = MainUrl.patentUrl;
 
-    Future<List<PatentModel>> fetchPatents() async {
+  Future<List<PatentModel>> fetchPatents() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/patents/'));
+      final response = await http.get(Uri.parse(patentUrl));
       
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
@@ -25,7 +26,7 @@ class PatentsDatabase {
   Future<Map<String, dynamic>> fetchPatentDetail(String id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/patents/$id'),
+        Uri.parse('$patentUrl/$id'),
       );
 
       if (response.statusCode == 200) {

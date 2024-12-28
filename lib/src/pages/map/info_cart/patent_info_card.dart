@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
-import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_detail_page.dart';
 
 class PatentInfoCard extends StatefulWidget {
@@ -20,7 +20,7 @@ class PatentInfoCard extends StatefulWidget {
 }
 
 class _PatentInfoCardState extends State<PatentInfoCard> {
-  final PatentsDatabase _patentsDatabase = PatentsDatabase();
+  final Database _patentsDatabase = Database();
   late Future<Map<String, dynamic>> _patentDetailsFuture;
 
   @override

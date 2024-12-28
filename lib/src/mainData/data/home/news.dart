@@ -1,3 +1,5 @@
+import 'package:shtt_bentre/src/mainData/config/url.dart';
+
 class NewsModel {
   final String id;
   final String title;
@@ -21,7 +23,7 @@ class NewsModel {
     required this.views,
   });
 
-  String get fullImageUrl => 'https://shttbentre.girc.edu.vn/storage/$imageUrl';
+  String get fullImageUrl => '${MainUrl.storageUrl}/$imageUrl';
 
   factory NewsModel.fromJson(Map<String, dynamic> json) {
     return NewsModel(

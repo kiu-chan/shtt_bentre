@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication_detail_model.dart';
 
 class GeoIndicationService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api';
+  static String geoIndicationUrl = MainUrl.geoIndicationUrl;
 
   Future<List<GeoIndicationModel>> fetchGeoIndications() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/geographical-indications'),
+        Uri.parse(geoIndicationUrl),
       );
 
       if (response.statusCode == 200) {
@@ -30,7 +31,7 @@ class GeoIndicationService {
   Future<GeoIndicationDetailModel> fetchGeoIndicationDetail(int stt) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/geographical-indications/$stt'),
+        Uri.parse('$geoIndicationUrl/$stt'),
       );
 
       if (response.statusCode == 200) {
