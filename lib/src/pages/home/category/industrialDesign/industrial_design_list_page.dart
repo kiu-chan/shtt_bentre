@@ -173,9 +173,9 @@ class _IndustrialDesignCard extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Kiểu dáng công nghiệp',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF3949AB),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

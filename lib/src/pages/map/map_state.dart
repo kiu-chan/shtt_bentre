@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
-import 'package:shtt_bentre/src/mainData/data/map/district.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 import 'package:shtt_bentre/src/pages/map/map_data_handler.dart';
 import 'package:shtt_bentre/src/pages/map/map_state_manager.dart';
 import 'map_page_view.dart';

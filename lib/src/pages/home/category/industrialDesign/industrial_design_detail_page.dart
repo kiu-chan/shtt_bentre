@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
@@ -99,7 +100,7 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                 flexibleSpace: FlexibleSpaceBar(
                   background: design.images.isNotEmpty
                       ? Image.network(
-                          'https://shttbentre.girc.edu.vn/storage/${design.images[0].filePath}',
+                          '${MainUrl.storageUrl}/${design.images[0].filePath}',
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
@@ -241,7 +242,7 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
-                                        'https://shttbentre.girc.edu.vn/storage/${image.filePath}',
+                                        '${MainUrl.storageUrl}/${image.filePath}',
                                         width: 120,
                                         height: 120,
                                         fit: BoxFit.cover,

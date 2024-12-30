@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:chewie/chewie.dart';
+import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:video_player/video_player.dart';
 
 class GuideContent {
@@ -96,14 +97,14 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
   Future<void> _fetchVideo() async {
     try {
       final response = await http.get(
-        Uri.parse('https://shttbentre.girc.edu.vn/api/advisory-supports/video/${widget.videoId}'),
+        Uri.parse('${MainUrl.apiUrl}/advisory-supports/video/${widget.videoId}'),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true && data['data'] != null) {
           final videoPath = data['data']['file_path'];
-          final videoUrl = 'https://shttbentre.girc.edu.vn/storage/$videoPath';
+          final videoUrl = '${MainUrl.storageUrl}/$videoPath';
           
           _videoController = VideoPlayerController.network(videoUrl);
           await _videoController!.initialize();
@@ -147,7 +148,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
   Future<void> _fetchList() async {
     try {
       final response = await http.get(
-        Uri.parse('https://shttbentre.girc.edu.vn/api/advisory-supports/parent/${widget.parentId}'),
+        Uri.parse('${MainUrl.apiUrl}/advisory-supports/parent/${widget.parentId}'),
       );
       
       if (response.statusCode == 200) {
@@ -186,7 +187,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
 
     try {
       final response = await http.get(
-        Uri.parse('https://shttbentre.girc.edu.vn/api/advisory-supports/$id'),
+        Uri.parse('${MainUrl.apiUrl}/advisory-supports/$id'),
       );
       
       if (response.statusCode == 200) {

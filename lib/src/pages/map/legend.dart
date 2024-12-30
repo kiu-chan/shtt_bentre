@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/mainData/config/file_path.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -193,7 +196,7 @@ class MapLegend extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: Image.asset(
-                  'lib/assets/map/industrial_design.png',
+                  FilePath.industrialDesignPath,
                   color: Colors.blue,
                 ),
               ),
@@ -224,7 +227,7 @@ class MapLegend extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: Image.asset(
-                  'lib/assets/map/patent.png',
+                  FilePath.patentPath,
                   color: Colors.black,
                 ),
               ),
@@ -247,7 +250,7 @@ class MapLegend extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: Image.asset(
-                  'lib/assets/map/patent.png',
+                  FilePath.patentPath,
                   color: Colors.blue,
                 ),
               ),
@@ -278,7 +281,7 @@ class MapLegend extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: Image.asset(
-                  'lib/assets/map/trademark.png',
+                  FilePath.trademarkPath,
                   color: Colors.black,
                 ),
               ),
@@ -301,7 +304,7 @@ class MapLegend extends StatelessWidget {
                 width: 16,
                 height: 16,
                 child: Image.asset(
-                  'lib/assets/map/trademark.png',
+                  FilePath.trademarkPath,
                   color: Colors.blue,
                 ),
               ),

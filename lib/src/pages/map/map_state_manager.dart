@@ -18,7 +18,7 @@ class MapStateManager {
   late final BuildContext _context;
 
   double currentZoom = 10.0;
-  bool isLegendVisible = true;
+  bool isLegendVisible = false;
   bool isRightMenuOpen = false;
   bool isBorderEnabled = false;
   bool isCommuneEnabled = false;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/mainData/config/file_path.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -127,10 +128,10 @@ class MapPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
       body: Stack(
         children: [
           _buildMap(),
+          _buildControlButtons(context),
           _buildLegend(context),
           _buildRightMenuContainer(),
           _buildInfoCards(),
@@ -151,21 +152,53 @@ class MapPageView extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      title: const Text("Bến Tre"),
-      actions: [
-        IconButton(
-          icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: onToggleLegend,
-          tooltip: AppLocalizations.of(context)!.hide_ShowLegend,
-        ),
-        IconButton(
-          icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
-          onPressed: onToggleRightMenu,
-          tooltip: AppLocalizations.of(context)!.menu,
-        ),
-      ],
+  Widget _buildControlButtons(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 16,
+      right: 16,
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
+              onPressed: onToggleLegend,
+              tooltip: AppLocalizations.of(context)!.hide_ShowLegend,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
+              onPressed: onToggleRightMenu,
+              tooltip: AppLocalizations.of(context)!.menu,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -192,21 +225,21 @@ class MapPageView extends StatelessWidget {
         if (isPatentEnabled) _buildClusteredMarkers<Patent>(
           patents,
           isPatentEnabled,
-          'lib/assets/map/patent.png',
+          FilePath.patentPath,
           onShowPatentInfo,
           selectedPatent,
         ),
         if (isTrademarkEnabled) _buildClusteredMarkers<TrademarkMapModel>(
           trademarks,
           isTrademarkEnabled,
-          'lib/assets/map/trademark.png',
+          FilePath.trademarkPath,
           onShowTrademarkInfo,
           selectedTrademark,
         ),
         if (isIndustrialDesignEnabled) _buildClusteredMarkers<IndustrialDesignMapModel>(
           industrialDesigns,
           isIndustrialDesignEnabled,
-          'lib/assets/map/industrial_design.png',
+          FilePath.industrialDesignPath,
           onShowIndustrialDesignInfo,
           selectedIndustrialDesign,
         ),
@@ -255,7 +288,10 @@ class MapPageView extends StatelessWidget {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, top: 16),
+        padding: EdgeInsets.only(
+          left: 16,
+          top: MediaQuery.of(context).padding.top + 16
+        ),
         child: SlideTransition(
           position: legendSlideAnimation,
           child: MapLegend(
