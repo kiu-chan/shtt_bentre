@@ -13,12 +13,15 @@ class MapRightMenu extends StatelessWidget {
   final bool isCommuneLoading;
   final bool isPatentLoading;
   final bool isTrademarkLoading;
+  final bool isIndustrialDesignEnabled;
+  final bool isIndustrialDesignLoading;
   final VoidCallback onToggleRightMenu;
   final VoidCallback? onToggleBorder;
   final VoidCallback? onToggleCommune;
   final VoidCallback? onToggleDistrict;
   final VoidCallback? onTogglePatent;
   final VoidCallback? onToggleTrademark;
+  final VoidCallback? onToggleIndustrialDesign;
   final Function(int) onToggleDistrictVisibility;
 
   const MapRightMenu({
@@ -39,7 +42,10 @@ class MapRightMenu extends StatelessWidget {
     required this.onToggleDistrict,
     required this.onTogglePatent,
     required this.onToggleTrademark,
-    required this.onToggleDistrictVisibility,
+    required this.onToggleDistrictVisibility, 
+    required this.isIndustrialDesignEnabled, 
+    required this.isIndustrialDesignLoading, 
+    this.onToggleIndustrialDesign,
   });
 
   @override
@@ -145,6 +151,15 @@ class MapRightMenu extends StatelessWidget {
           value: isTrademarkEnabled,
           onChanged: onToggleTrademark,
           isLoading: isTrademarkLoading,
+        ),        
+        const SizedBox(height: 4),
+        _buildLayerSwitch(
+          context,
+          icon: Icons.design_services,
+          title: 'Kiểu dáng công nghiệp',
+          value: isIndustrialDesignEnabled,
+          onChanged: onToggleIndustrialDesign,
+          isLoading: isIndustrialDesignLoading,
         ),
       ],
     );

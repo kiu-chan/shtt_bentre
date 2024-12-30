@@ -6,6 +6,7 @@ class LoadingIndicator extends StatelessWidget {
   final bool isCommuneLoading;
   final bool isPatentLoading;
   final bool isTrademarkLoading;
+  final bool isIndustrialDesignLoading;
 
   const LoadingIndicator({
     super.key,
@@ -13,11 +14,13 @@ class LoadingIndicator extends StatelessWidget {
     required this.isCommuneLoading,
     required this.isPatentLoading,
     required this.isTrademarkLoading,
+    required this.isIndustrialDesignLoading,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!isBorderLoading && !isCommuneLoading && !isPatentLoading && !isTrademarkLoading) {
+    if (!isBorderLoading && !isCommuneLoading && !isPatentLoading && 
+        !isTrademarkLoading && !isIndustrialDesignLoading) {
       return const SizedBox.shrink();
     }
 
@@ -84,6 +87,8 @@ class LoadingIndicator extends StatelessWidget {
       return 'Đang tải dữ liệu bằng sáng chế...';
     } else if (isTrademarkLoading) {
       return 'Đang tải dữ liệu nhãn hiệu...';
+    } else if (isIndustrialDesignLoading) {
+      return 'Đang tải dữ liệu kiểu dáng công nghiệp...';
     }
     
     return 'Đang tải...';

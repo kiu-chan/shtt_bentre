@@ -1,6 +1,7 @@
 // lib/src/pages/map/map_state_manager.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
@@ -25,11 +26,13 @@ class MapStateManager {
   bool isPatentEnabled = false;
   bool isTrademarkEnabled = false;
   bool isLegendAnimating = false;
+  bool isIndustrialDesignEnabled = false;
 
   String? selectedDistrictName;
   String? selectedCommuneName;
   Patent? selectedPatent;
   TrademarkMapModel? selectedTrademark;
+  IndustrialDesignMapModel? selectedIndustrialDesign;
 
   MapStateManager({
     required this.vsync,
@@ -197,6 +200,23 @@ class MapStateManager {
     selectedDistrictName = null;
     selectedCommuneName = null;
     selectedPatent = null;
+    onStateChanged();
+  }
+
+  void toggleIndustrialDesign() {
+    if (!isLegendAnimating) {
+      isIndustrialDesignEnabled = !isIndustrialDesignEnabled;
+      onStateChanged();
+    }
+  }
+
+  void showIndustrialDesignInfo(IndustrialDesignMapModel design) {
+    if (isLegendAnimating) return;
+    selectedIndustrialDesign = design;
+    selectedDistrictName = null;
+    selectedCommuneName = null;
+    selectedPatent = null;
+    selectedTrademark = null;
     onStateChanged();
   }
 

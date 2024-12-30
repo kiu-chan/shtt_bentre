@@ -7,6 +7,7 @@ class MainUrl {
   static String patentsUrl = '$apiUrl/patents';
   static String geoIndicationUrl = '$apiUrl/geographical-indications';
   static String industrialDesignUrl = '$apiUrl/industrial-designs';
+  static String industrialLocationsDesignUrl = '$apiUrl/industrial-design-locations';
   static String initiativeUrl = '$apiUrl/initiatives';
   static String postUrl = '$apiUrl/posts';
   static String patentUrl = '$apiUrl/patents';

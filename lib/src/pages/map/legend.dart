@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/patent.dart';
@@ -10,10 +11,12 @@ class MapLegend extends StatelessWidget {
   final List<Commune> communes;
   final List<Patent> patents;
   final List<TrademarkMapModel> trademarks;
+  final List<IndustrialDesignMapModel> industrialDesigns;
   final bool isDistrictEnabled;
   final bool isCommuneEnabled;
   final bool isPatentEnabled;
   final bool isTrademarkEnabled;
+  final bool isIndustrialDesignEnabled;
   final String? selectedDistrictName;
   final String? selectedCommuneName;
   final Function(int) onToggleDistrictVisibility;
@@ -21,21 +24,23 @@ class MapLegend extends StatelessWidget {
   final Function(Commune) onShowCommuneInfo;
 
   const MapLegend({
-    Key? key,
+    super.key,
     required this.districts,
     required this.communes,
     required this.patents,
     required this.trademarks,
+    required this.industrialDesigns,
     required this.isDistrictEnabled,
     required this.isCommuneEnabled,
     required this.isPatentEnabled,
     required this.isTrademarkEnabled,
+    required this.isIndustrialDesignEnabled,
     required this.selectedDistrictName,
     required this.selectedCommuneName,
     required this.onToggleDistrictVisibility,
     required this.onShowDistrictInfo,
     required this.onShowCommuneInfo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +65,17 @@ class MapLegend extends StatelessWidget {
         children: [
           _buildLegendHeader(context),
           if (isDistrictEnabled) _buildDistrictsList(),
+          if (isIndustrialDesignEnabled && industrialDesigns.isNotEmpty) ...[
+            const Divider(),
+            _buildIndustrialDesignsSection(),
+          ],
           if (isPatentEnabled && patents.isNotEmpty) ...[
             const Divider(),
             _buildPatentsSection(),
+          ],
+          if (isTrademarkEnabled && trademarks.isNotEmpty) ...[
+            const Divider(),
+            _buildTrademarksSection(),
           ],
         ],
       ),
@@ -145,57 +158,165 @@ class MapLegend extends StatelessWidget {
     );
   }
 
-Widget _buildPatentsSection() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: Image.asset(
-                'lib/assets/map/patent.png',
-                color: Colors.black,
+  Widget _buildIndustrialDesignsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/industrial_design.png',
+                  color: Colors.black,
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            const Text(
-              'Bằng sáng chế',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
+              const SizedBox(width: 4),
+              const Text(
+                'Kiểu dáng công nghiệp',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      Container(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: Image.asset(
-                'lib/assets/map/patent.png',
-                color: Colors.blue,
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/industrial_design.png',
+                  color: Colors.blue,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Vị trí bằng sáng chế',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[800],
+              const SizedBox(width: 8),
+              Text(
+                'Vị trí kiểu dáng công nghiệp',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[800],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
+
+  Widget _buildPatentsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/patent.png',
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text(
+                'Bằng sáng chế',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/patent.png',
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Vị trí bằng sáng chế',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[800],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTrademarksSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/trademark.png',
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Text(
+                'Nhãn hiệu',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: Image.asset(
+                  'lib/assets/map/trademark.png',
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Vị trí nhãn hiệu',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[800],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

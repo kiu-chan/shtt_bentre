@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -17,6 +18,7 @@ class MapDataHandler {
   List<MapBorder> borders = [];
   List<Patent> patents = [];
   List<TrademarkMapModel> trademarks = [];
+  List<IndustrialDesignMapModel> industrialDesigns = [];
 
   bool isLoading = true;
   bool isBorderLoading = false;
@@ -24,6 +26,7 @@ class MapDataHandler {
   bool isPatentLoading = false;
   bool isTrademarkLoading = false;
   bool isDataLoading = false;
+  bool isIndustrialDesignLoading = false;
 
   Future<void> loadInitialData() async {
     try {
@@ -158,6 +161,38 @@ class MapDataHandler {
     } catch (e) {
       print('Error loading trademark data: $e');
       isTrademarkLoading = false;
+      isDataLoading = false;
+      if (setState != null) {
+        setState(() {});
+      }
+    }
+  }
+
+  Future<void> loadIndustrialDesignData(Function(void Function())? setState) async {
+    if (isDataLoading || industrialDesigns.isNotEmpty) {
+      if (setState != null) {
+        setState(() {});
+      }
+      return;
+    }
+
+    isDataLoading = true;
+    isIndustrialDesignLoading = true;
+    if (setState != null) {
+      setState(() {});
+    }
+
+    try {
+      final response = await _database.loadIndustrialDesignLocations();
+      industrialDesigns = response;
+      isIndustrialDesignLoading = false;
+      isDataLoading = false;
+      if (setState != null) {
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error loading industrial design data: $e');
+      isIndustrialDesignLoading = false;
       isDataLoading = false;
       if (setState != null) {
         setState(() {});

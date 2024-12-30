@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/database_exception.dart';
 
 class IndustrialDesignService {
@@ -102,6 +103,28 @@ class IndustrialDesignService {
     } catch (e) {
       if (e is DatabaseException) rethrow;
       throw DatabaseException('Unexpected error: $e');
+    }
+  }
+
+  Future<List<IndustrialDesignMapModel>> loadIndustrialDesignLocations() async {
+    try {
+      final response = await http.get(
+        Uri.parse(MainUrl.industrialLocationsDesignUrl)
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] == true || jsonResponse['data'] is List) {  // Changed from && to ||
+          final List<dynamic> data = jsonResponse['data'];
+          return data.map((json) => IndustrialDesignMapModel.fromJson(json)).toList();
+        }
+      }
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return [];  // Return empty list instead of throwing exception
+    } catch (e) {
+      print('Error loading industrial design locations: $e');
+      return [];  // Return empty list in case of error
     }
   }
 }

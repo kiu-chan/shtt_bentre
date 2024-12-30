@@ -8,6 +8,7 @@ import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
 import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
@@ -82,6 +83,10 @@ class Database {
 
   Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
     return await industrialDesign.fetchIndustrialDesignDetail(id);
+  }
+
+  Future<List<IndustrialDesignMapModel>> loadIndustrialDesignLocations() async {
+    return await industrialDesign.loadIndustrialDesignLocations();
   }
 
   Future<List<InitiativeModel>> fetchInitiatives() async {

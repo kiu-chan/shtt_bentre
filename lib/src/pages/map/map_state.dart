@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
+import 'package:shtt_bentre/src/mainData/data/map/district.dart';
+import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/trademark.dart';
 import 'package:shtt_bentre/src/pages/map/map_data_handler.dart';
 import 'package:shtt_bentre/src/pages/map/map_state_manager.dart';
 import 'map_page_view.dart';
@@ -55,6 +59,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       communes: _dataHandler.communes,
       patents: _dataHandler.patents,
       trademarks: _dataHandler.trademarks,
+      industrialDesigns: _dataHandler.industrialDesigns,
       isLoading: _dataHandler.isLoading,
       isLegendVisible: _stateManager.isLegendVisible,
       isRightMenuOpen: _stateManager.isRightMenuOpen,
@@ -63,14 +68,17 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       isDistrictEnabled: _stateManager.isDistrictEnabled,
       isPatentEnabled: _stateManager.isPatentEnabled,
       isTrademarkEnabled: _stateManager.isTrademarkEnabled,
+      isIndustrialDesignEnabled: _stateManager.isIndustrialDesignEnabled,
       isBorderLoading: _dataHandler.isBorderLoading,
       isCommuneLoading: _dataHandler.isCommuneLoading,
       isPatentLoading: _dataHandler.isPatentLoading,
       isTrademarkLoading: _dataHandler.isTrademarkLoading,
+      isIndustrialDesignLoading: _dataHandler.isIndustrialDesignLoading,
       selectedDistrictName: _stateManager.selectedDistrictName,
       selectedCommuneName: _stateManager.selectedCommuneName,
       selectedPatent: _stateManager.selectedPatent,
       selectedTrademark: _stateManager.selectedTrademark,
+      selectedIndustrialDesign: _stateManager.selectedIndustrialDesign,
       legendSlideAnimation: _stateManager.legendSlideAnimation,
       onToggleLegend: _stateManager.toggleLegend,
       onToggleRightMenu: _stateManager.toggleRightMenu,
@@ -91,6 +99,10 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         _stateManager.toggleTrademark();
         _dataHandler.loadTrademarkData(setState);
       },
+      onToggleIndustrialDesign: () {
+        _stateManager.toggleIndustrialDesign();
+        _dataHandler.loadIndustrialDesignData(setState);
+      },
       onToggleDistrictVisibility: _stateManager.toggleDistrictVisibility,
       onZoomIn: () => _stateManager.zoom(_mapController, true),
       onZoomOut: () => _stateManager.zoom(_mapController, false),
@@ -98,6 +110,7 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       onShowCommuneInfo: _stateManager.showCommuneInfo,
       onShowPatentInfo: _stateManager.showPatentInfo,
       onShowTrademarkInfo: _stateManager.showTrademarkInfo,
+      onShowIndustrialDesignInfo: _stateManager.showIndustrialDesignInfo,
       onMapTap: _stateManager.onMapTap,
       onZoomChanged: (zoom) {
         _stateManager.currentZoom = zoom;
