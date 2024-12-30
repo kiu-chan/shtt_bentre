@@ -1,3 +1,4 @@
+// trademark_detail_model.dart
 import 'package:shtt_bentre/src/mainData/config/url.dart';
 
 class TrademarkDetailModel {
@@ -47,51 +48,62 @@ class TrademarkDetailModel {
     required this.representativeAddress,
   });
 
-  static String storageUrl = MainUrl.storageUrl;
-
   factory TrademarkDetailModel.fromJson(Map<String, dynamic> json) {
-    return TrademarkDetailModel(
-      id: json['id'] ?? 0,
-      filingNumber: json['filing_number'] ?? '',
-      publicationNumber: json['publication_number'] ?? '',
-      registrationNumber: json['registration_number'] ?? '',
-      mark: json['mark'] ?? '',
-      markFeature: json['mark_feature'],
-      markColors: json['mark_colors'],
-      viennaClasses: json['vienna_classes'] ?? '',
-      disclaimer: json['disclaimer'],
-      owner: json['owner'] ?? '',
-      address: json['address'] ?? '',
-      filingDate: _parseDate(json['filing_date']),
-      registrationDate: _parseDate(json['registration_date']),
-      publicationDate: _parseDate(json['publication_date']),
-      expirationDate: _parseDate(json['expiration_date']),
-      status: json['status'] ?? '',
-      imageUrl: json['image_url'] != null 
-          ? '$storageUrl/${json['image_url']}' 
-          : '',
-      type: json['type']?['slug'] ?? '',
-      typeName: json['type']?['name'] ?? '',
-      representativeName: json['representative_name'] ?? '',
-      representativeAddress: json['representative_address'] ?? '',
-    );
+    try {
+      return TrademarkDetailModel(
+        id: json['id'] ?? 0,
+        filingNumber: json['filing_number']?.toString() ?? '',
+        publicationNumber: json['publication_number']?.toString() ?? '',
+        registrationNumber: json['registration_number']?.toString() ?? '',
+        mark: json['mark']?.toString() ?? '',
+        markFeature: json['mark_feature']?.toString(),
+        markColors: json['mark_colors']?.toString(),
+        viennaClasses: json['vienna_classes']?.toString() ?? '',
+        disclaimer: json['disclaimer']?.toString(),
+        owner: json['owner']?.toString() ?? '',
+        address: json['address']?.toString() ?? '',
+        filingDate: _parseDate(json['filing_date']),
+        registrationDate: _parseDate(json['registration_date']),
+        publicationDate: _parseDate(json['publication_date']),
+        expirationDate: _parseDate(json['expiration_date']),
+        status: json['status']?.toString() ?? '',
+        imageUrl: json['image_url']?.toString() ?? '',
+        type: json['type']?.toString() ?? '',
+        typeName: json['type_name']?.toString() ?? '',
+        representativeName: json['representative_name']?.toString() ?? '',
+        representativeAddress: json['representative_address']?.toString() ?? '',
+      );
+    } catch (e) {
+      print('Error parsing TrademarkDetailModel: $e');
+      print('Input JSON: $json');
+      rethrow;
+    }
   }
 
-  static DateTime _parseDate(String? dateStr) {
-    if (dateStr == null) return DateTime.now();
+  static DateTime _parseDate(dynamic dateValue) {
+    if (dateValue == null) return DateTime.now();
+    
     try {
-      // Parse date format "dd.MM.yyyy"
-      final parts = dateStr.split('.');
-      if (parts.length == 3) {
-        return DateTime(
-          int.parse(parts[2]),
-          int.parse(parts[1]),
-          int.parse(parts[0]),
-        );
+      if (dateValue is String) {
+        // Handle string date formats
+        if (dateValue.contains('T')) {
+          return DateTime.parse(dateValue);
+        }
+        
+        // Handle dd.MM.yyyy format
+        final parts = dateValue.split('.');
+        if (parts.length == 3) {
+          return DateTime(
+            int.parse(parts[2]), // year
+            int.parse(parts[1]), // month
+            int.parse(parts[0]), // day
+          );
+        }
       }
-      return DateTime.parse(dateStr);
+      
+      return DateTime.now();
     } catch (e) {
-      print('Error parsing date: $dateStr');
+      print('Error parsing date: $dateValue - ${e.toString()}');
       return DateTime.now();
     }
   }

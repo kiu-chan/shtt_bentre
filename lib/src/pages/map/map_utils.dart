@@ -24,6 +24,9 @@ class MapUtils {
 
   static double _getGridSize(double zoom) {
     // Điều chỉnh kích thước grid dựa trên mức zoom
+    if (zoom <= 5) return 0.7;      // Grid lớn cho zoom thấp
+    if (zoom <= 6) return 0.4;      // Grid lớn cho zoom thấp
+    if (zoom <= 7) return 0.2;      // Grid lớn cho zoom thấp
     if (zoom <= 8) return 0.1;      // Grid lớn cho zoom thấp
     if (zoom <= 10) return 0.05;    // Grid trung bình
     if (zoom <= 12) return 0.02;    // Grid nhỏ cho zoom cao

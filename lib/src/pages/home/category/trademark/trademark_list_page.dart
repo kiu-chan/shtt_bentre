@@ -98,6 +98,7 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
             }
 
             if (snapshot.hasError) {
+              print(snapshot.error);
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

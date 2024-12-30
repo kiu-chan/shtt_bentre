@@ -55,6 +55,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
           }
 
           if (snapshot.hasError) {
+            print('Error: ${snapshot.error}');
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

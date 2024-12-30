@@ -13,16 +13,20 @@ class TrademarkService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        if (jsonResponse['status'] == 'success' && jsonResponse['data'] is List) {
+        
+        // Check if response has success status and data is a list
+        if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
           final List<dynamic> data = jsonResponse['data'];
           return data.map((json) => TrademarkModel.fromJson(json)).toList();
         }
-        throw Exception('Invalid data format');
-      } else {
-        throw Exception('Failed to load trademarks');
+        
+        throw Exception('Invalid response format: ${jsonResponse.toString()}');
       }
+      
+      throw Exception('Failed to load trademarks: ${response.statusCode}');
     } catch (e) {
-      throw Exception('Error: $e');
+      print('Error in fetchTrademarks: ${e.toString()}');
+      throw Exception('Error fetching trademarks: $e');
     }
   }
 
@@ -32,15 +36,21 @@ class TrademarkService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        if (jsonResponse['status'] == 'success' && jsonResponse['data'] != null) {
+        
+        // Print response for debugging
+        print('API Response: $jsonResponse');
+        
+        if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           return TrademarkDetailModel.fromJson(jsonResponse['data']);
         }
-        throw Exception('Invalid detail data format');
-      } else {
-        throw Exception('Failed to load trademark detail');
+        
+        throw Exception('Invalid response format: ${jsonResponse.toString()}');
       }
+      
+      throw Exception('Failed to load trademark detail: ${response.statusCode}');
     } catch (e) {
-      throw Exception('Error: $e');
+      print('Error in fetchTrademarkDetail: ${e.toString()}');
+      throw Exception('Error fetching trademark detail: $e');
     }
   }
 }

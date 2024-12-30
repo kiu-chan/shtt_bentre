@@ -26,40 +26,31 @@ class TrademarkModel {
   });
 
   factory TrademarkModel.fromJson(Map<String, dynamic> json) {
-
-    String storageUrl = MainUrl.storageUrl;
-
     return TrademarkModel(
       id: json['id'] ?? 0,
-      filingNumber: json['filing_number'] ?? '',
-      mark: json['mark'] ?? '',
-      owner: json['owner'] ?? '',
-      address: json['address'] ?? '',
-      imageUrl: json['image_url'] != null 
-          ? '$storageUrl/${json['image_url']}' 
-          : '',
-      filingDate: _parseDate(json['filing_date']),
-      status: json['status'] ?? '',
-      type: json['type']?['slug'] ?? '',
-      typeName: json['type']?['name'] ?? '',
+      filingNumber: json['filing_number']?.toString() ?? '',
+      mark: json['mark']?.toString() ?? '',
+      owner: json['owner']?.toString() ?? '',
+      address: json['address']?.toString() ?? '',
+      imageUrl: '', // API response doesn't include image_url
+      filingDate: _parseDate(json['filing_date']?.toString()),
+      status: json['status']?.toString() ?? '',
+      type: '', // API response doesn't include type
+      typeName: '', // API response doesn't include type_name
     );
   }
 
   static DateTime _parseDate(String? dateStr) {
-    if (dateStr == null) return DateTime.now();
+    if (dateStr == null || dateStr.isEmpty) return DateTime.now();
+    
     try {
-      // Parse date format "dd.MM.yyyy"
-      final parts = dateStr.split('.');
-      if (parts.length == 3) {
-        return DateTime(
-          int.parse(parts[2]),
-          int.parse(parts[1]),
-          int.parse(parts[0]),
-        );
+      // Parse UTC timestamp format from API
+      if (dateStr.contains('T')) {
+        return DateTime.parse(dateStr);
       }
-      return DateTime.parse(dateStr);
+      return DateTime.now();
     } catch (e) {
-      print('Error parsing date: $dateStr');
+      print('Error parsing date: $dateStr - ${e.toString()}');
       return DateTime.now();
     }
   }
