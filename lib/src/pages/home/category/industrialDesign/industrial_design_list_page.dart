@@ -64,6 +64,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
             }
 
             if (snapshot.hasError) {
+              print(snapshot.error);
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

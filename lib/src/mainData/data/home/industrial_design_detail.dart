@@ -62,8 +62,8 @@ class IndustrialDesignDetailModel {
       representativeName: json['representative_name'] ?? '',
       representativeAddress: json['representative_address'],
       status: json['status'] ?? '',
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      createdAt: _parseDateTime(json['created_at']),
+      updatedAt: _parseDateTime(json['updated_at']),
       images: (json['images'] as List?)
           ?.map((img) => IndustrialDesignImage.fromJson(img))
           .toList() ?? [],
@@ -71,11 +71,67 @@ class IndustrialDesignDetailModel {
   }
 
   static DateTime _parseDate(String? dateStr) {
-    if (dateStr == null) return DateTime.now();
-    try {
-      return DateTime.parse(dateStr.replaceAll('.', '-'));
-    } catch (e) {
+    if (dateStr == null || dateStr.isEmpty) {
       return DateTime.now();
+    }
+
+    try {
+      // Handle format "dd.MM.yyyy"
+      if (dateStr.contains('.')) {
+        final parts = dateStr.split('.');
+        if (parts.length == 3) {
+          return DateTime(
+            int.parse(parts[2]), // year
+            int.parse(parts[1]), // month
+            int.parse(parts[0]), // day
+          );
+        }
+      }
+
+      // Handle format "25.10.1991"
+      final pattern = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})$');
+      final match = pattern.firstMatch(dateStr);
+      if (match != null) {
+        return DateTime(
+          int.parse(match.group(3)!), // year
+          int.parse(match.group(2)!), // month
+          int.parse(match.group(1)!), // day
+        );
+      }
+
+      // Try standard ISO format as fallback
+      return DateTime.parse(dateStr);
+    } catch (e) {
+      print('Error parsing date "$dateStr": $e');
+      return DateTime.now();
+    }
+  }
+
+  static DateTime? _parseDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null || dateTimeStr.isEmpty) {
+      return null;
+    }
+
+    try {
+      // Handle format "dd.MM.yyyy HH:mm:ss"
+      final pattern = RegExp(r'^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$');
+      final match = pattern.firstMatch(dateTimeStr);
+      if (match != null) {
+        return DateTime(
+          int.parse(match.group(3)!), // year
+          int.parse(match.group(2)!), // month
+          int.parse(match.group(1)!), // day
+          int.parse(match.group(4)!), // hour
+          int.parse(match.group(5)!), // minute
+          int.parse(match.group(6)!), // second
+        );
+      }
+
+      // Try standard ISO format as fallback
+      return DateTime.parse(dateTimeStr);
+    } catch (e) {
+      print('Error parsing datetime "$dateTimeStr": $e');
+      return null;
     }
   }
 }
