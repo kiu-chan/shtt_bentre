@@ -21,14 +21,14 @@ class ResearchProjectModel {
 
   factory ResearchProjectModel.fromJson(Map<String, dynamic> json) {
     return ResearchProjectModel(
-      id: json['id'].toString(),
-      type: json['type'] ?? '',
-      projectName: json['name'] ?? '',
-      researcher: json['leader_name'] ?? '',
-      organization: json['institution'] ?? '',
-      startDate: DateTime.parse(json['start_date']),
-      image: json['image'] ?? '',
-      status: json['status'] == '1' ? 'Đang thực hiện' : 'Đã được cấp bằng',
+      id: json['id']?.toString() ?? '',  // Thêm ? và ?? để xử lý null
+      type: json['type']?.toString() ?? '',
+      projectName: json['name']?.toString() ?? '',
+      researcher: json['leader_name']?.toString() ?? '',
+      organization: json['institution']?.toString() ?? '',
+      startDate: DateTime.tryParse(json['start_date']?.toString() ?? '') ?? DateTime.now(),
+      image: json['image']?.toString() ?? '',
+      status: (json['status']?.toString() == '1') ? 'Đang thực hiện' : 'Đã được cấp bằng',
     );
   }
 }

@@ -40,6 +40,7 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
           }
           
           if (snapshot.hasError) {
+            print(snapshot.error);
             return Center(child: Text('Lỗi khi tải dữ liệu: ${snapshot.error}'));
           }
             
