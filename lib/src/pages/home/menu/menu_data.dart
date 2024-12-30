@@ -4,6 +4,8 @@ import 'package:shtt_bentre/src/pages/home/about/about_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/geographical_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/industrial_design_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/initiative_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/chartPage/product_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/chartPage/science_innovation_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/trademark_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_list_page.dart';
@@ -150,11 +152,25 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
         ),
         MenuItem(
           title: l10n.brandDevelopment,  // 'Sản phẩm đăng ký xây dựng, phát triển thương hiệu' in Vietnamese
-          onTap: (context) {},
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductStatisticsPage(),
+              ),
+            );
+          },
         ),
         MenuItem(
           title: l10n.scientificResearch,  // 'Nghiên cứu khoa học và đổi mới sáng tạo' in Vietnamese
-          onTap: (context) {},
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ScienceInnovationStatisticsPage(),
+              ),
+            );
+          },
         ),
       ],
     ),

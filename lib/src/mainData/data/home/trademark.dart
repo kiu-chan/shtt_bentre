@@ -1,5 +1,3 @@
-import 'package:shtt_bentre/src/mainData/config/url.dart';
-
 class TrademarkModel {
   final int id;
   final String filingNumber;

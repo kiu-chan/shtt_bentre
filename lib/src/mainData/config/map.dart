@@ -1,8 +1,8 @@
 class MapConfig {
   // Layer visibility
-  static bool isBorderEnabled = true;
+  static bool isBorderEnabled = false;
   static bool isCommuneEnabled = false;
-  static bool isDistrictEnabled = false;
+  static bool isDistrictEnabled = true;
   static bool isPatentEnabled = false;
   static bool isTrademarkEnabled = false;
   static bool isIndustrialDesignEnabled = false;
