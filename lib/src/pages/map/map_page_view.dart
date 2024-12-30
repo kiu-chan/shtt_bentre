@@ -13,6 +13,7 @@ import 'package:shtt_bentre/src/pages/map/map_controls.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/patent_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/trademark_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/right_menu.dart';
+import 'package:shtt_bentre/src/pages/map/map_utils.dart';
 
 class MapPageView extends StatelessWidget {
   final MapController mapController;
@@ -58,6 +59,7 @@ class MapPageView extends StatelessWidget {
   final Function(Patent) onShowPatentInfo;
   final Function(TrademarkMapModel) onShowTrademarkInfo;
   final Function(dynamic, dynamic) onMapTap;
+  final Function(double) onZoomChanged;
   
   final List<Polygon> polygons;
   final List<Polyline> borderLines;
@@ -103,6 +105,7 @@ class MapPageView extends StatelessWidget {
     required this.onShowPatentInfo,
     required this.onShowTrademarkInfo,
     required this.onMapTap,
+    required this.onZoomChanged,
     required this.polygons,
     required this.borderLines,
   });
@@ -158,6 +161,11 @@ class MapPageView extends StatelessWidget {
         center: center,
         zoom: currentZoom,
         onTap: onMapTap,
+        onPositionChanged: (position, hasGesture) {
+          if (hasGesture && position.zoom != null) {
+            onZoomChanged(position.zoom!);
+          }
+        },
       ),
       children: [
         TileLayer(
@@ -166,45 +174,60 @@ class MapPageView extends StatelessWidget {
         ),
         PolygonLayer(polygons: polygons),
         if (borderLines.isNotEmpty) PolylineLayer(polylines: borderLines),
-        if (isPatentEnabled) _buildPatentMarkers(),
-        if (isTrademarkEnabled) _buildTrademarkMarkers(),
+        if (isPatentEnabled) _buildClusteredMarkers<Patent>(
+          patents,
+          isPatentEnabled,
+          'lib/assets/map/patent.png',
+          onShowPatentInfo,
+          selectedPatent,
+        ),
+        if (isTrademarkEnabled) _buildClusteredMarkers<TrademarkMapModel>(
+          trademarks,
+          isTrademarkEnabled,
+          'lib/assets/map/trademark.png',
+          onShowTrademarkInfo,
+          selectedTrademark,
+        ),
       ],
     );
   }
 
-  Widget _buildPatentMarkers() {
-    return MarkerLayer(
-      markers: patents.map((patent) => Marker(
-        width: 30.0,
-        height: 30.0,
-        point: patent.location,
-        builder: (ctx) => GestureDetector(
-          onTap: () => onShowPatentInfo(patent),
-          child: Image.asset(
-            'lib/assets/map/patent.png',
-            width: selectedPatent?.id == patent.id ? 30 : 24,
-            height: selectedPatent?.id == patent.id ? 30 : 24,
-          ),
-        ),
-      )).toList(),
-    );
-  }
+  Widget _buildClusteredMarkers<T>(
+    List<T> items,
+    bool isEnabled,
+    String assetPath,
+    Function(T) onShowInfo,
+    T? selectedItem) {
+    if (!isEnabled || items.isEmpty) return const SizedBox.shrink();
 
-  Widget _buildTrademarkMarkers() {
+    // Lấy danh sách các điểm
+    final allPoints = items.map((item) => (item as dynamic).location as LatLng).toList();
+    
+    // Áp dụng clustering
+    final visiblePoints = MapUtils.clusterPoints(allPoints, currentZoom);
+
     return MarkerLayer(
-      markers: trademarks.map((trademark) => Marker(
-        width: 30.0,
-        height: 30.0,
-        point: trademark.location,
-        builder: (ctx) => GestureDetector(
-          onTap: () => onShowTrademarkInfo(trademark),
-          child: Image.asset(
-            'lib/assets/map/trademark.png',
-            width: selectedTrademark?.id == trademark.id ? 30 : 24,
-            height: selectedTrademark?.id == trademark.id ? 30 : 24,
+      markers: visiblePoints.map((point) {
+        // Tìm item tương ứng với điểm hiển thị
+        final item = items.firstWhere(
+          (item) => (item as dynamic).location.latitude == point.latitude 
+                  && (item as dynamic).location.longitude == point.longitude
+        );
+
+        return Marker(
+          width: 30.0,
+          height: 30.0,
+          point: point,
+          builder: (ctx) => GestureDetector(
+            onTap: () => onShowInfo(item),
+            child: Image.asset(
+              assetPath,
+              width: (selectedItem as dynamic)?.id == (item as dynamic).id ? 30 : 24,
+              height: (selectedItem as dynamic)?.id == (item as dynamic).id ? 30 : 24,
+            ),
           ),
-        ),
-      )).toList(),
+        );
+      }).toList(),
     );
   }
 

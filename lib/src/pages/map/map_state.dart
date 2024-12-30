@@ -99,6 +99,10 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       onShowPatentInfo: _stateManager.showPatentInfo,
       onShowTrademarkInfo: _stateManager.showTrademarkInfo,
       onMapTap: _stateManager.onMapTap,
+      onZoomChanged: (zoom) {
+        _stateManager.currentZoom = zoom;
+        setState(() {});
+      },
       polygons: _dataHandler.buildPolygons(
         _stateManager.isDistrictEnabled,
         _stateManager.isCommuneEnabled,
