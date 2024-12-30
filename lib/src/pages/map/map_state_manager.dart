@@ -1,6 +1,7 @@
 // lib/src/pages/map/map_state_manager.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:shtt_bentre/src/mainData/config/map.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -17,16 +18,16 @@ class MapStateManager {
   late final Animation<Offset> legendSlideAnimation;
   late final BuildContext _context;
 
-  double currentZoom = 10.0;
-  bool isLegendVisible = false;
-  bool isRightMenuOpen = false;
-  bool isBorderEnabled = false;
-  bool isCommuneEnabled = false;
-  bool isDistrictEnabled = true;
-  bool isPatentEnabled = false;
-  bool isTrademarkEnabled = false;
-  bool isLegendAnimating = false;
-  bool isIndustrialDesignEnabled = false;
+  double currentZoom = MapConfig.currentZoom;
+  bool isLegendVisible = MapConfig.isLegendVisible;
+  bool isRightMenuOpen = MapConfig.isRightMenuOpen;
+  bool isBorderEnabled = MapConfig.isBorderEnabled;
+  bool isCommuneEnabled = MapConfig.isCommuneEnabled;
+  bool isDistrictEnabled = MapConfig.isDistrictEnabled;
+  bool isPatentEnabled = MapConfig.isPatentEnabled;
+  bool isTrademarkEnabled = MapConfig.isTrademarkEnabled;
+  bool isLegendAnimating = MapConfig.isLegendAnimating;
+  bool isIndustrialDesignEnabled = MapConfig.isIndustrialDesignEnabled;
 
   String? selectedDistrictName;
   String? selectedCommuneName;

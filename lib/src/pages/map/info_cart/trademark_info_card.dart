@@ -168,7 +168,7 @@ class _TrademarkInfoCardState extends State<TrademarkInfoCard> {
   }
 
   Widget _buildImageSection(TrademarkDetailModel trademark) {
-    if (trademark.imageUrl == null || trademark.imageUrl!.isEmpty) {
+    if (trademark.imageUrl.isEmpty) {
       return _buildInfoRow('Hình ảnh', 'Không có hình ảnh để hiển thị.');
     }
 
@@ -186,7 +186,7 @@ class _TrademarkInfoCardState extends State<TrademarkInfoCard> {
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
-            trademark.imageUrl!,
+            trademark.imageUrl,
             height: 150,
             width: double.infinity,
             fit: BoxFit.cover,
