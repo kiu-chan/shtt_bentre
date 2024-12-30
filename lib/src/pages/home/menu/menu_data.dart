@@ -99,7 +99,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PatentStatisticsPage(),
+                builder: (context) => PatentStatisticsPage(),
               ),
             );
           },
@@ -110,7 +110,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const GeographicalStatisticsPage(),
+                builder: (context) => GeographicalStatisticsPage(),
               ),
             );
           },
@@ -121,7 +121,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const TrademarkStatisticsPage(),
+                builder: (context) => TrademarkStatisticsPage(),
               ),
             );
           },
@@ -132,7 +132,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const IndustrialDesignStatisticsPage(),
+                builder: (context) => IndustrialDesignStatisticsPage(),
               ),
             );
           },
@@ -143,7 +143,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const InitiativeStatisticsPage(),
+                builder: (context) => InitiativeStatisticsPage(),
               ),
             );
           },
