@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
@@ -15,6 +16,9 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   final Database _service = Database();
   final List<TrademarkModel> _trademarks = [];
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
+
   bool _showBackToTopButton = false;
   bool _isLoading = false;
   bool _hasError = false;
@@ -26,13 +30,25 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _searchController.addListener(_onSearchChanged);
     _loadInitialData();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_searchDebounce?.isActive ?? false) {
+      _searchDebounce!.cancel();
+    }
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      _refreshData();
+    });
   }
 
   Future<void> _loadInitialData() async {
@@ -44,7 +60,9 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
     });
 
     try {
-      final trademarks = await _service.fetchTrademarks();
+      final trademarks = await _service.trademark.fetchTrademarks(
+        search: _searchController.text,
+      );
       if (!mounted) return;
       
       setState(() {
@@ -73,7 +91,10 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
 
     try {
       final nextPage = _currentPage + 1;
-      final moreTrademarks = await _service.fetchTrademarks(page: nextPage);
+      final moreTrademarks = await _service.trademark.fetchTrademarks(
+        page: nextPage,
+        search: _searchController.text,
+      );
       
       if (!mounted) return;
 
@@ -104,7 +125,6 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   }
 
   void _scrollListener() {
-    // Back to top button logic
     if (_scrollController.offset >= 400) {
       if (!_showBackToTopButton) {
         setState(() => _showBackToTopButton = true);
@@ -115,7 +135,6 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
       }
     }
 
-    // Load more data logic
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       _loadMoreData();
@@ -145,37 +164,104 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildSearchBar() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
-      alignment: Alignment.center,
-      child: const CircularProgressIndicator(),
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Tìm kiếm theo tên nhãn hiệu hoặc chủ sở hữu...',
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: const Color(0xFFF5F7FA),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1),
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildErrorView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.error_outline,
-            color: Colors.red,
-            size: 60,
+  Widget _buildTrademarksListView() {
+    if (_isLoading && _trademarks.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
+            const SizedBox(height: 16),
+            Text(
+              'Có lỗi xảy ra: ${_errorMessage ?? "Unknown error"}',
+              style: const TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _refreshData,
+              child: const Text('Thử lại'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_trademarks.isEmpty) {
+      if (_searchController.text.isNotEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                'Không tìm thấy kết quả cho "${_searchController.text}"',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Có lỗi xảy ra: ${_errorMessage ?? "Unknown error"}',
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _refreshData,
-            child: const Text('Thử lại'),
-          ),
-        ],
-      ),
+        );
+      }
+      return const Center(child: Text('Không có dữ liệu nhãn hiệu'));
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: _trademarks.length + (_hasMoreData ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == _trademarks.length) {
+          return _isLoading 
+            ? const Center(child: CircularProgressIndicator())
+            : const SizedBox();
+        }
+        return GestureDetector(
+          onTap: () => _onTrademarkTap(_trademarks[index]),
+          child: TrademarkCard(trademark: _trademarks[index]),
+        );
+      },
     );
   }
 
@@ -197,24 +283,16 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: _hasError && _trademarks.isEmpty
-            ? _buildErrorView()
-            : ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: _trademarks.length + (_hasMoreData ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == _trademarks.length) {
-                    return _isLoading ? _buildLoadingIndicator() : const SizedBox();
-                  }
-                  return GestureDetector(
-                    onTap: () => _onTrademarkTap(_trademarks[index]),
-                    child: TrademarkCard(trademark: _trademarks[index]),
-                  );
-                },
-              ),
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: _buildTrademarksListView(),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: _showBackToTopButton
           ? FloatingActionButton(

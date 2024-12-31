@@ -124,8 +124,8 @@ class Database {
     return await rp.fetchResearchProjectDetail(id);
   }
 
-  Future<List<TrademarkModel>> fetchTrademarks({int page = 1}) async {
-    return await trademark.fetchTrademarks(page: page);
+  Future<List<TrademarkModel>> fetchTrademarks({int page = 1, String? search}) async {
+    return await trademark.fetchTrademarks(page: page, search: search);
   }
 
   Future<TrademarkDetailModel> fetchTrademarkDetail(int id) async {
