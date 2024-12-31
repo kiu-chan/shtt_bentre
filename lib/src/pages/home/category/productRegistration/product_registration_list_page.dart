@@ -4,7 +4,6 @@ import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_detail_page.dart';
 
-
 class ProductRegistrationListPage extends StatefulWidget {
   const ProductRegistrationListPage({super.key});
 
@@ -14,15 +13,18 @@ class ProductRegistrationListPage extends StatefulWidget {
 
 class _ProductRegistrationListPageState extends State<ProductRegistrationListPage> {
   final Database _service = Database();
-  late Future<List<ProductRegistrationModel>> _productsFuture;
+  final List<ProductRegistrationModel> _products = [];
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
-    _productsFuture = _service.fetchProducts();
     _scrollController.addListener(_scrollListener);
+    _loadMoreProducts();
   }
 
   @override
@@ -32,19 +34,61 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
   }
 
   void _scrollListener() {
-    if (_scrollController.offset >= 400) {
-      if (!_showBackToTopButton) {
-        setState(() {
-          _showBackToTopButton = true;
-        });
-      }
-    } else {
-      if (_showBackToTopButton) {
-        setState(() {
-          _showBackToTopButton = false;
-        });
-      }
+    // Show/hide back to top button
+    setState(() {
+      _showBackToTopButton = _scrollController.offset >= 400;
+    });
+
+    // Load more data when reaching the bottom
+    if (!_isLoading && _hasMore &&
+        _scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent * 0.8) {
+      _loadMoreProducts();
     }
+  }
+
+  Future<void> _loadMoreProducts() async {
+    if (_isLoading || !_hasMore) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final newProducts = await _service.product.fetchProducts(page: _currentPage);
+      
+      setState(() {
+        if (newProducts.isEmpty) {
+          _hasMore = false;
+        } else {
+          _products.addAll(newProducts);
+          _currentPage++;
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Có lỗi xảy ra: $e'),
+          action: SnackBarAction(
+            label: 'Thử lại',
+            onPressed: _loadMoreProducts,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _refreshProducts() async {
+    setState(() {
+      _products.clear();
+      _currentPage = 1;
+      _hasMore = true;
+    });
+    await _loadMoreProducts();
   }
 
   void _scrollToTop() {
@@ -53,12 +97,6 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
-  }
-
-  Future<void> _refreshProducts() async {
-    setState(() {
-      _productsFuture = _service.fetchProducts();
-    });
   }
 
   @override
@@ -81,63 +119,33 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
       ),
       body: RefreshIndicator(
         onRefresh: _refreshProducts,
-        child: FutureBuilder<List<ProductRegistrationModel>>(
-          future: _productsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 60,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Có lỗi xảy ra: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _refreshProducts,
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final products = snapshot.data ?? [];
-            if (products.isEmpty) {
-              return const Center(
-                child: Text('Không có dữ liệu sản phẩm'),
-              );
-            }
-
-            return ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetailPage(id: products[index].id),
-                    ),
+        child: _products.isEmpty && _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _products.isEmpty
+                ? const Center(child: Text('Không có dữ liệu sản phẩm'))
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _products.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _products.length) {
+                        return _buildLoadingIndicator();
+                      }
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailPage(
+                              id: _products[index].id,
+                            ),
+                          ),
+                        ),
+                        child: _ProductRegistrationCard(
+                          product: _products[index],
+                        ),
+                      );
+                    },
                   ),
-                  child: _ProductRegistrationCard(product: products[index]),
-                );
-              },
-            );
-          },
-        ),
       ),
       floatingActionButton: _showBackToTopButton
           ? FloatingActionButton(
@@ -146,6 +154,14 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
               child: const Icon(Icons.arrow_upward),
             )
           : null,
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
     );
   }
 }
