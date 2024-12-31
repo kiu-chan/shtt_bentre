@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String id;
@@ -18,26 +19,16 @@ class ProductDetailPage extends StatefulWidget {
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
   late Future<Map<String, dynamic>> _productFuture;
+  final Database _service = Database();
 
   @override
   void initState() {
     super.initState();
-    _productFuture = _fetchProductDetail();
+    _productFuture = fetchProductDetail();
   }
 
-  Future<Map<String, dynamic>> _fetchProductDetail() async {
-    final response = await http.get(
-      Uri.parse('https://shttbentre.girc.edu.vn/api/products/${widget.id}'),
-    );
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      if (jsonResponse['status'] == 'success') {
-        return jsonResponse['data'];
-      }
-      throw Exception('Invalid data format');
-    }
-    throw Exception('Failed to load product detail');
+  Future<Map<String, dynamic>> fetchProductDetail() async {
+    return _service.fetchProductDetail(widget.id);
   }
 
   String _formatDateTime(String? dateStr) {
@@ -94,7 +85,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _productFuture = _fetchProductDetail();
+                        _productFuture = fetchProductDetail();
                       });
                     },
                     child: const Text('Thử lại'),

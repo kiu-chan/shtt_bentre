@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/home/patent/patent.dart';
 
 class PatentsDatabase {
   static String patentUrl = MainUrl.patentUrl;

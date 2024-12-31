@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/home/patent/patent.dart';
 
 class PatentCard extends StatelessWidget {
   final PatentModel patent;

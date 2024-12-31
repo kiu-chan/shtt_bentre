@@ -1,69 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
+import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_detail_page.dart';
 
-class ProductRegistrationModel {
-  final String id;
-  final String name;
-  final String owner;
-  final String representative;
-  final String address;
-  final String contact;
-  final DateTime createdAt;
-  final String? status;
-  final String slug;
-
-  ProductRegistrationModel({
-    required this.id,
-    required this.name,
-    required this.owner,
-    required this.representative,
-    required this.address,
-    required this.contact,
-    required this.createdAt,
-    this.status,
-    required this.slug,
-  });
-
-  factory ProductRegistrationModel.fromJson(Map<String, dynamic> json) {
-    return ProductRegistrationModel(
-      id: json['id'].toString(),
-      name: json['name'] ?? '',
-      owner: json['owner'] ?? '',
-      representative: json['representatives'] ?? '',
-      address: json['address'] ?? '',
-      contact: json['contact'] ?? '',
-      createdAt: DateTime.parse(json['created_at']),
-      status: json['status'],
-      slug: json['slug'] ?? '',
-    );
-  }
-}
-
-class ProductRegistrationService {
-  static const String baseUrl = 'https://shttbentre.girc.edu.vn/api/products';
-
-  Future<List<ProductRegistrationModel>> fetchProducts() async {
-    try {
-      final response = await http.get(Uri.parse(baseUrl));
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        if (jsonResponse['status'] == 'success' && jsonResponse['data'] is List) {
-          final List<dynamic> data = jsonResponse['data'];
-          return data.map((json) => ProductRegistrationModel.fromJson(json)).toList();
-        }
-        throw Exception('Invalid data format');
-      } else {
-        throw Exception('Failed to load products');
-      }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
-  }
-}
 
 class ProductRegistrationListPage extends StatefulWidget {
   const ProductRegistrationListPage({super.key});
@@ -73,7 +13,7 @@ class ProductRegistrationListPage extends StatefulWidget {
 }
 
 class _ProductRegistrationListPageState extends State<ProductRegistrationListPage> {
-  final ProductRegistrationService _service = ProductRegistrationService();
+  final Database _service = Database();
   late Future<List<ProductRegistrationModel>> _productsFuture;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;

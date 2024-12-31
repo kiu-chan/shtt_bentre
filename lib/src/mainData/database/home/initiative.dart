@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
+import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
 
 class InitiativeService {
   static String initiativeUrl = MainUrl.initiativeUrl;

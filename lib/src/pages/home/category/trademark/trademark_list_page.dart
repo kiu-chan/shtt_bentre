@@ -1,7 +1,7 @@
 // trademark_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
 

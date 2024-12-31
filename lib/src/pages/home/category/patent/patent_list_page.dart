@@ -1,7 +1,7 @@
 // lib/src/pages/home/category/patent/patent_list_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/home/patent/patent.dart';
 import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_detail_page.dart';

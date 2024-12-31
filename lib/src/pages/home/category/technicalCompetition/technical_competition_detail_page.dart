@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/data/home/technical_competition.dart';
+import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technical_competition.dart';
 
 class TechnicalCompetitionDetailPage extends StatelessWidget {
   final TechnicalCompetitionModel competition;

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_detail_page.dart';
 

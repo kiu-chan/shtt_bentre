@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design_detail.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/database_exception.dart';
 

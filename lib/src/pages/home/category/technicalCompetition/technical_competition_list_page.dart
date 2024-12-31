@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shtt_bentre/src/mainData/data/home/technical_competition.dart';
+import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technical_competition.dart';
 import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_detail_page.dart';
 
 class TechnicalCompetitionListPage extends StatefulWidget {

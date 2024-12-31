@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/data/home/trademark_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class TrademarkDetailPage extends StatefulWidget {

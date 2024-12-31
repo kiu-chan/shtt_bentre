@@ -1,7 +1,7 @@
 // research_project_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
+import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class ResearchProjectDetailPage extends StatefulWidget {

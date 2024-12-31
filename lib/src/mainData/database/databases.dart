@@ -1,13 +1,14 @@
 import 'package:shtt_bentre/src/mainData/data/home/about.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication_detail_model.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
-import 'package:shtt_bentre/src/mainData/data/home/initiative.dart';
-import 'package:shtt_bentre/src/mainData/data/home/patent.dart';
-import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
-import 'package:shtt_bentre/src/mainData/data/home/trademark.dart';
-import 'package:shtt_bentre/src/mainData/data/home/trademark_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
+import 'package:shtt_bentre/src/mainData/data/home/patent/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
+import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -20,6 +21,7 @@ import 'package:shtt_bentre/src/mainData/database/home/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/home/initiative.dart';
 import 'package:shtt_bentre/src/mainData/database/home/news.dart';
 import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
+import 'package:shtt_bentre/src/mainData/database/home/product.dart';
 import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
 import 'package:shtt_bentre/src/mainData/database/home/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/map/mapData.dart';
@@ -44,6 +46,7 @@ class Database {
   PatentsDatabase patent = PatentsDatabase();
   ResearchProjectService rp = ResearchProjectService();
   TrademarkService trademark = TrademarkService();
+  ProductRegistrationService product = ProductRegistrationService();
 
   Future<List<Commune>> loadCommuneData() async {
     return await map.loadCommuneData();
@@ -127,6 +130,14 @@ class Database {
 
   Future<TrademarkDetailModel> fetchTrademarkDetail(int id) async {
     return await trademark.fetchTrademarkDetail(id);
+  }
+
+  Future<List<ProductRegistrationModel>> fetchProducts() async {
+    return await product.fetchProducts();
+  }
+
+  Future<Map<String, dynamic>> fetchProductDetail(String id) async {
+    return await product.fetchProductDetail(id);
   }
 
   void dispose() {

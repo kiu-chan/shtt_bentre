@@ -2,7 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/home/research_project.dart';
+import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
 
 class ResearchProjectService {
   static String scienceInnovationsUrl = MainUrl.scienceInnovationsUrl;

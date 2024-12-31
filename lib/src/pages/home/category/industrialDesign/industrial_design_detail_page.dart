@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/home/industrial_design_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class IndustrialDesignDetailPage extends StatefulWidget {
