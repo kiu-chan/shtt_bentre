@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IndustrialDesignDetailPage extends StatefulWidget {
   final String id;
@@ -48,6 +49,7 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: FutureBuilder<IndustrialDesignDetailModel>(
@@ -70,7 +72,7 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error} ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -80,7 +82,7 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                         _detailFuture = _service.fetchIndustrialDesignDetail(widget.id);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -174,36 +176,36 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                       ),
                     ),
                     _buildSection(
-                      title: 'Thông tin chung',
+                      title: l10n.overviewSection,
                       icon: Icons.info_outline,
                       children: [
-                        _buildInfoItem('Số đơn', design.filingNumber),
-                        _buildInfoItem('Ngày nộp đơn', _formatDate(design.filingDate)),
-                        _buildInfoItem('Số công bố', design.publicationNumber),
-                        _buildInfoItem('Ngày công bố', _formatDate(design.publicationDate)),
-                        _buildInfoItem('Số đăng ký', design.registrationNumber),
-                        _buildInfoItem('Ngày đăng ký', _formatDate(design.registrationDate)),
-                        _buildInfoItem('Ngày hết hạn', _formatDate(design.expirationDate)),
+                        _buildInfoItem(l10n.applicationNumber, design.filingNumber),
+                        _buildInfoItem(l10n.filingDateLabel, _formatDate(design.filingDate)),
+                        _buildInfoItem(l10n.publicationNumberLabel, design.publicationNumber),
+                        _buildInfoItem(l10n.publicationDateLabel, _formatDate(design.publicationDate)),
+                        _buildInfoItem(l10n.registrationNumber, design.registrationNumber),
+                        _buildInfoItem(l10n.registrationDate, _formatDate(design.registrationDate)),
+                        _buildInfoItem(l10n.expirationDate, _formatDate(design.expirationDate)),
                       ],
                     ),
                     _buildSection(
-                      title: 'Chủ sở hữu và Tác giả',
+                      title: l10n.ownersSection,
                       icon: Icons.people_outline,
                       children: [
-                        _buildInfoItem('Chủ sở hữu', design.owner),
-                        _buildInfoItem('Địa chỉ', design.address),
-                        _buildInfoItem('Tác giả', design.designer),
+                        _buildInfoItem(l10n.ownerLabel, design.owner),
+                        _buildInfoItem(l10n.addressLabel, design.address),
+                        _buildInfoItem(l10n.inventorLabel, design.designer),
                         if (design.designerAddress != null)
-                          _buildInfoItem('Địa chỉ tác giả', design.designerAddress!),
+                          _buildInfoItem(l10n.designerAddressLabel, design.designerAddress!),
                       ],
                     ),
                     _buildSection(
-                      title: 'Phân loại và Chi tiết',
+                      title: l10n.classificationSection,
                       icon: Icons.category_outlined,
                       children: [
-                        _buildInfoItem('Phân loại Locarno', design.locarnoClasses),
+                        _buildInfoItem(l10n.locarnoClassesLabel, design.locarnoClasses),
                         if (design.description != null)
-                          _buildInfoItem('Mô tả', design.description!),
+                          _buildInfoItem(l10n.descriptionLabel, design.description!),
                       ],
                     ),
                     if (design.images.length > 1) ...[
@@ -219,9 +221,9 @@ class _IndustrialDesignDetailPageState extends State<IndustrialDesignDetailPage>
                                   color: Color(0xFF1E88E5),
                                 ),
                                 const SizedBox(width: 8),
-                                const Text(
-                                  'Hình ảnh khác',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.otherImagesLabel,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF1E88E5),

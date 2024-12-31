@@ -2,16 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GeoIndicationCard extends StatelessWidget {
   final GeoIndicationModel data;
 
-  const GeoIndicationCard({
+  const GeoIndicationCard({super.key, 
     required this.data,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -47,9 +49,9 @@ class GeoIndicationCard extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: const Text(
-                    'Chỉ dẫn địa lý',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.geoIndications,
+                    style: const TextStyle(
                       color: Color(0xFF2E7D32),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -68,7 +70,7 @@ class GeoIndicationCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Mã số: ${data.soDon}',
+                      '${l10n.maNumber}: ${data.soDon}',
                       style: const TextStyle(
                         color: Color(0xFF1565C0),
                         fontSize: 12,
@@ -140,7 +142,7 @@ class GeoIndicationCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Ngày cấp: ${DateFormat('dd/MM/yyyy').format(data.ngayCap)}',
+                    '${l10n.issuedDate}: ${DateFormat('dd/MM/yyyy').format(data.ngayCap)}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,

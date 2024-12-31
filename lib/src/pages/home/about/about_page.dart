@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:shtt_bentre/src/mainData/data/home/about.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -22,9 +23,10 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Giới thiệu'),
+        title: Text(l10n.introduction),
         centerTitle: true,
       ),
       body: FutureBuilder<AboutModel>(
@@ -37,14 +39,14 @@ class _AboutPageState extends State<AboutPage> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Error: ${snapshot.error}',
+                '${l10n.error} ${snapshot.error}',
                 style: const TextStyle(color: Colors.red),
               ),
             );
           }
 
           if (!snapshot.hasData) {
-            return const Center(child: Text('No data available'));
+            return Center(child: Text(l10n.noDataAvailable));
           }
 
           final aboutData = snapshot.data!;
@@ -82,7 +84,7 @@ class _AboutPageState extends State<AboutPage> {
                   const SizedBox(height: 12),
                   // Last updated info
                   Text(
-                    'Cập nhật lần cuối: ${_formatDateTime(aboutData.updatedAt)}',
+                    '${l10n.lastUpdated}: ${_formatDateTime(aboutData.updatedAt)}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,

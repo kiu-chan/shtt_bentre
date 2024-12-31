@@ -173,7 +173,7 @@ class MapPageView extends StatelessWidget {
             child: IconButton(
               icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
               onPressed: onToggleLegend,
-              tooltip: AppLocalizations.of(context)!.hide_ShowLegend,
+              tooltip: AppLocalizations.of(context)!.hideShowLegend,
               color: Theme.of(context).primaryColor,
             ),
           ),

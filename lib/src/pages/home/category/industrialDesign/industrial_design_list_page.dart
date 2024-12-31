@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_detail_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IndustrialDesignListPage extends StatefulWidget {
   const IndustrialDesignListPage({super.key});
@@ -38,14 +39,15 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Kiểu dáng công nghiệp',
-          style: TextStyle(
+        title: Text(
+          l10n.industrialDesign,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -76,13 +78,13 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Có lỗi xảy ra: ${snapshot.error}',
+                      '${l10n.error}: ${snapshot.error}',
                       style: const TextStyle(color: Colors.red),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: _refreshDesigns,
-                      child: const Text('Thử lại'),
+                      child: Text(l10n.tryAgain),
                     ),
                   ],
                 ),
@@ -91,8 +93,8 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
 
             final designs = snapshot.data ?? [];
             if (designs.isEmpty) {
-              return const Center(
-                child: Text('Không có dữ liệu kiểu dáng công nghiệp'),
+              return Center(
+                child: Text('${l10n.noDataAvailable} ${l10n.designCard}'),
               );
             }
 
@@ -138,6 +140,7 @@ class _IndustrialDesignCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -173,9 +176,9 @@ class _IndustrialDesignCard extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: const Text(
-                    'Kiểu dáng công nghiệp',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.designCard,
+                    style: const TextStyle(
                       color: Color(0xFF3949AB),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -306,7 +309,7 @@ class _IndustrialDesignCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Mã đơn: ${design.filingNumber}',
+                  '${l10n.maNumber}: ${design.filingNumber}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 13,

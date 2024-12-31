@@ -4,6 +4,7 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_detail_page.dart';
 import 'dart:async';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GeoIndicationListPage extends StatefulWidget {
   const GeoIndicationListPage({super.key});
@@ -66,51 +67,52 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Bộ lọc'),
+              title: Text(l10n.filter),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Năm:'),
+                    Text(l10n.year),
                     DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedYear,
-                      hint: const Text('Chọn năm'),
+                      hint: Text(l10n.selectYear),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: null,
-                          child: Text('Tất cả'),
+                          child: Text(l10n.all),
                         ),
                         ..._availableYears.map((year) {
                           return DropdownMenuItem<String>(
                             value: year,
-                            child: Text('Năm $year'),
+                            child: Text('${l10n.year} $year'),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) => setState(() => _selectedYear = value),
                     ),
                     const SizedBox(height: 16),
-                    const Text('Huyện:'),
+                    Text(l10n.districtLabel),
                     DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedDistrict,
-                      hint: const Text('Chọn huyện'),
+                      hint: Text(l10n.selectDistrict),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: null,
-                          child: Text('Tất cả'),
+                          child: Text(l10n.all),
                         ),
                         ..._availableDistricts.map((district) {
                           return DropdownMenuItem<String>(
                             value: district['name'],
                             child: Text('${district['name']} (${district['count']})'),
                           );
-                        }).toList(),
+                        }),
                       ],
                       onChanged: (value) => setState(() => _selectedDistrict = value),
                     ),
@@ -120,14 +122,14 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy'),
+                  child: Text(l10n.cancel),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                     _applyFilters();
                   },
-                  child: const Text('Áp dụng'),
+                  child: Text(l10n.apply),
                 ),
               ],
             );

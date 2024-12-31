@@ -3,6 +3,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication_detail_model.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GeoIndicationDetailPage extends StatefulWidget {
   final int stt;
@@ -86,14 +87,15 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chi tiết chỉ dẫn địa lý',
-          style: TextStyle(
+        title: Text(
+          l10n.geoIndicationDetail,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -121,7 +123,7 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -131,7 +133,7 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                         _detailFuture = _service.fetchGeoIndicationDetail(widget.stt);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -153,34 +155,34 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInfoSection('Tên sản phẩm:', detail.tenSanPham),
+                        _buildInfoSection(l10n.productName, detail.tenSanPham),
                         if (detail.soDon != null) ...[
                           const SizedBox(height: 16),
-                          _buildInfoSection('Số đơn:', detail.soDon!),
+                          _buildInfoSection(l10n.applicationNumber, detail.soDon!),
                         ],
                         if (detail.soDangKy != null) ...[
                           const SizedBox(height: 16),
-                          _buildInfoSection('Số đăng ký:', detail.soDangKy!),
+                          _buildInfoSection(l10n.registrationNumber, detail.soDangKy!),
                         ],
                         const SizedBox(height: 16),
-                        _buildInfoSection('Ngày đăng ký:', _formatDate(detail.ngayDangKy)),
+                        _buildInfoSection(l10n.registrationDate, _formatDate(detail.ngayDangKy)),
                         const SizedBox(height: 16),
-                        _buildInfoSection('Đơn vị quản lý:', detail.donViQuanLy),
+                        _buildInfoSection(l10n.managementUnit, detail.donViQuanLy),
                         if (detail.donViUyQuyen != null) ...[
                           const SizedBox(height: 16),
-                          _buildInfoSection('Đơn vị ủy quyền:', detail.donViUyQuyen!),
+                          _buildInfoSection(l10n.authorizedUnit, detail.donViUyQuyen!),
                         ],
                         if (detail.quyetDinhBaoHo != null) ...[
                           const SizedBox(height: 16),
-                          _buildInfoSection('Quyết định bảo hộ:', detail.quyetDinhBaoHo!),
+                          _buildInfoSection(l10n.protectionDecision, detail.quyetDinhBaoHo!),
                         ],
                         const SizedBox(height: 16),
-                        _buildInfoSection('Ngày quyết định:', _formatDate(detail.ngayQuyetDinh)),
+                        _buildInfoSection(l10n.decisionDate, _formatDate(detail.ngayQuyetDinh)),
                         const SizedBox(height: 16),
-                        _buildInfoSection('Các xã được bảo hộ:', detail.cacXaDuocBaoHo),
+                        _buildInfoSection(l10n.protectedCommunes, detail.cacXaDuocBaoHo),
                         if (detail.updatedAt != null) ...[
                           const SizedBox(height: 16),
-                          _buildInfoSection('Cập nhật lúc:', _formatDateTime(detail.updatedAt)),
+                          _buildInfoSection(l10n.updatedAt, _formatDateTime(detail.updatedAt)),
                         ],
                       ],
                     ),
@@ -232,9 +234,9 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Nội dung:',
-                            style: TextStyle(
+                          Text(
+                            l10n.message,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E88E5),
