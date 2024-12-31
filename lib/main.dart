@@ -8,6 +8,6 @@ void main() async {
     ChangeNotifierProvider(
       create: (context) => LanguageProvider(),
       child: const MyApp(),
-      )
-    );
-} 
+    )
+  );
+}

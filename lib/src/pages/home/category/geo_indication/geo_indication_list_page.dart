@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/geo_indication/geo_indication_detail_page.dart';
+import 'dart:async';
 
 class GeoIndicationListPage extends StatefulWidget {
   const GeoIndicationListPage({super.key});
@@ -13,25 +14,175 @@ class GeoIndicationListPage extends StatefulWidget {
 
 class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
   final Database _service = Database();
+  final TextEditingController _searchController = TextEditingController();
   late Future<List<GeoIndicationModel>> _geoIndicationsFuture;
+  Timer? _debounce;
+  String? _selectedYear;
+  String? _selectedDistrict;
+  List<String> _availableYears = [];
+  List<Map<String, dynamic>> _availableDistricts = [];
 
   @override
   void initState() {
     super.initState();
     _geoIndicationsFuture = _service.fetchGeoIndications();
+    _searchController.addListener(_onSearchChanged);
+    _loadAvailableYears();
+    _loadAvailableDistricts();
   }
 
-  void _onItemTap(GeoIndicationModel item) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => GeoIndicationDetailPage(stt: item.stt),
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadAvailableYears() async {
+    final years = await _service.geo.fetchAvailableYears();
+    setState(() {
+      _availableYears = years;
+    });
+  }
+
+  Future<void> _loadAvailableDistricts() async {
+    final districts = await _service.geo.fetchAvailableDistricts();
+    setState(() {
+      _availableDistricts = districts;
+    });
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _geoIndicationsFuture = _service.geo.fetchGeoIndications(
+          search: _searchController.text,
+        );
+      });
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _searchController.clear();
+      _selectedYear = null;
+      _selectedDistrict = null;
+      _geoIndicationsFuture = _service.fetchGeoIndications();
+    });
+    await Future.wait([
+      _loadAvailableYears(),
+      _loadAvailableDistricts(),
+    ]);
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Tìm kiếm theo tên sản phẩm hoặc số đơn...',
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: const Color(0xFFF5F7FA),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1),
+          ),
+        ),
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('dd/MM/yyyy').format(date);
+  Widget _buildYearFilter() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: 'Lọc theo năm',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        value: _selectedYear,
+        items: [
+          const DropdownMenuItem<String>(
+            value: null,
+            child: Text('Tất cả các năm'),
+          ),
+          ..._availableYears.map((year) => DropdownMenuItem<String>(
+                value: year,
+                child: Text('Năm $year'),
+              )),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedYear = value;
+            if (value != null) {
+              _geoIndicationsFuture = _service.geo.fetchGeoIndicationsByYear(value);
+            } else {
+              _geoIndicationsFuture = _service.fetchGeoIndications();
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildDistrictFilter() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: 'Lọc theo huyện',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        value: _selectedDistrict,
+        items: [
+          const DropdownMenuItem<String>(
+            value: null,
+            child: Text('Tất cả các huyện'),
+          ),
+          ..._availableDistricts.map((district) => DropdownMenuItem<String>(
+                value: district['name'],
+                child: Text('${district['name']} (${district['count']})'),
+              )),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedDistrict = value;
+            if (value != null) {
+              _geoIndicationsFuture = _service.geo.fetchGeoIndicationsByDistrict(value);
+            } else {
+              _geoIndicationsFuture = _service.fetchGeoIndications();
+            }
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -52,61 +203,98 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
-      body: FutureBuilder<List<GeoIndicationModel>>(
-        future: _geoIndicationsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          _buildYearFilter(),
+          _buildDistrictFilter(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: FutureBuilder<List<GeoIndicationModel>>(
+                future: _geoIndicationsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 60,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _geoIndicationsFuture = _service.fetchGeoIndications();
-                      });
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 60,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Có lỗi xảy ra: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _refreshData,
+                            child: const Text('Thử lại'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final geoIndications = snapshot.data ?? [];
+                  if (geoIndications.isEmpty &&
+                      (_searchController.text.isNotEmpty || _selectedYear != null || _selectedDistrict != null)) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Không tìm thấy chỉ dẫn địa lý phù hợp',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (geoIndications.isEmpty) {
+                    return const Center(
+                      child: Text('Không có dữ liệu chỉ dẫn địa lý'),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: geoIndications.length,
+                    itemBuilder: (context, index) {
+                      final item = geoIndications[index];
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GeoIndicationDetailPage(stt: item.stt),
+                          ),
+                        ),
+                        child: _GeoIndicationCard(data: item),
+                      );
                     },
-                    child: const Text('Thử lại'),
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          }
-
-          final geoIndications = snapshot.data ?? [];
-          if (geoIndications.isEmpty) {
-            return const Center(
-              child: Text('Không có dữ liệu chỉ dẫn địa lý'),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: geoIndications.length,
-            itemBuilder: (context, index) {
-              final item = geoIndications[index];
-              return GestureDetector(
-                onTap: () => _onItemTap(item),
-                child: _GeoIndicationCard(data: item),
-              );
-            },
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
