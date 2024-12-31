@@ -7,14 +7,15 @@ import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.da
 class TrademarkService {
   static String baseUrl = MainUrl.trademarksUrl;
 
-  Future<List<TrademarkModel>> fetchTrademarks() async {
+  Future<List<TrademarkModel>> fetchTrademarks({int page = 1}) async {
     try {
-      final response = await http.get(Uri.parse(baseUrl));
+      final response = await http.get(
+        Uri.parse('$baseUrl?page=$page'),
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         
-        // Check if response has success status and data is a list
         if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
           final List<dynamic> data = jsonResponse['data'];
           return data.map((json) => TrademarkModel.fromJson(json)).toList();

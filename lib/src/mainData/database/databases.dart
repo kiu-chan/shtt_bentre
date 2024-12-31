@@ -124,16 +124,16 @@ class Database {
     return await rp.fetchResearchProjectDetail(id);
   }
 
-  Future<List<TrademarkModel>> fetchTrademarks() async {
-    return await trademark.fetchTrademarks();
+  Future<List<TrademarkModel>> fetchTrademarks({int page = 1}) async {
+    return await trademark.fetchTrademarks(page: page);
   }
 
   Future<TrademarkDetailModel> fetchTrademarkDetail(int id) async {
     return await trademark.fetchTrademarkDetail(id);
   }
 
-  Future<List<ProductRegistrationModel>> fetchProducts() async {
-    return await product.fetchProducts();
+  Future<List<ProductRegistrationModel>> fetchProducts({int page = 1}) async {
+    return await product.fetchProducts(page: page);
   }
 
   Future<Map<String, dynamic>> fetchProductDetail(String id) async {
