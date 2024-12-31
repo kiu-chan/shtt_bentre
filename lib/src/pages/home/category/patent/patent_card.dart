@@ -201,7 +201,7 @@ class PatentCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Mã đơn: ${patent.id}',
+                    'Số đơn: ${patent.filingNumber}',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 13,

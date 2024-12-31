@@ -6,6 +6,7 @@ class PatentModel {
   final String status;
   final String address;
   final DateTime date;
+  final String filingNumber; // Thêm trường số đơn
 
   PatentModel({
     required this.id,
@@ -15,11 +16,11 @@ class PatentModel {
     required this.status,
     required this.address,
     required this.date,
+    required this.filingNumber,
   });
 
   factory PatentModel.fromJson(Map<String, dynamic> json) {
     return PatentModel(
-      // Sửa lại chỗ này, lấy id từ trường id
       id: json['id']?.toString() ?? '',
       title: json['title'] ?? '',
       field: json['type'] ?? '',
@@ -27,6 +28,7 @@ class PatentModel {
       status: json['status'] ?? '',
       address: json['applicant_address'] ?? '',
       date: _parseDate(json['filing_date']),
+      filingNumber: json['filing_number'] ?? '', // Parse số đơn từ JSON
     );
   }
 
