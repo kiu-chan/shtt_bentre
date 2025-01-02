@@ -80,9 +80,25 @@ class Database {
     return await geo.fetchGeoIndicationDetail(stt);
   }
 
-  Future<List<IndustrialDesignModel>> fetchIndustrialDesigns() async {
-    return await industrialDesign.fetchIndustrialDesigns();
-  }
+ Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
+   String? type,
+   String? year,
+   String? district,
+   String? name,
+   String? owner, 
+   String? address,
+   String? filing_number,
+ }) async {
+  return await industrialDesign.fetchIndustrialDesigns(
+    type: type,
+    year: year,
+    district: district,
+    name: name,
+    owner: owner,
+    address: address,
+    filing_number: filing_number,
+  );
+}
 
   Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
     return await industrialDesign.fetchIndustrialDesignDetail(id);

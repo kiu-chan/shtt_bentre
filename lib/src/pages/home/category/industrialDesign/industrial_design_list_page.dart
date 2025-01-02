@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_detail_page.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IndustrialDesignListPage extends StatefulWidget {
   const IndustrialDesignListPage({super.key});
@@ -16,20 +14,294 @@ class IndustrialDesignListPage extends StatefulWidget {
 class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   final Database _service = Database();
   late Future<List<IndustrialDesignModel>> _designsFuture;
+  final ScrollController _scrollController = ScrollController();
+
+  // Filter state
+  String? _selectedType;
+  String? _selectedYear;
+  String? _selectedDistrict;
+  List<Map<String, dynamic>> _availableTypes = [];
+  List<String> _availableYears = [];
+  List<Map<String, dynamic>> _availableDistricts = [];
+  bool _isFiltered = false;
+
+  // Search controllers
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ownerController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _filingNumberController = TextEditingController();
+  bool _isSearchExpanded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadFilterData();
     _designsFuture = _service.fetchIndustrialDesigns();
   }
 
-  Future<void> _refreshDesigns() async {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _nameController.dispose();
+    _ownerController.dispose();
+    _addressController.dispose();
+    _filingNumberController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadFilterData() async {
+    try {
+      final types = await _service.industrialDesign.fetchDesignTypes();
+      final years = await _service.industrialDesign.fetchDesignYears();
+      final districts = await _service.industrialDesign.fetchDesignDistricts();
+
+      if (mounted) {
+        setState(() {
+          _availableTypes = types;
+          _availableYears = years;
+          _availableDistricts = districts;
+        });
+      }
+    } catch (e) {
+      print('Error loading filter data: $e');
+    }
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isSearchExpanded = !_isSearchExpanded;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Tìm kiếm kiểu dáng công nghiệp...',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    _isSearchExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.grey[600],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isSearchExpanded) ...[
+            const SizedBox(height: 16),
+            Column(
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: 'Tên kiểu dáng',
+                    prefixIcon: const Icon(Icons.title),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (_) => _refreshData(),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _ownerController,
+                  decoration: InputDecoration(
+                    hintText: 'Chủ sở hữu',
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (_) => _refreshData(),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    hintText: 'Địa chỉ',
+                    prefixIcon: const Icon(Icons.location_on),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (_) => _refreshData(),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _filingNumberController,
+                  decoration: InputDecoration(
+                    hintText: 'Số đơn',
+                    prefixIcon: const Icon(Icons.numbers),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (_) => _refreshData(),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Bộ lọc'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Loại kiểu dáng:'),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedType,
+                      hint: const Text('Chọn loại kiểu dáng'),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Tất cả'),
+                        ),
+                        ..._availableTypes.map((type) {
+                          return DropdownMenuItem<String>(
+                            value: type['type'],
+                            child: Text('${type['type']} (${type['count']})'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedType = value),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Năm:'),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedYear,
+                      hint: const Text('Chọn năm'),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Tất cả'),
+                        ),
+                        ..._availableYears.map((year) {
+                          return DropdownMenuItem<String>(
+                            value: year,
+                            child: Text('Năm $year'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedYear = value),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Địa bàn:'),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedDistrict,
+                      hint: const Text('Chọn địa bàn'),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Tất cả'),
+                        ),
+                        ..._availableDistricts.map((district) {
+                          return DropdownMenuItem<String>(
+                            value: district['district_name'],
+                            child: Text('${district['district_name']} (${district['count']})'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedDistrict = value),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _applyFilters();
+                  },
+                  child: const Text('Áp dụng'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _applyFilters() {
     setState(() {
-      _designsFuture = _service.fetchIndustrialDesigns();
+      _isFiltered = _selectedType != null || 
+                    _selectedYear != null || 
+                    _selectedDistrict != null;
+      _refreshData();
     });
   }
 
-  void _onItemTap(IndustrialDesignModel design) {
+  void _resetFilters() {
+    setState(() {
+      _selectedType = null;
+      _selectedYear = null;
+      _selectedDistrict = null;
+      _isFiltered = false;
+      _nameController.clear();
+      _ownerController.clear();
+      _addressController.clear();
+      _filingNumberController.clear();
+      _refreshData();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _designsFuture = _service.fetchIndustrialDesigns(
+        type: _selectedType,
+        year: _selectedYear,
+        district: _selectedDistrict,
+        name: _nameController.text.isNotEmpty ? _nameController.text : null,
+        owner: _ownerController.text.isNotEmpty ? _ownerController.text : null,
+        address: _addressController.text.isNotEmpty ? _addressController.text : null,
+        filing_number: _filingNumberController.text.isNotEmpty ? _filingNumberController.text : null,
+      );
+    });
+  }
+
+  void _onDesignTap(IndustrialDesignModel design) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -38,17 +310,276 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
     );
   }
 
+  Widget _buildActiveFilters() {
+    if (!_isFiltered) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Text(
+            'Đang lọc:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E88E5),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Wrap(
+              spacing: 8,
+              children: [
+                if (_selectedType != null)
+                  Chip(
+                    label: Text(_selectedType!),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedType = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+                if (_selectedYear != null)
+                  Chip(
+                    label: Text('Năm $_selectedYear'),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedYear = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+                if (_selectedDistrict != null)
+                  Chip(
+                    label: Text(_selectedDistrict!),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedDistrict = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _resetFilters,
+            child: const Text('Xóa lọc'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesignCard(IndustrialDesignModel design) {
+    Color _getStatusColor(String status) {
+      switch (status.toLowerCase()) {
+        case 'đã cấp bằng':
+          return const Color(0xFF4CAF50);
+        case 'đang chờ xử lý':
+          return const Color(0xFFFFA726);
+        case 'từ chối':
+          return const Color(0xFFF44336);
+        default:
+          return const Color(0xFF9E9E9E);
+      }
+    }
+
+    return GestureDetector(
+      onTap: () => _onDesignTap(design),
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, Color(0xFFFAFAFA)],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E88E5).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF1E88E5).withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: const Text(
+                      'Kiểu dáng công nghiệp',
+                      style: TextStyle(
+                        color: Color(0xFF1565C0),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(design.status).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _getStatusColor(design.status).withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      design.status,
+                      style: TextStyle(
+                        color: _getStatusColor(design.status),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                design.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF263238),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.business,
+                          size: 20,
+                          color: const Color(0xFF1E88E5).withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            design.owner,
+                            style: const TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 20,
+                          color: const Color(0xFF1E88E5).withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            design.address,
+                            style: const TextStyle(
+                              color: Color(0xFF455A64),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E88E5).withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: const Color(0xFF1E88E5).withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          DateFormat('dd/MM/yyyy').format(design.filingDate),
+                          style: const TextStyle(
+                            color: Color(0xFF1565C0),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    'Số đơn: ${design.filingNumber}',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          l10n.industrialDesign,
-          style: const TextStyle(
+        title: const Text(
+          'Kiểu dáng công nghiệp',
+          style: TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -56,270 +587,115 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
-      ),
-      body: RefreshIndicator(
-        onRefresh: _refreshDesigns,
-        child: FutureBuilder<List<IndustrialDesignModel>>(
-          future: _designsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              print(snapshot.error);
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.filter_list),
+                onPressed: _showFilterDialog,
+              ),
+              if (_isFiltered)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
                       color: Colors.red,
-                      size: 60,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '${l10n.error}: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
+                    constraints: const BoxConstraints(
+                      minWidth: 8,
+                      minHeight: 8,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _refreshDesigns,
-                      child: Text(l10n.tryAgain),
-                    ),
-                  ],
+                  ),
                 ),
-              );
-            }
-
-            final designs = snapshot.data ?? [];
-            if (designs.isEmpty) {
-              return Center(
-                child: Text('${l10n.noDataAvailable} ${l10n.designCard}'),
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: designs.length,
-              itemBuilder: (context, index) {
-                final design = designs[index];
-                return GestureDetector(
-                  onTap: () => _onItemTap(design),
-                  child: _IndustrialDesignCard(design: design),
-                );
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _IndustrialDesignCard extends StatelessWidget {
-  final IndustrialDesignModel design;
-
-  const _IndustrialDesignCard({
-    required this.design,
-  });
-
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'đang chờ xử lý':
-        return const Color(0xFFFFA726);
-      case 'đã cấp bằng':
-        return const Color(0xFF4CAF50);
-      case 'hết hạn':
-        return const Color(0xFF9E9E9E);
-      case 'từ chối':
-        return const Color(0xFFF44336);
-      default:
-        return const Color(0xFF9E9E9E);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Color(0xFFFAFAFA)],
+            ],
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5C6BC0).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFF5C6BC0).withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    l10n.designCard,
-                    style: const TextStyle(
-                      color: Color(0xFF3949AB),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(design.status).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _getStatusColor(design.status).withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    design.status,
-                    style: TextStyle(
-                      color: _getStatusColor(design.status),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              design.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF263238),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.1),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.business,
-                        size: 20,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          design.owner,
-                          style: const TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildSearchBar(),
+          _buildActiveFilters(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: FutureBuilder<List<IndustrialDesignModel>>(
+                future: _designsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 60,
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 20,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          design.address,
-                          style: const TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 14,
+                          const SizedBox(height: 16),
+                          Text(
+                            'Có lỗi xảy ra: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _refreshData,
+                            child: const Text('Thử lại'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    );
+                  }
+
+                  final designs = snapshot.data ?? [];
+                  if (designs.isEmpty && _isSearchExpanded) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Không tìm thấy kiểu dáng phù hợp',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (designs.isEmpty) {
+                    return const Center(
+                      child: Text('Không có dữ liệu kiểu dáng công nghiệp'),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: designs.length,
+                    itemBuilder: (context, index) {
+                      return _buildDesignCard(designs[index]);
+                    },
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E88E5).withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        DateFormat(Format.dateFormat).format(design.publicationDate),
-                        style: const TextStyle(
-                          color: Color(0xFF1565C0),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '${l10n.maNumber}: ${design.filingNumber}',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
