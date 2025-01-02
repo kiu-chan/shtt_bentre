@@ -4,6 +4,7 @@ import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_card.dart';
+import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_filter_menu.dart';
 
 class TrademarkListPage extends StatefulWidget {
   const TrademarkListPage({super.key});
@@ -26,12 +27,40 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   int _currentPage = 1;
   bool _hasMoreData = true;
 
+  // Filter-related state
+  String? _selectedType;
+  String? _selectedYear;
+  String? _selectedDistrict;
+  List<Map<String, dynamic>> _availableTypes = [];
+  List<String> _availableYears = [];
+  List<Map<String, dynamic>> _availableDistricts = [];
+  bool _isFiltered = false;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
     _searchController.addListener(_onSearchChanged);
+    _loadFilterData();
     _loadInitialData();
+  }
+
+  Future<void> _loadFilterData() async {
+    try {
+      final types = await _service.trademark.fetchTrademarkTypes();
+      final years = await _service.trademark.fetchTrademarkYears();
+      final districts = await _service.trademark.fetchTrademarkDistricts();
+
+      if (mounted) {
+        setState(() {
+          _availableTypes = types;
+          _availableYears = years;
+          _availableDistricts = districts;
+        });
+      }
+    } catch (e) {
+      print('Error loading filter data: $e');
+    }
   }
 
   @override
@@ -62,7 +91,11 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
     try {
       final trademarks = await _service.trademark.fetchTrademarks(
         search: _searchController.text,
+        type: _selectedType,
+        year: _selectedYear,
+        district: _selectedDistrict,
       );
+      
       if (!mounted) return;
       
       setState(() {
@@ -94,6 +127,9 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
       final moreTrademarks = await _service.trademark.fetchTrademarks(
         page: nextPage,
         search: _searchController.text,
+        type: _selectedType,
+        year: _selectedYear,
+        district: _selectedDistrict,
       );
       
       if (!mounted) return;
@@ -125,15 +161,9 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   }
 
   void _scrollListener() {
-    if (_scrollController.offset >= 400) {
-      if (!_showBackToTopButton) {
-        setState(() => _showBackToTopButton = true);
-      }
-    } else {
-      if (_showBackToTopButton) {
-        setState(() => _showBackToTopButton = false);
-      }
-    }
+    setState(() {
+      _showBackToTopButton = _scrollController.offset >= 400;
+    });
 
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -150,9 +180,58 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
   }
 
   Future<void> _refreshData() async {
-    _currentPage = 1;
-    _hasMoreData = true;
-    await _loadInitialData();
+    setState(() {
+      _currentPage = 1;
+      _hasMoreData = true;
+      _loadInitialData();
+    });
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return TrademarkFilterMenu(
+              selectedType: _selectedType,
+              selectedYear: _selectedYear,
+              selectedDistrict: _selectedDistrict,
+              availableTypes: _availableTypes,
+              availableYears: _availableYears,
+              availableDistricts: _availableDistricts,
+              onTypeChanged: (value) => setState(() => _selectedType = value),
+              onYearChanged: (value) => setState(() => _selectedYear = value),
+              onDistrictChanged: (value) => setState(() => _selectedDistrict = value),
+              onApply: () {
+                Navigator.pop(context);
+                _applyFilters();
+              },
+              onCancel: () => Navigator.pop(context),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _isFiltered = _selectedType != null || 
+                    _selectedYear != null || 
+                    _selectedDistrict != null;
+      _refreshData();
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _selectedType = null;
+      _selectedYear = null;
+      _selectedDistrict = null;
+      _isFiltered = false;
+      _refreshData();
+    });
   }
 
   void _onTrademarkTap(TrademarkModel trademark) {
@@ -178,6 +257,7 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     _searchController.clear();
+                    FocusScope.of(context).unfocus();
                   },
                 )
               : null,
@@ -200,68 +280,64 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
     );
   }
 
-  Widget _buildTrademarksListView() {
-    if (_isLoading && _trademarks.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  Widget _buildActiveFilters() {
+    if (!_isFiltered) return const SizedBox.shrink();
 
-    if (_hasError) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 60),
-            const SizedBox(height: 16),
-            Text(
-              'Có lỗi xảy ra: ${_errorMessage ?? "Unknown error"}',
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Text(
+            'Đang lọc:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E88E5),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _refreshData,
-              child: const Text('Thử lại'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_trademarks.isEmpty) {
-      if (_searchController.text.isNotEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-              const SizedBox(height: 16),
-              Text(
-                'Không tìm thấy kết quả cho "${_searchController.text}"',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-            ],
           ),
-        );
-      }
-      return const Center(child: Text('Không có dữ liệu nhãn hiệu'));
-    }
-
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _trademarks.length + (_hasMoreData ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == _trademarks.length) {
-          return _isLoading 
-            ? const Center(child: CircularProgressIndicator())
-            : const SizedBox();
-        }
-        return GestureDetector(
-          onTap: () => _onTrademarkTap(_trademarks[index]),
-          child: TrademarkCard(trademark: _trademarks[index]),
-        );
-      },
+          const SizedBox(width: 8),
+          Expanded(
+            child: Wrap(
+              spacing: 8,
+              children: [
+                if (_selectedType != null)
+                  Chip(
+                    label: Text(_selectedType!),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedType = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+                if (_selectedYear != null)
+                  Chip(
+                    label: Text('Năm $_selectedYear'),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedYear = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+                if (_selectedDistrict != null)
+                  Chip(
+                    label: Text(_selectedDistrict!),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedDistrict = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _resetFilters,
+            child: const Text('Xóa lọc'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -282,14 +358,107 @@ class _TrademarkListPageState extends State<TrademarkListPage> {
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.filter_list),
+                onPressed: _showFilterDialog,
+              ),
+              if (_isFiltered)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 8,
+                      minHeight: 8,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         children: [
           _buildSearchBar(),
+          _buildActiveFilters(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
-              child: _buildTrademarksListView(),
+              child: _isLoading && _trademarks.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : _hasError
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 60,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Có lỗi xảy ra: ${_errorMessage ?? "Unknown error"}',
+                                style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _refreshData,
+                                child: const Text('Thử lại'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : _trademarks.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    _searchController.text.isNotEmpty || _isFiltered
+                                        ? 'Không tìm thấy kết quả phù hợp'
+                                        : 'Không có dữ liệu nhãn hiệu',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _trademarks.length + (_hasMoreData ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                if (index == _trademarks.length) {
+                                  return _isLoading
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : const SizedBox();
+                                }
+                                return GestureDetector(
+                                  onTap: () => _onTrademarkTap(_trademarks[index]),
+                                  child: TrademarkCard(trademark: _trademarks[index]),
+                                );
+                              },
+                            ),
             ),
           ),
         ],

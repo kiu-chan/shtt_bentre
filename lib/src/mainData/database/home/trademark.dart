@@ -7,58 +7,104 @@ import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.da
 class TrademarkService {
   static String baseUrl = MainUrl.trademarksUrl;
 
-  Future<List<TrademarkModel>> fetchTrademarks({int page = 1, String? search}) async {
+  Future<List<Map<String, dynamic>>> fetchTrademarkTypes() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}/stats/by-type'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
+          return List<Map<String, dynamic>>.from(jsonResponse['data']);
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching trademark types: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> fetchTrademarkYears() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}/stats/by-year'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
+          return List<String>.from(
+            jsonResponse['data'].map((item) => item['year'].toString()),
+          );
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching trademark years: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchTrademarkDistricts() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${baseUrl}/stats/by-district'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
+          return List<Map<String, dynamic>>.from(jsonResponse['data']);
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching trademark districts: $e');
+      return [];
+    }
+  }
+
+  Future<List<TrademarkModel>> fetchTrademarks({
+    int page = 1,
+    String? search,
+    String? type,
+    String? year,
+    String? district,
+  }) async {
     try {
       var queryParams = <String, String>{
         'page': page.toString(),
       };
-      
+
       if (search != null && search.isNotEmpty) {
-        final markResults = await _fetchWithParams({
-          ...queryParams,
-          'mark': search,
-        });
-        
-        final ownerResults = await _fetchWithParams({
-          ...queryParams,
-          'owner': search,
-        });
-        
-        final combinedResults = [...markResults, ...ownerResults];
-        final uniqueResults = combinedResults.toSet().toList();
-        return uniqueResults;
+        queryParams['search'] = search;
+      }
+      if (type != null) {
+        queryParams['mark'] = type;
+      }
+      if (year != null) {
+        queryParams['year'] = year;
+      }
+      if (district != null) {
+        queryParams['district'] = district;
       }
 
-      return _fetchWithParams(queryParams);
-    } catch (e) {
-      print('Error in fetchTrademarks: ${e.toString()}');
-      throw Exception('Error fetching trademarks: $e');
-    }
-  }
-
-  Future<List<TrademarkModel>> _fetchWithParams(Map<String, String> params) async {
-    try {
-      final uri = Uri.parse(baseUrl).replace(queryParameters: params);
+      final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        
         if (jsonResponse['success'] == true && jsonResponse['data'] is List) {
           final List<dynamic> data = jsonResponse['data'];
           return data.map((json) => TrademarkModel.fromJson(json)).toList();
         }
-        
-        if (jsonResponse['data'] == null) {
-          return [];
-        }
-        
-        throw Exception('Invalid response format: ${jsonResponse.toString()}');
+        return [];
       }
-      
       throw Exception('Failed to load trademarks: ${response.statusCode}');
     } catch (e) {
-      print('Error in _fetchWithParams: ${e.toString()}');
+      print('Error in fetchTrademarks: $e');
       throw Exception('Error fetching trademarks: $e');
     }
   }
@@ -69,17 +115,14 @@ class TrademarkService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        
         if (jsonResponse['success'] == true && jsonResponse['data'] != null) {
           return TrademarkDetailModel.fromJson(jsonResponse['data']);
         }
-        
         throw Exception('Invalid response format: ${jsonResponse.toString()}');
       }
-      
       throw Exception('Failed to load trademark detail: ${response.statusCode}');
     } catch (e) {
-      print('Error in fetchTrademarkDetail: ${e.toString()}');
+      print('Error in fetchTrademarkDetail: $e');
       throw Exception('Error fetching trademark detail: $e');
     }
   }

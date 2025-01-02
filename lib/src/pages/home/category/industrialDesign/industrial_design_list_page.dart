@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_detail_page.dart';
@@ -298,7 +299,7 @@ class _IndustrialDesignCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        DateFormat('dd/MM/yyyy').format(design.publicationDate),
+                        DateFormat(Format.dateFormat).format(design.publicationDate),
                         style: const TextStyle(
                           color: Color(0xFF1565C0),
                           fontSize: 13,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication_detail_model.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,12 +30,12 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return '';
-    return DateFormat('dd/MM/yyyy').format(date);
+    return DateFormat(Format.dateFormat).format(date);
   }
 
   String _formatDateTime(DateTime? date) {
     if (date == null) return '';
-    return DateFormat('dd/MM/yyyy HH:mm:ss').format(date);
+    return DateFormat(Format.dateTimeFormat).format(date);
   }
 
   String _formatHtmlContent(String? content) {

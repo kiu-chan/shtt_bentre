@@ -1,6 +1,7 @@
 // lib/src/pages/home/category/initiative/initiative_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class InitiativeDetailPage extends StatefulWidget {
@@ -87,7 +88,7 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
   }
 
   Widget _buildContent(Map<String, dynamic> initiative) {
-    final dateFormat = DateFormat('dd/MM/yyyy');
+    final dateFormat = DateFormat(Format.dateFormat);
     final createdAt = DateTime.parse(initiative['created_at']);
 
     return SingleChildScrollView(

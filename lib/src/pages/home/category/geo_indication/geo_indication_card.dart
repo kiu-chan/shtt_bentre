@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/data/home/geoIndication/geo_indication.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -142,7 +143,7 @@ class GeoIndicationCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '${l10n.issuedDate}: ${DateFormat('dd/MM/yyyy').format(data.ngayCap)}',
+                    '${l10n.issuedDate}: ${DateFormat(Format.dateFormat).format(data.ngayCap)}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,
