@@ -1,8 +1,9 @@
-// lib/src/pages/home/category/initiative/initiative_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_detail_page.dart';
+import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_filter_menu.dart';
 
 class InitiativeListPage extends StatefulWidget {
   const InitiativeListPage({super.key});
@@ -16,18 +17,33 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
   late Future<List<InitiativeModel>> _initiativesFuture;
   final ScrollController _scrollController = ScrollController();
   bool _showBackToTopButton = false;
+  String? _selectedYear;
+  List<String> _availableYears = [];
+  bool _isFiltered = false;
 
   @override
   void initState() {
     super.initState();
     _initiativesFuture = _initiativeService.fetchInitiatives();
     _scrollController.addListener(_scrollListener);
+    _loadFilterData();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadFilterData() async {
+    try {
+      final years = await _initiativeService.initiative.fetchAvailableYears();
+      setState(() {
+        _availableYears = years;
+      });
+    } catch (e) {
+      print('Error loading filter data: $e');
+    }
   }
 
   void _scrollListener() {
@@ -63,10 +79,89 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
     );
   }
 
-  Future<void> _refreshInitiatives() async {
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return InitiativeFilterMenu(
+          selectedYear: _selectedYear,
+          availableYears: _availableYears,
+          onYearChanged: (value) => setState(() => _selectedYear = value),
+          onApply: () {
+            Navigator.pop(context);
+            _applyFilters();
+          },
+          onCancel: () => Navigator.pop(context),
+        );
+      },
+    );
+  }
+
+  void _applyFilters() {
     setState(() {
+      _initiativesFuture = _initiativeService.initiative.fetchInitiatives(
+        year: _selectedYear
+      );
+      _isFiltered = _selectedYear != null;
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _selectedYear = null;
+      _isFiltered = false;
       _initiativesFuture = _initiativeService.fetchInitiatives();
     });
+  }
+
+  Widget _buildActiveFilters() {
+    if (!_isFiltered) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Text(
+            'Đang lọc:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E88E5),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Wrap(
+              spacing: 8,
+              children: [
+                if (_selectedYear != null)
+                  Chip(
+                    label: Text('Năm $_selectedYear'),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedYear = null;
+                        _applyFilters();
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _resetFilters,
+            child: const Text('Xóa lọc'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshInitiatives() async {
+    setState(() {
+      _selectedYear = null;
+      _isFiltered = false;
+      _initiativesFuture = _initiativeService.fetchInitiatives();
+    });
+    await _loadFilterData();
   }
 
   @override
@@ -86,61 +181,118 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
-      ),
-      body: RefreshIndicator(
-        onRefresh: _refreshInitiatives,
-        child: FutureBuilder<List<InitiativeModel>>(
-          future: _initiativesFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.filter_list),
+                onPressed: _showFilterDialog,
+              ),
+              if (_isFiltered)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
                       color: Colors.red,
-                      size: 60,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Có lỗi xảy ra: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
+                    constraints: const BoxConstraints(
+                      minWidth: 8,
+                      minHeight: 8,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _refreshInitiatives,
-                      child: const Text('Thử lại'),
-                    ),
-                  ],
+                  ),
                 ),
-              );
-            }
+            ],
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildActiveFilters(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshInitiatives,
+              child: FutureBuilder<List<InitiativeModel>>(
+                future: _initiativesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            final initiatives = snapshot.data ?? [];
-            if (initiatives.isEmpty) {
-              return const Center(
-                child: Text('Không có dữ liệu sáng kiến'),
-              );
-            }
+                  if (snapshot.hasError) {
+                    print('Có lỗi xảy ra: ${snapshot.error}');
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 60,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Có lỗi xảy ra: ${snapshot.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _refreshInitiatives,
+                            child: const Text('Thử lại'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-            return ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: initiatives.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => _onInitiativeTap(initiatives[index]),
-                  child: _InitiativeCard(initiative: initiatives[index]),
-                );
-              },
-            );
-          },
-        ),
+                  final initiatives = snapshot.data ?? [];
+                  if (initiatives.isEmpty && _isFiltered) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Không tìm thấy sáng kiến phù hợp',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (initiatives.isEmpty) {
+                    return const Center(
+                      child: Text('Không có dữ liệu sáng kiến'),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: initiatives.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () => _onInitiativeTap(initiatives[index]),
+                        child: InitiativeCard(initiative: initiatives[index]),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: _showBackToTopButton
           ? FloatingActionButton(
@@ -149,207 +301,6 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
               child: const Icon(Icons.arrow_upward),
             )
           : null,
-    );
-  }
-}
-
-class _InitiativeCard extends StatelessWidget {
-  final InitiativeModel initiative;
-
-  const _InitiativeCard({
-    required this.initiative,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Color(0xFFFAFAFA)],
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5C6BC0).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFF5C6BC0).withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    initiative.field,
-                    style: const TextStyle(
-                      color: Color(0xFF3949AB),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFF4CAF50).withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    initiative.status,
-                    style: const TextStyle(
-                      color: Color(0xFF2E7D32),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              initiative.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF263238),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.1),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.edit,
-                        size: 20,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Tác giả: ${initiative.author}',
-                          style: const TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.person,
-                        size: 20,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Chủ sở hữu: ${initiative.owner}',
-                          style: const TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 20,
-                        color: const Color(0xFF1E88E5).withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          initiative.address,
-                          style: const TextStyle(
-                            color: Color(0xFF455A64),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E88E5).withOpacity(0.05),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 16,
-                    color: const Color(0xFF1E88E5).withOpacity(0.8),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Năm công nhận: ${initiative.recognitionYear}',
-                    style: const TextStyle(
-                      color: Color(0xFF1565C0),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

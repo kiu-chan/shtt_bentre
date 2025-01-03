@@ -24,17 +24,23 @@ class InitiativeModel {
   });
 
   factory InitiativeModel.fromJson(Map<String, dynamic> json) {
-    return InitiativeModel(
-      id: json['id'].toString(),
-      name: json['name'] ?? '',
-      author: json['author'] ?? '',
-      owner: json['owner'] ?? '',
-      field: json['fields'] ?? '',
-      address: json['address'] ?? '',
-      recognitionYear: json['recognition_year'] ?? 0,
-      status: json['status'] == '3' ? 'Được phê duyệt' : 'Chờ phê duyệt',
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-    );
+    try {
+      return InitiativeModel(
+        id: json['id']?.toString() ?? '',
+        name: json['name']?.toString() ?? '',
+        author: json['author']?.toString() ?? '',
+        owner: json['owner']?.toString() ?? '',
+        field: json['fields']?.toString() ?? '',
+        address: json['address']?.toString() ?? '',
+        recognitionYear: int.tryParse(json['recognition_year']?.toString() ?? '0') ?? 0,
+        status: json['status'] == '3' ? 'Được phê duyệt' : 'Chờ phê duyệt',
+        createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '') ?? DateTime.now(),
+      );
+    } catch (e) {
+      print('Error parsing InitiativeModel: $e');
+      print('JSON data: $json');
+      rethrow;
+    }
   }
 }
