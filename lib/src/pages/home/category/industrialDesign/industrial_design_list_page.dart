@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
@@ -30,6 +32,8 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   final TextEditingController _ownerController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _filingNumberController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
   bool _isSearchExpanded = false;
 
   @override
@@ -37,16 +41,22 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
     super.initState();
     _loadFilterData();
     _designsFuture = _service.fetchIndustrialDesigns();
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _nameController.dispose();
-    _ownerController.dispose();
-    _addressController.dispose();
-    _filingNumberController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _refreshData();
+    });
   }
 
   Future<void> _loadFilterData() async {
@@ -71,100 +81,35 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isSearchExpanded = !_isSearchExpanded;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F7FA),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.search,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Tìm kiếm kiểu dáng công nghiệp...',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _isSearchExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: Colors.grey[600],
-                  ),
-                ],
-              ),
-            ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Tìm kiếm theo tên, chủ sở hữu, địa chỉ, số đơn...',
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: const Color(0xFFF5F7FA),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
           ),
-          if (_isSearchExpanded) ...[
-            const SizedBox(height: 16),
-            Column(
-              children: [
-                TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: 'Tên kiểu dáng',
-                    prefixIcon: const Icon(Icons.title),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (_) => _refreshData(),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _ownerController,
-                  decoration: InputDecoration(
-                    hintText: 'Chủ sở hữu',
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (_) => _refreshData(),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _addressController,
-                  decoration: InputDecoration(
-                    hintText: 'Địa chỉ',
-                    prefixIcon: const Icon(Icons.location_on),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (_) => _refreshData(),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _filingNumberController,
-                  decoration: InputDecoration(
-                    hintText: 'Số đơn',
-                    prefixIcon: const Icon(Icons.numbers),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (_) => _refreshData(),
-                ),
-              ],
-            ),
-          ],
-        ],
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1),
+          ),
+        ),
       ),
     );
   }
@@ -266,9 +211,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
 
   void _applyFilters() {
     setState(() {
-      _isFiltered = _selectedType != null || 
-                    _selectedYear != null || 
-                    _selectedDistrict != null;
+      _isFiltered = _selectedType != null || _selectedYear != null || _selectedDistrict != null;
       _refreshData();
     });
   }
@@ -279,10 +222,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
       _selectedYear = null;
       _selectedDistrict = null;
       _isFiltered = false;
-      _nameController.clear();
-      _ownerController.clear();
-      _addressController.clear();
-      _filingNumberController.clear();
+      _searchController.clear();
       _refreshData();
     });
   }
@@ -290,13 +230,10 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   Future<void> _refreshData() async {
     setState(() {
       _designsFuture = _service.fetchIndustrialDesigns(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
         type: _selectedType,
         year: _selectedYear,
         district: _selectedDistrict,
-        name: _nameController.text.isNotEmpty ? _nameController.text : null,
-        owner: _ownerController.text.isNotEmpty ? _ownerController.text : null,
-        address: _addressController.text.isNotEmpty ? _addressController.text : null,
-        filing_number: _filingNumberController.text.isNotEmpty ? _filingNumberController.text : null,
       );
     });
   }

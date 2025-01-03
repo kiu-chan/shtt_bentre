@@ -10,75 +10,144 @@ import 'package:shtt_bentre/src/mainData/database/database_exception.dart';
 class IndustrialDesignService {
  static String industrialDesignUrl = MainUrl.industrialDesignUrl;
 
- Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
-   String? type,
-   String? year,
-   String? district,
-   String? name,
-   String? owner, 
-   String? address,
-   String? filing_number,
- }) async {
-   try {
-     var queryParams = <String, String>{};
-     if (type != null) queryParams['type'] = type;
-     if (year != null) queryParams['year'] = year;
-     if (district != null) queryParams['district'] = district;
-     if (name != null) queryParams['name'] = name;
-     if (owner != null) queryParams['owner'] = owner;
-     if (address != null) queryParams['address'] = address;
-     if (filing_number != null) queryParams['filing_number'] = filing_number;
+  Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
+    String? search,
+    String? type,
+    String? year,
+    String? district,
+  }) async {
+    try {
+      List<IndustrialDesignModel> results = [];
+      Set<int> uniqueIds = {};
 
-     final uri = Uri.parse(industrialDesignUrl).replace(queryParameters: queryParams);
-     
-     final response = await http.get(uri).timeout(
-       const Duration(seconds: 30),
-       onTimeout: () {
-         throw DatabaseException('Timeout when fetching industrial designs');
-       },
-     );
+      if (search != null && search.isNotEmpty) {
+        // Tìm theo tên
+        final resultsByName = await _fetchWithParams({'name': search});
+        for (var design in resultsByName) {
+          if (uniqueIds.add(design.id)) {
+            results.add(design);
+          }
+        }
 
-     if (response.statusCode == 200) {
-       try {
-         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-         
-         if (jsonResponse['status'] != 'success') {
-           throw DatabaseException('API returned unsuccessful status: ${jsonResponse['status']}');
-         }
-         
-         if (jsonResponse['data'] == null) {
-           throw DatabaseException('API returned null data');
-         }
-         
-         if (jsonResponse['data'] is! List) {
-           throw DatabaseException('API returned invalid data format: expected List but got ${jsonResponse['data'].runtimeType}');
-         }
+        // Tìm theo chủ sở hữu
+        final resultsByOwner = await _fetchWithParams({'owner': search});
+        for (var design in resultsByOwner) {
+          if (uniqueIds.add(design.id)) {
+            results.add(design);
+          }
+        }
 
-         final List<dynamic> data = jsonResponse['data'];
-         return data.map((json) {
-           try {
-             return IndustrialDesignModel.fromJson(json);
-           } catch (e) {
-             throw DatabaseException('Error parsing industrial design: $e');
-           }
-         }).toList();
-       } on FormatException catch (e) {
-         throw DatabaseException('Invalid JSON format: $e');
-       }
-     } else if (response.statusCode == 404) {
-       throw DatabaseException('Industrial designs endpoint not found');
-     } else if (response.statusCode >= 500) {
-       throw DatabaseException('Server error: ${response.statusCode}');
-     } else {
-       throw DatabaseException('Failed to load industrial designs: ${response.statusCode}');
-     }
-   } on SocketException {
-     throw DatabaseException('No internet connection');
-   } catch (e) {
-     if (e is DatabaseException) rethrow;
-     throw DatabaseException('Unexpected error: $e');
-   }
- }
+        // Tìm theo địa chỉ
+        final resultsByAddress = await _fetchWithParams({'address': search});
+        for (var design in resultsByAddress) {
+          if (uniqueIds.add(design.id)) {
+            results.add(design);
+          }
+        }
+
+        // Tìm theo số đơn
+        final resultsByFilingNumber = await _fetchWithParams({'filing_number': search});
+        for (var design in resultsByFilingNumber) {
+          if (uniqueIds.add(design.id)) {
+            results.add(design);
+          }
+        }
+      } else {
+        // Nếu không có search term, chỉ áp dụng các bộ lọc
+        var queryParams = <String, String>{};
+        if (type != null) queryParams['type'] = type;
+        if (year != null) queryParams['year'] = year;
+        if (district != null) queryParams['district'] = district;
+        
+        results = await _fetchWithParams(queryParams);
+        return results;
+      }
+
+      // Nếu có kết quả search và có bộ lọc, thực hiện lọc thêm
+      if (type != null || year != null || district != null) {
+        // Gọi API để lấy kết quả theo type
+        if (type != null) {
+          final resultsByType = await _fetchWithParams({'type': type});
+          results = results.where((design) => 
+            resultsByType.any((typeDesign) => typeDesign.id == design.id)
+          ).toList();
+        }
+
+        // Lọc theo năm
+        if (year != null) {
+          results = results.where((design) => 
+            design.filingDate.year.toString() == year
+          ).toList();
+        }
+
+        // Lọc theo district
+        if (district != null) {
+          results = results.where((design) => 
+            design.address.toLowerCase().contains(district.toLowerCase())
+          ).toList();
+        }
+      }
+
+      return results;
+
+    } catch (e) {
+      if (e is DatabaseException) rethrow;
+      throw DatabaseException('Unexpected error: $e');
+    }
+  }
+
+  Future<List<IndustrialDesignModel>> _fetchWithParams(Map<String, String> queryParams) async {
+    try {
+      final uri = Uri.parse(industrialDesignUrl).replace(queryParameters: queryParams);
+      
+      final response = await http.get(uri).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw DatabaseException('Timeout when fetching industrial designs');
+        },
+      );
+
+      if (response.statusCode == 200) {
+        try {
+          final Map<String, dynamic> jsonResponse = json.decode(response.body);
+          
+          if (jsonResponse['status'] != 'success') {
+            throw DatabaseException('API returned unsuccessful status: ${jsonResponse['status']}');
+          }
+          
+          if (jsonResponse['data'] == null) {
+            return [];
+          }
+          
+          if (jsonResponse['data'] is! List) {
+            throw DatabaseException('API returned invalid data format: expected List but got ${jsonResponse['data'].runtimeType}');
+          }
+
+          final List<dynamic> data = jsonResponse['data'];
+          return data.map((json) {
+            try {
+              return IndustrialDesignModel.fromJson(json);
+            } catch (e) {
+              throw DatabaseException('Error parsing industrial design: $e');
+            }
+          }).toList();
+        } on FormatException catch (e) {
+          throw DatabaseException('Invalid JSON format: $e');
+        }
+      } else if (response.statusCode == 404) {
+        return [];
+      } else if (response.statusCode >= 500) {
+        throw DatabaseException('Server error: ${response.statusCode}');
+      } else {
+        throw DatabaseException('Failed to load industrial designs: ${response.statusCode}');
+      }
+    } on SocketException {
+      throw DatabaseException('No internet connection');
+    } catch (e) {
+      if (e is DatabaseException) rethrow;
+      throw DatabaseException('Unexpected error: $e');
+    }
+  }
 
  Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
    try {
