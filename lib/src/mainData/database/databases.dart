@@ -142,8 +142,16 @@ class Database {
     return await trademark.fetchTrademarkDetail(id);
   }
 
-  Future<List<ProductRegistrationModel>> fetchProducts({int page = 1}) async {
-    return await product.fetchProducts(page: page);
+  Future<List<ProductRegistrationModel>> fetchProducts({
+    int page = 1,
+    String? year,
+    String? district,
+  }) async {
+    return await product.fetchProducts(
+      page: page,
+      year: year,
+      district: district,
+    );
   }
 
   Future<Map<String, dynamic>> fetchProductDetail(String id) async {
