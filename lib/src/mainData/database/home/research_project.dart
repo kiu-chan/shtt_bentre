@@ -12,23 +12,92 @@ class ResearchProjectService {
     String? year,
   }) async {
     try {
-      // Build query parameters
-      final queryParams = <String, String>{};
+      // Build query parameters based on search criteria
+      final List<ResearchProjectModel> results = [];
+      final Set<String> uniqueIds = {};
+
       if (search != null && search.isNotEmpty) {
-        queryParams['search'] = search;
-      }
-      if (type != null) {
-        queryParams['type'] = type;
-      }
-      if (year != null) {
-        queryParams['year'] = year;
-      }
+        // Search by project name
+        final queryParamsName = {
+          'name': search,
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+        };
+        final responseByName = await _fetchWithParams(queryParamsName);
+        for (var project in responseByName) {
+          if (uniqueIds.add(project.id)) {
+            results.add(project);
+          }
+        }
 
-      // Create URI with query parameters
-      final uri = Uri.parse(scienceInnovationsUrl).replace(
-        queryParameters: queryParams,
-      );
+        // Search by type
+        final queryParamsType = {
+          'type': search,
+          if (year != null) 'year': year,
+        };
+        final responseByType = await _fetchWithParams(queryParamsType);
+        for (var project in responseByType) {
+          if (uniqueIds.add(project.id)) {
+            results.add(project);
+          }
+        }
 
+        // Search by leader name
+        final queryParamsLeader = {
+          'leader_name': search,
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+        };
+        final responseByLeader = await _fetchWithParams(queryParamsLeader);
+        for (var project in responseByLeader) {
+          if (uniqueIds.add(project.id)) {
+            results.add(project);
+          }
+        }
+
+        // Search by institution
+        final queryParamsInstitution = {
+          'institution': search,
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+        };
+        final responseByInstitution = await _fetchWithParams(queryParamsInstitution);
+        for (var project in responseByInstitution) {
+          if (uniqueIds.add(project.id)) {
+            results.add(project);
+          }
+        }
+
+        // Search by year
+        if (RegExp(r'^\d{4}$').hasMatch(search)) {
+          final queryParamsYear = {
+            'year': search,
+            if (type != null) 'type': type,
+          };
+          final responseByYear = await _fetchWithParams(queryParamsYear);
+          for (var project in responseByYear) {
+            if (uniqueIds.add(project.id)) {
+              results.add(project);
+            }
+          }
+        }
+
+        return results;
+      } else {
+        // If no search term, just apply filters
+        final queryParams = <String, String>{};
+        if (type != null) queryParams['type'] = type;
+        if (year != null) queryParams['year'] = year;
+        return await _fetchWithParams(queryParams);
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<List<ResearchProjectModel>> _fetchWithParams(Map<String, String> params) async {
+    try {
+      final uri = Uri.parse(scienceInnovationsUrl).replace(queryParameters: params);
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -40,9 +109,10 @@ class ResearchProjectService {
         }
         return [];
       }
-      throw Exception('Failed to load research projects: ${response.statusCode}');
+      throw Exception('Failed to load research projects');
     } catch (e) {
-      throw Exception('Error fetching research projects: $e');
+      print('Error in _fetchWithParams: $e');
+      return [];
     }
   }
 

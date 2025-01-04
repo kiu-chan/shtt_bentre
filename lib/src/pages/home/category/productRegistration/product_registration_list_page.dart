@@ -195,14 +195,14 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
     });
   }
 
-  Widget _buildSearchBar() {
+Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên, chủ sở hữu, địa chỉ...',
+          hintText: 'Tìm theo tên dự án, lĩnh vực, nhà nghiên cứu, đơn vị, năm...',
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(

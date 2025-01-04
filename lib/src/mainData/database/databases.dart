@@ -126,8 +126,12 @@ class Database {
     return await patent.fetchPatentDetail(id);
   }
 
-  Future<List<ResearchProjectModel>> fetchResearchProjects() async {
-    return await rp.fetchResearchProjects();
+  Future<List<ResearchProjectModel>> fetchResearchProjects({
+    String? search,
+    String? type,
+    String? year,
+  }) async {
+    return await rp.fetchResearchProjects(search: search, type: type, year: year);
   }
 
   Future<ResearchProjectModel> fetchResearchProjectDetail(String id) async {
