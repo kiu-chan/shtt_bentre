@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/config/file_path.dart';
+import 'package:shtt_bentre/src/mainData/config/map.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -17,6 +17,7 @@ import 'package:shtt_bentre/src/pages/map/info_cart/patent_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/trademark_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/right_menu.dart';
 import 'package:shtt_bentre/src/pages/map/map_utils.dart';
+import 'package:shtt_bentre/src/pages/map/search/map_search.dart';
 
 class MapPageView extends StatelessWidget {
   final MapController mapController;
@@ -125,13 +126,23 @@ class MapPageView extends StatelessWidget {
     required this.borderLines,
   });
 
+  void _onLocationSelected(double latitude, double longitude, String name) {
+    mapController.move(LatLng(latitude, longitude), MapConfig.mapSearch);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           _buildMap(),
-          _buildControlButtons(context),
+          MapSearchBar(
+            onLocationSelected: _onLocationSelected,
+            isRightMenuOpen: isRightMenuOpen,
+            onToggleLegend: onToggleLegend!,
+            onToggleRightMenu: onToggleRightMenu,
+            isLegendVisible: isLegendVisible,
+          ),
           _buildLegend(context),
           _buildRightMenuContainer(),
           _buildInfoCards(),
@@ -152,55 +163,6 @@ class MapPageView extends StatelessWidget {
     );
   }
 
-  Widget _buildControlButtons(BuildContext context) {
-    return Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
-      right: 16,
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(isLegendVisible ? Icons.visibility : Icons.visibility_off),
-              onPressed: onToggleLegend,
-              tooltip: AppLocalizations.of(context)!.hideShowLegend,
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: Icon(isRightMenuOpen ? Icons.menu_open : Icons.menu),
-              onPressed: onToggleRightMenu,
-              tooltip: AppLocalizations.of(context)!.menu,
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildMap() {
     return FlutterMap(
@@ -217,8 +179,8 @@ class MapPageView extends StatelessWidget {
       ),
       children: [
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.app',
+          urlTemplate: MapConfig.mapUrl,
+          userAgentPackageName: MapConfig.mapPackage,
         ),
         PolygonLayer(polygons: polygons),
         if (borderLines.isNotEmpty) PolylineLayer(polylines: borderLines),
@@ -290,7 +252,7 @@ class MapPageView extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
-          top: MediaQuery.of(context).padding.top + 16
+          top: MediaQuery.of(context).padding.top + 80 // Adjusted to accommodate search bar
         ),
         child: SlideTransition(
           position: legendSlideAnimation,

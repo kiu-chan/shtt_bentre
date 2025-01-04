@@ -34,4 +34,8 @@ class MapConfig {
   // Cache settings
   static bool enableDataCaching = true;
   static int maxCacheAge = 60; // minutes
+
+ static double mapSearch = 18.0;
+ static String mapUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+ static String mapPackage = 'com.example.app';
 }

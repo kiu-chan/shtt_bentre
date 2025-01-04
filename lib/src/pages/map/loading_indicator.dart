@@ -19,7 +19,6 @@ class LoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Chỉ hiển thị loading indicator khi đang thực sự tải dữ liệu
     bool hasActiveLoading = false;
     String loadingMessage = '';
 
@@ -35,25 +34,9 @@ class LoadingIndicator extends StatelessWidget {
           : '$loadingMessage, ${AppLocalizations.of(context)!.loadingCommuneBoundaries}';
     }
     
-    if (isPatentLoading) {
+    if (isPatentLoading || isTrademarkLoading || isIndustrialDesignLoading) {
       hasActiveLoading = true;
-      loadingMessage = loadingMessage.isEmpty 
-          ? 'Đang tải dữ liệu bằng sáng chế...'
-          : '$loadingMessage, đang tải dữ liệu bằng sáng chế...';
-    }
-    
-    if (isTrademarkLoading) {
-      hasActiveLoading = true;
-      loadingMessage = loadingMessage.isEmpty 
-          ? 'Đang tải dữ liệu nhãn hiệu...'
-          : '$loadingMessage, đang tải dữ liệu nhãn hiệu...';
-    }
-    
-    if (isIndustrialDesignLoading) {
-      hasActiveLoading = true;
-      loadingMessage = loadingMessage.isEmpty 
-          ? 'Đang tải dữ liệu kiểu dáng công nghiệp...'
-          : '$loadingMessage, đang tải dữ liệu kiểu dáng công nghiệp...';
+      loadingMessage = 'Đang tải dữ liệu...';
     }
 
     if (!hasActiveLoading) {
