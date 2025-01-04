@@ -146,12 +146,9 @@ class Database {
     int page = 1,
     String? year,
     String? district,
+    String? search,
   }) async {
-    return await product.fetchProducts(
-      page: page,
-      year: year,
-      district: district,
-    );
+    return await product.fetchProducts(page: page, year: year, district: district, search: search);
   }
 
   Future<Map<String, dynamic>> fetchProductDetail(String id) async {

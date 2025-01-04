@@ -11,20 +11,73 @@ class ProductRegistrationService {
     int page = 1,
     String? year,
     String? district,
+    String? search,
   }) async {
     try {
-      final queryParams = <String, String>{
-        'page': page.toString(),
-      };
-      
-      if (year != null) {
-        queryParams['year'] = year;
-      }
-      if (district != null) {
-        queryParams['district'] = district;
+      List<ProductRegistrationModel> results = [];
+      Set<String> uniqueIds = {};
+
+      if (search != null && search.isNotEmpty) {
+        // Tìm theo tên sản phẩm
+        final resultsByName = await _fetchWithParams({
+          'page': page.toString(),
+          'name': search,
+          'year': year,
+          'district': district,
+        });
+        for (var product in resultsByName) {
+          if (uniqueIds.add(product.id)) {
+            results.add(product);
+          }
+        }
+
+        // Tìm theo chủ sở hữu
+        final resultsByOwner = await _fetchWithParams({
+          'page': page.toString(),
+          'owner': search,
+          'year': year,
+          'district': district,
+        });
+        for (var product in resultsByOwner) {
+          if (uniqueIds.add(product.id)) {
+            results.add(product);
+          }
+        }
+
+        // Tìm theo địa chỉ
+        final resultsByAddress = await _fetchWithParams({
+          'page': page.toString(),
+          'address': search,
+          'year': year,
+          'district': district,
+        });
+        for (var product in resultsByAddress) {
+          if (uniqueIds.add(product.id)) {
+            results.add(product);
+          }
+        }
+
+        return results;
       }
 
-      final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
+      // Nếu không có từ khóa tìm kiếm, gọi API bình thường với các bộ lọc
+      return await _fetchWithParams({
+        'page': page.toString(),
+        'year': year,
+        'district': district,
+      });
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<List<ProductRegistrationModel>> _fetchWithParams(Map<String, String?> params) async {
+    try {
+      // Loại bỏ các params có giá trị null
+      params.removeWhere((key, value) => value == null);
+      
+      final uri = Uri.parse(baseUrl).replace(queryParameters: params);
+      print(uri.toString());
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -33,10 +86,9 @@ class ProductRegistrationService {
           final List<dynamic> data = jsonResponse['data'];
           return data.map((json) => ProductRegistrationModel.fromJson(json)).toList();
         }
-        throw Exception('Invalid data format');
-      } else {
-        throw Exception('Failed to load products');
+        return [];
       }
+      throw Exception('Failed to load products');
     } catch (e) {
       throw Exception('Error: $e');
     }

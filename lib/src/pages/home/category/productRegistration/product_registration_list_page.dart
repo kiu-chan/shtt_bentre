@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_card.dart';
@@ -16,9 +17,13 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
   final Database _service = Database();
   final List<ProductRegistrationModel> _products = [];
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
+  
   bool _showBackToTopButton = false;
   bool _isLoading = false;
   bool _hasMore = true;
+  bool _isSearching = false;
   int _currentPage = 1;
 
   // Filter-related state
@@ -32,6 +37,7 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _searchController.addListener(_onSearchChanged);
     _loadFilterData();
     _loadMoreProducts();
   }
@@ -39,6 +45,8 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -70,6 +78,19 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
     }
   }
 
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _isSearching = _searchController.text.isNotEmpty;
+        _products.clear();
+        _currentPage = 1;
+        _hasMore = true;
+        _loadMoreProducts();
+      });
+    });
+  }
+
   Future<void> _loadMoreProducts() async {
     if (_isLoading || !_hasMore) return;
 
@@ -82,6 +103,7 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
         page: _currentPage,
         year: _selectedYear,
         district: _selectedDistrict,
+        search: _searchController.text,
       );
       
       setState(() {
@@ -173,6 +195,43 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
     });
   }
 
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.white,
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Tìm kiếm theo tên, chủ sở hữu, địa chỉ...',
+          prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: const Color(0xFFF5F7FA),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
 
@@ -232,6 +291,31 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
     );
   }
 
+  Widget _buildEmptyState(bool isFiltered) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isFiltered
+                ? 'Không tìm thấy sản phẩm phù hợp'
+                : 'Không có dữ liệu sản phẩm',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -278,6 +362,7 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
       ),
       body: Column(
         children: [
+          _buildSearchBar(),
           _buildActiveFilters(),
           Expanded(
             child: RefreshIndicator(
@@ -285,28 +370,7 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
               child: _products.isEmpty && _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _products.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.search_off,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                _isFiltered
-                                    ? 'Không tìm thấy sản phẩm phù hợp'
-                                    : 'Không có dữ liệu sản phẩm',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                      ? _buildEmptyState(_isFiltered || _isSearching)
                       : ListView.builder(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
