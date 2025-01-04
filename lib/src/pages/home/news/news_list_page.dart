@@ -351,7 +351,7 @@ class NewsCard extends StatelessWidget {
                             ),
                           );
                         },
-                        icon: Icon(Icons.arrow_forward, color: primaryColor),
+                        icon: const Icon(Icons.arrow_forward, color: primaryColor),
                         label: const Text(
                           'Xem chi tiết',
                           style: TextStyle(color: primaryColor),

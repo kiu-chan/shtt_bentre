@@ -40,7 +40,7 @@ class MapDataHandler {
   bool isIndustrialDesignLoading = MapConfig.isIndustrialDesignLoading;
 
   // Cache management
-  Map<String, dynamic> _dataCache = {};
+  final Map<String, dynamic> _dataCache = {};
   
   MapDataHandler() {
     if (MapConfig.dataRefreshInterval > 0) {

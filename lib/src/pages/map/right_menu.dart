@@ -200,39 +200,4 @@ class MapRightMenu extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildDistrictList() {
-    return Column(
-      children: districts.asMap().entries.map((entry) {
-        final index = entry.key;
-        final district = entry.value;
-        return Card(
-          margin: const EdgeInsets.only(bottom: 4),
-          elevation: 1,
-          child: SwitchListTile(
-            dense: true,
-            title: Text(
-              district.name,
-              style: const TextStyle(fontSize: 13),
-            ),
-            value: district.isVisible,
-            onChanged: (_) => onToggleDistrictVisibility(index),
-            secondary: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: district.color,
-                border: Border.all(
-                  color: district.color.withOpacity(1),
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            activeColor: Colors.blue,
-          ),
-        );
-      }).toList(),
-    );
-  }
 }

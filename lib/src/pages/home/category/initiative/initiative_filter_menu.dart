@@ -31,9 +31,9 @@ class InitiativeFilterMenu extends StatelessWidget {
               value: selectedYear,
               hint: const Text('Chọn năm'),
               items: [
-                DropdownMenuItem<String>(
+                const DropdownMenuItem<String>(
                   value: null,
-                  child: const Text('Tất cả'),
+                  child: Text('Tất cả'),
                 ),
                 ...availableYears.map((year) {
                   return DropdownMenuItem<String>(

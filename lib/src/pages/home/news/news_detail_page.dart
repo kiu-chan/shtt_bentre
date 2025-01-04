@@ -169,7 +169,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                   style: {
                     "body": Style(
                       fontSize: FontSize(16),
-                      lineHeight: LineHeight(1.6),
+                      lineHeight: const LineHeight(1.6),
                     ),
                   },
                 ),

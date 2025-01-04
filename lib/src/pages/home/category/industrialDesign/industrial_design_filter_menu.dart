@@ -39,7 +39,7 @@ class IndustrialDesignFilterMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Loại kiểu dáng"),
+            const Text("Loại kiểu dáng"),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedType,

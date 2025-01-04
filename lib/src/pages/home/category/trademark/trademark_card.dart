@@ -5,7 +5,7 @@ import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 class TrademarkCard extends StatelessWidget {
   final TrademarkModel trademark;
 
-  const TrademarkCard({
+  const TrademarkCard({super.key, 
     required this.trademark,
   });
 

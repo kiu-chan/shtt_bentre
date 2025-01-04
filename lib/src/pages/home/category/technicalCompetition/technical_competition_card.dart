@@ -5,7 +5,7 @@ import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technic
 class CompetitionCard extends StatelessWidget {
   final TechnicalCompetitionModel competition;
 
-  const CompetitionCard({required this.competition});
+  const CompetitionCard({super.key, required this.competition});
 
   @override
   Widget build(BuildContext context) {

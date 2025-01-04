@@ -214,7 +214,7 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                             style: {
                               "body": Style(
                                 fontSize: FontSize(14),
-                                lineHeight: LineHeight(1.5),
+                                lineHeight: const LineHeight(1.5),
                                 color: const Color(0xFF455A64),
                               ),
                             },
@@ -249,7 +249,7 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
                             style: {
                               "body": Style(
                                 fontSize: FontSize(14),
-                                lineHeight: LineHeight(1.5),
+                                lineHeight: const LineHeight(1.5),
                                 color: const Color(0xFF455A64),
                               ),
                             },

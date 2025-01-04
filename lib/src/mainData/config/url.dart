@@ -16,6 +16,7 @@ class MainUrl {
   static String trademarksUrl = '$apiUrl/trademarks';
   static String trademarkLocationsUrl = '$apiUrl/trademark-locations';
   static String productsUrl = '$apiUrl/products';
+  static String technicalInnovationsUrl = '$apiUrl/technical-innovations';
 
   static String mapUrl = '$apiUrl/map';
   static String communesUrl = '$mapUrl/communes';

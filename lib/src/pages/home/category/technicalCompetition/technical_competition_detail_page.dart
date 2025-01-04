@@ -7,7 +7,7 @@ import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technica
 class TechnicalCompetitionDetailPage extends StatelessWidget {
   final TechnicalCompetitionModel competition;
 
-  const TechnicalCompetitionDetailPage({Key? key, required this.competition}) : super(key: key);
+  const TechnicalCompetitionDetailPage({super.key, required this.competition});
 
   @override
   Widget build(BuildContext context) {

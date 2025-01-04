@@ -5,7 +5,7 @@ import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
 class ProductRegistrationCard extends StatelessWidget {
   final ProductRegistrationModel product;
 
-  const ProductRegistrationCard({
+  const ProductRegistrationCard({super.key, 
     required this.product,
   });
 

@@ -449,7 +449,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
                     style: {
                       "body": Style(
                         fontSize: FontSize(15),
-                        lineHeight: LineHeight(1.6),
+                        lineHeight: const LineHeight(1.6),
                         color: Colors.black87,
                         margin: Margins.zero,
                         padding: HtmlPaddings.zero,
@@ -535,7 +535,6 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
                     onLinkTap: (String? url, _, __) {
                       if (url != null) {
                         debugPrint('Tapped link: $url');
-                        // TODO: Handle link tap
                       }
                     },
                   ),

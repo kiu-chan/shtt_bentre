@@ -28,10 +28,6 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   bool _isFiltered = false;
 
   // Search controllers
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ownerController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _filingNumberController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
   bool _isSearchExpanded = false;
@@ -309,7 +305,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   }
 
   Widget _buildDesignCard(IndustrialDesignModel design) {
-    Color _getStatusColor(String status) {
+    Color getStatusColor(String status) {
       switch (status.toLowerCase()) {
         case 'đã cấp bằng':
           return const Color(0xFF4CAF50);
@@ -375,17 +371,17 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(design.status).withOpacity(0.1),
+                      color: getStatusColor(design.status).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: _getStatusColor(design.status).withOpacity(0.2),
+                        color: getStatusColor(design.status).withOpacity(0.2),
                         width: 1,
                       ),
                     ),
                     child: Text(
                       design.status,
                       style: TextStyle(
-                        color: _getStatusColor(design.status),
+                        color: getStatusColor(design.status),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),

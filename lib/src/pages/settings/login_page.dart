@@ -35,7 +35,6 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               child: Text(localizations.login),
               onPressed: () {
-                // TODO: Implement login logic
               },
             ),
           ],

@@ -4,7 +4,7 @@ import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
 class InitiativeCard extends StatelessWidget {
   final InitiativeModel initiative;
 
-  const InitiativeCard({
+  const InitiativeCard({super.key, 
     required this.initiative,
   });
 

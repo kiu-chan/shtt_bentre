@@ -3,9 +3,9 @@ class MapConfig {
   static bool isBorderEnabled = false;
   static bool isCommuneEnabled = false;
   static bool isDistrictEnabled = true;
-  static bool isPatentEnabled = false;
-  static bool isTrademarkEnabled = false;
-  static bool isIndustrialDesignEnabled = false;
+  static bool isPatentEnabled = true;
+  static bool isTrademarkEnabled = true;
+  static bool isIndustrialDesignEnabled = true;
 
   // UI state
   static bool isLegendVisible = false;

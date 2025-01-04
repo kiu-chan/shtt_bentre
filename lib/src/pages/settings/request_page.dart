@@ -40,7 +40,7 @@ class _RequestPageState extends State<RequestPage> {
       final smtpServer = gmail('khanhk66uet@gmail.com', 'akeh qwcq fpnn ydey');
 
       final message = Message()
-        ..from = Address('khanhk66uet@gmail.com')
+        ..from = const Address('khanhk66uet@gmail.com')
         ..recipients.add('baokhanhntby@gmail.com')
         ..subject = 'Yêu cầu mới: ${_subjectController.text}'
         ..text = '''

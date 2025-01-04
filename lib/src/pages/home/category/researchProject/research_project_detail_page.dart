@@ -7,13 +7,13 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 class ResearchProjectDetailPage extends StatefulWidget {
   final String id;
 
-  const ResearchProjectDetailPage({Key? key, required this.id}) : super(key: key);
+  const ResearchProjectDetailPage({super.key, required this.id});
 
   @override
-  _ResearchProjectDetailPageState createState() => _ResearchProjectDetailPageState();
+  ResearchProjectDetailPageState createState() => ResearchProjectDetailPageState();
 }
 
-class _ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
+class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
   late Future<ResearchProjectModel> _projectFuture;
   final Database _service = Database();
 

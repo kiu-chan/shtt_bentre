@@ -5,7 +5,7 @@ import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_proj
 class ResearchProjectCard extends StatelessWidget {
   final ResearchProjectModel project;
 
-  const ResearchProjectCard({
+  const ResearchProjectCard({super.key, 
     required this.project,
   });
 
