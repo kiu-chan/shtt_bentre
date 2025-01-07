@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shtt_bentre/src/pages/chat/chat_page.dart';
 import 'package:shtt_bentre/src/pages/home/home_page.dart';
 import 'package:shtt_bentre/src/pages/map/map_page.dart';
 import 'package:shtt_bentre/src/pages/settings/settings_page.dart';
@@ -34,6 +35,7 @@ class SelectPageState extends State<SelectPage> with SingleTickerProviderStateMi
     List<Widget> pages = [
       const HomePage(),
       const MapPage(),
+      const ChatPage(),
       const SettingsPage(),
     ];
 
@@ -114,9 +116,14 @@ class SelectPageState extends State<SelectPage> with SingleTickerProviderStateMi
                 index: 1,
               ),
               _buildNavItem(
+                icon: Icons.chat_outlined,
+                label: AppLocalizations.of(context)!.chat,
+                index: 2,
+              ),
+              _buildNavItem(
                 icon: Icons.settings_rounded,
                 label: AppLocalizations.of(context)!.settings,
-                index: 2,
+                index: 3,
               ),
             ],
           ),

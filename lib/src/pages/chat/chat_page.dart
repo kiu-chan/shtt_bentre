@@ -1,0 +1,346 @@
+import 'package:flutter/material.dart';
+import 'package:dialog_flowtter/dialog_flowtter.dart';
+import 'package:shtt_bentre/src/pages/chat/chat_message.dart';
+import 'widgets/chat_bubble.dart';
+
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final List<ChatMessage> _messages = [];
+  bool _isLoading = false;
+  bool _isInitialized = false;
+  DialogFlowtter? dialogFlowtter;
+  late final AnimationController _sendButtonController;
+
+  @override
+  void initState() {
+    super.initState();
+    _sendButtonController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _initializeDialogFlowtter();
+  }
+
+  Future<void> _initializeDialogFlowtter() async {
+    try {
+      dialogFlowtter = await DialogFlowtter.fromFile(
+        path: "assets/dialog_flow_auth.json",
+      );
+      setState(() => _isInitialized = true);
+    } catch (e) {
+      print('Error initializing DialogFlowtter: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to initialize chat service: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    _sendButtonController.dispose();
+    dialogFlowtter?.dispose();
+    super.dispose();
+  }
+
+  void _handleSendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+    if (!_isInitialized || dialogFlowtter == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chat service is not ready yet. Please try again.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    final String userMessage = _messageController.text;
+    
+    setState(() {
+      _messages.add(
+        ChatMessage(
+          message: userMessage,
+          isUser: true,
+          timestamp: DateTime.now(),
+        ),
+      );
+      _messageController.clear();
+      _isLoading = true;
+    });
+
+    _sendButtonController.forward().then((_) => _sendButtonController.reset());
+    _scrollToBottom();
+
+    try {
+      final response = await dialogFlowtter?.detectIntent(
+        queryInput: QueryInput(text: TextInput(text: userMessage)),
+      );
+
+      if (response?.message != null) {
+        setState(() {
+          _messages.add(
+            ChatMessage(
+              message: response?.message?.text?.text?[0] ?? "No response",
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          );
+          _isLoading = false;
+        });
+        _scrollToBottom();
+      } else {
+        _handleError('No response from chat service');
+      }
+    } catch (e) {
+      _handleError('Error getting response: $e');
+    }
+  }
+
+  void _handleError(String message) {
+    setState(() {
+      _isLoading = false;
+      _messages.add(
+        ChatMessage(
+          message: "Sorry, I encountered an error. Please try again.",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      );
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.blue.shade50,
+                Colors.white,
+              ],
+            ),
+          ),
+          child: Column(
+            children: [
+              _buildAppBar(),
+              _buildChatList(),
+              if (_isLoading) _buildTypingIndicator(),
+              _buildMessageInput(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chat_rounded,
+              color: Colors.blue.shade700,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Text(
+            "Chat with AI Assistant",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
+            color: Colors.grey.shade700,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatList() {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(top: 16, bottom: 16),
+          itemCount: _messages.length,
+          itemBuilder: (context, index) {
+            final message = _messages[index];
+            return ChatBubble(
+              message: message.message,
+              isUser: message.isUser,
+              timestamp: message.timestamp,
+              showAvatar: !message.isUser && 
+                (index == 0 || _messages[index - 1].isUser),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypingIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      alignment: Alignment.centerLeft,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: List.generate(3, (index) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade500,
+                    shape: BoxShape.circle,
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(
+                  color: Colors.grey.shade200,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: const InputDecoration(
+                        hintText: "Type a message...",
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                      ),
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _handleSendMessage(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          RotationTransition(
+            turns: Tween(begin: 0.0, end: 0.1)
+              .animate(_sendButtonController),
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.lightBlue],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: _handleSendMessage,
+                icon: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
