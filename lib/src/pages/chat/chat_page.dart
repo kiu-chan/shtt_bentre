@@ -27,6 +27,14 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
       vsync: this,
     );
     _initializeDialogFlowtter();
+
+    _messages.add(
+    ChatMessage(
+      message: "Chào bạn, tôi có thể giúp gì cho bạn?",
+      isUser: false,
+      timestamp: DateTime.now(),
+    ),
+  );
   }
 
   Future<void> _initializeDialogFlowtter() async {
@@ -200,7 +208,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
           ),
           const SizedBox(width: 12),
           const Text(
-            "Chat with AI Assistant",
+            "Chat with me",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -217,29 +225,29 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildChatList() {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView.builder(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(top: 16, bottom: 16),
-          itemCount: _messages.length,
-          itemBuilder: (context, index) {
-            final message = _messages[index];
-            return ChatBubble(
-              message: message.message,
-              isUser: message.isUser,
-              timestamp: message.timestamp,
-              showAvatar: !message.isUser && 
-                (index == 0 || _messages[index - 1].isUser),
-            );
-          },
-        ),
+Widget _buildChatList() {
+  return Expanded(
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ListView.builder(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(top: 16, bottom: 16),
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final message = _messages[index];
+          return ChatBubble(
+            message: message.message,
+            isUser: message.isUser,
+            timestamp: message.timestamp,
+            showAvatar: !message.isUser && 
+              (index == 0 || _messages[index - 1].isUser),
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTypingIndicator() {
     return Container(

@@ -151,6 +151,7 @@ class IndustrialDesignService {
 
  Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
    try {
+    print('$industrialDesignUrl/$id');
      final response = await http.get(
        Uri.parse('$industrialDesignUrl/$id'),
      ).timeout(
