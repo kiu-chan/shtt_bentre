@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shtt_bentre/src/mainData/config/map.dart';
-import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 
 class MapDataHandler {

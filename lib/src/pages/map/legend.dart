@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shtt_bentre/src/mainData/config/file_path.dart';
-import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 
 class MapLegend extends StatelessWidget {
   final List<District> districts;

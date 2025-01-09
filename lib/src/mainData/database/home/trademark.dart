@@ -10,7 +10,7 @@ class TrademarkService {
   Future<List<Map<String, dynamic>>> fetchTrademarkTypes() async {
     try {
       final response = await http.get(
-        Uri.parse('${baseUrl}/stats/by-type'),
+        Uri.parse('$baseUrl/stats/by-type'),
       );
 
       if (response.statusCode == 200) {
@@ -29,7 +29,7 @@ class TrademarkService {
   Future<List<String>> fetchTrademarkYears() async {
     try {
       final response = await http.get(
-        Uri.parse('${baseUrl}/stats/by-year'),
+        Uri.parse('$baseUrl/stats/by-year'),
       );
 
       if (response.statusCode == 200) {
@@ -50,7 +50,7 @@ class TrademarkService {
   Future<List<Map<String, dynamic>>> fetchTrademarkDistricts() async {
     try {
       final response = await http.get(
-        Uri.parse('${baseUrl}/stats/by-district'),
+        Uri.parse('$baseUrl/stats/by-district'),
       );
 
       if (response.statusCode == 200) {

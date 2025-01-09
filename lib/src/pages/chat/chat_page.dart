@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dialog_flowtter/dialog_flowtter.dart';
-import 'package:shtt_bentre/src/pages/chat/chat_message.dart';
+import 'package:shtt_bentre/src/mainData/config/file_path.dart';
+import 'package:shtt_bentre/src/mainData/config/text.dart';
+import 'package:shtt_bentre/src/mainData/data/chat/chat_message.dart';
 import 'widgets/chat_bubble.dart';
 
 class ChatPage extends StatefulWidget {
@@ -30,7 +32,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
 
     _messages.add(
       ChatMessage(
-        message: "Chào bạn, tôi có thể giúp gì cho bạn?",
+        message: TextConfig.startChat,
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -40,7 +42,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
   Future<void> _initializeDialogFlowtter() async {
     try {
       dialogFlowtter = await DialogFlowtter.fromFile(
-        path: "assets/dialog_flow_auth.json",
+        path: FilePath.dialogflowPath,
       );
       setState(() => _isInitialized = true);
     } catch (e) {

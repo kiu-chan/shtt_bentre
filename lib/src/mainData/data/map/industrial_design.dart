@@ -1,5 +1,3 @@
-// Update lib/src/mainData/data/map/industrial_design_map.dart
-
 import 'package:latlong2/latlong.dart';
 
 class IndustrialDesignMapModel {

@@ -27,7 +27,7 @@ class WarningDatabase {
   Future<WarningModel> fetchWarningDetail(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('https://shttbentre.girc.edu.vn/api/alerts/${id}'),
+        Uri.parse('https://shttbentre.girc.edu.vn/api/alerts/$id'),
       );
 
       if (response.statusCode == 200) {

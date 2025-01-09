@@ -10,12 +10,12 @@ import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_proj
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
 import 'package:shtt_bentre/src/mainData/data/home/warning.dart';
-import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
 import 'package:shtt_bentre/src/mainData/data/map/border.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/home/about.dart';
 import 'package:shtt_bentre/src/mainData/database/home/geo_indication.dart';
 import 'package:shtt_bentre/src/mainData/database/home/industrial_design.dart';
@@ -26,8 +26,8 @@ import 'package:shtt_bentre/src/mainData/database/home/product.dart';
 import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
 import 'package:shtt_bentre/src/mainData/database/home/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/home/warning.dart';
-import 'package:shtt_bentre/src/mainData/database/map/mapData.dart';
-import 'package:shtt_bentre/src/mainData/database/map/pointsData.dart';
+import 'package:shtt_bentre/src/mainData/database/map/map_data.dart';
+import 'package:shtt_bentre/src/mainData/database/map/points_data.dart';
 
 class Database {
   static final Database _instance = Database._internal();

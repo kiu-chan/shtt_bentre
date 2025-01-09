@@ -12,7 +12,7 @@ class WarningCard extends StatelessWidget {
   final String? assetType;
 
   const WarningCard({
-    Key? key,
+    super.key,
     required this.id,
     required this.type,
     required this.title,
@@ -20,7 +20,7 @@ class WarningCard extends StatelessWidget {
     required this.status,
     required this.createdAt,
     this.assetType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

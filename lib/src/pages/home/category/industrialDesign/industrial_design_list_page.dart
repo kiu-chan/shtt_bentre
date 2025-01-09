@@ -30,7 +30,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   // Search controllers
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
-  bool _isSearchExpanded = false;
+  final bool _isSearchExpanded = false;
 
   @override
   void initState() {

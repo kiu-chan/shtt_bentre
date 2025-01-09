@@ -185,7 +185,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => WarningPage(),
+                builder: (context) => const WarningPage(),
               ),
             );
           }

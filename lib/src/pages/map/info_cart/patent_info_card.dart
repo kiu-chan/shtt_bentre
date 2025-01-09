@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_detail_page.dart';
 

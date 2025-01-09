@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/trademark/trademark_detail.dart';
 

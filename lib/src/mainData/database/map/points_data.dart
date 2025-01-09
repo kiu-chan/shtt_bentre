@@ -1,10 +1,9 @@
 import 'dart:convert';
-
 import 'package:latlong2/latlong.dart';
 import 'package:shtt_bentre/src/mainData/config/url.dart';
-import 'package:shtt_bentre/src/mainData/data/patent.dart';
+import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
 import 'package:http/http.dart' as http;
-import 'package:shtt_bentre/src/mainData/data/trademark.dart';
+import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/mainData/database/database_exception.dart';
 
 class Pointsdata {
