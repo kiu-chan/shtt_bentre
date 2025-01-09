@@ -9,6 +9,7 @@ import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
 import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
+import 'package:shtt_bentre/src/mainData/data/home/warning.dart';
 import 'package:shtt_bentre/src/mainData/data/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
@@ -24,6 +25,7 @@ import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
 import 'package:shtt_bentre/src/mainData/database/home/product.dart';
 import 'package:shtt_bentre/src/mainData/database/home/research_project.dart';
 import 'package:shtt_bentre/src/mainData/database/home/trademark.dart';
+import 'package:shtt_bentre/src/mainData/database/home/warning.dart';
 import 'package:shtt_bentre/src/mainData/database/map/mapData.dart';
 import 'package:shtt_bentre/src/mainData/database/map/pointsData.dart';
 
@@ -47,6 +49,7 @@ class Database {
   ResearchProjectService rp = ResearchProjectService();
   TrademarkService trademark = TrademarkService();
   ProductRegistrationService product = ProductRegistrationService();
+  WarningDatabase warning = WarningDatabase();
 
   Future<List<Commune>> loadCommuneData() async {
     return await map.loadCommuneData();
@@ -157,6 +160,14 @@ class Database {
 
   Future<Map<String, dynamic>> fetchProductDetail(String id) async {
     return await product.fetchProductDetail(id);
+  }
+
+  Future<List<WarningModel>> fetchWarnings() async {
+    return await warning.fetchWarnings();
+  }
+
+  Future<WarningModel> fetchWarningDetail(int id) async {
+    return await warning.fetchWarningDetail(id);
   }
 
   void dispose() {

@@ -13,6 +13,7 @@ import 'package:shtt_bentre/src/pages/home/chartPage/patent_statistics_page.dart
 import 'package:shtt_bentre/src/pages/home/support/industrial_design_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/patent_guide_page.dart';
 import 'package:shtt_bentre/src/pages/home/support/trademarkt_guideg_page.dart';
+import 'package:shtt_bentre/src/pages/home/warning/warning_page.dart';
 
 List<MenuSection> getLocalizedMenuSections(BuildContext context) {
   final l10n = AppLocalizations.of(context)!;
@@ -173,6 +174,23 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
           },
         ),
       ],
+    ),
+    MenuSection(
+      title: "Cảnh báo và phản ảnh xâm phạm",  // 'Liên hệ' in Vietnamese
+      icon: Icons.warning,
+      items: [
+        MenuItem(
+          title: "Cảnh báo và phản ánh xâm phạm",
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WarningPage(),
+              ),
+            );
+          }
+        ),
+        ]
     ),
   ];
 }

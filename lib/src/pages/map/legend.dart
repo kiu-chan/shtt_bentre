@@ -47,16 +47,16 @@ class MapLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
-        maxWidth: 250,
-        maxHeight: 400,
+        maxWidth: 280,
+        maxHeight: 500,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -67,16 +67,31 @@ class MapLegend extends StatelessWidget {
           _buildLegendHeader(context),
           if (isDistrictEnabled) _buildDistrictsList(),
           if (isIndustrialDesignEnabled && industrialDesigns.isNotEmpty) ...[
-            const Divider(),
-            _buildIndustrialDesignsSection(),
+            const Divider(height: 1),
+            _buildCategorySection(
+              title: 'Kiểu dáng công nghiệp',
+              iconPath: FilePath.industrialDesignPath,
+              color: const Color(0xFF6750A4),
+              count: industrialDesigns.length,
+            ),
           ],
           if (isPatentEnabled && patents.isNotEmpty) ...[
-            const Divider(),
-            _buildPatentsSection(),
+            const Divider(height: 1),
+            _buildCategorySection(
+              title: 'Bằng sáng chế',
+              iconPath: FilePath.patentPath,
+              color: Colors.green,
+              count: patents.length,
+            ),
           ],
           if (isTrademarkEnabled && trademarks.isNotEmpty) ...[
-            const Divider(),
-            _buildTrademarksSection(),
+            const Divider(height: 1),
+            _buildCategorySection(
+              title: 'Nhãn hiệu',
+              iconPath: FilePath.trademarkPath,
+              color: const Color(0xFF1A73E8),
+              count: trademarks.length,
+            ),
           ],
         ],
       ),
@@ -85,13 +100,10 @@ class MapLegend extends StatelessWidget {
 
   Widget _buildLegendHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8),
-          topRight: Radius.circular(8),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
       ),
       child: Row(
         children: [
@@ -101,7 +113,8 @@ class MapLegend extends StatelessWidget {
             AppLocalizations.of(context)!.notes,
             style: const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
             ),
           ),
         ],
@@ -111,10 +124,11 @@ class MapLegend extends StatelessWidget {
 
   Widget _buildDistrictsList() {
     return Flexible(
-      child: ListView.builder(
-        padding: const EdgeInsets.all(8),
+      child: ListView.separated(
+        padding: const EdgeInsets.all(12),
         shrinkWrap: true,
         itemCount: districts.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 4),
         itemBuilder: (context, index) => _buildDistrictItem(districts[index], index),
       ),
     );
@@ -125,29 +139,37 @@ class MapLegend extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => onShowDistrictInfo(district.name),
+        borderRadius: BorderRadius.circular(8),
         child: Opacity(
           opacity: district.isVisible ? 1.0 : 0.5,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: selectedDistrictName == district.name
+                  ? district.color.withOpacity(0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   decoration: BoxDecoration(
                     color: district.color,
-                    border: Border.all(color: district.color.withOpacity(1)),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     district.name,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: selectedDistrictName == district.name
-                          ? FontWeight.bold
+                          ? FontWeight.w600
                           : FontWeight.normal,
+                      color: Colors.grey[800],
                     ),
                   ),
                 ),
@@ -159,159 +181,51 @@ class MapLegend extends StatelessWidget {
     );
   }
 
-  Widget _buildIndustrialDesignsSection() {
+  Widget _buildCategorySection({
+    required String title,
+    required String iconPath,
+    required Color color,
+    required int count,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        Padding(
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               SizedBox(
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
                 child: Image.asset(
-                  'lib/assets/map/industrial_design.png',
-                  color: Colors.black,
+                  iconPath,
+                  // color: color,
                 ),
               ),
-              const SizedBox(width: 4),
-              const Text(
-                'Kiểu dáng công nghiệp',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Colors.grey[800],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: Image.asset(
-                  FilePath.industrialDesignPath,
-                  color: Colors.blue,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Vị trí kiểu dáng công nghiệp',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[800],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPatentsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: Image.asset(
-                  FilePath.patentPath,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Text(
-                'Bằng sáng chế',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: Image.asset(
-                  FilePath.patentPath,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Vị trí bằng sáng chế',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[800],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTrademarksSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: Image.asset(
-                  FilePath.trademarkPath,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Text(
-                'Nhãn hiệu',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: Image.asset(
-                  FilePath.trademarkPath,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Vị trí nhãn hiệu',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[800],
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],

@@ -17,28 +17,18 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(
+        bottom: 12,
+        left: isUser ? 60 : 0,
+        right: isUser ? 0 : 60,
+      ),
       child: Row(
         mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isUser && showAvatar) ...[
-            Container(
-              width: 32,
-              height: 32,
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.assistant,
-                  size: 16,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-            ),
+            _buildAvatar(),
+            const SizedBox(width: 8),
           ],
           if (!isUser && !showAvatar)
             const SizedBox(width: 40),
@@ -46,12 +36,17 @@ class ChatBubble extends StatelessWidget {
           Flexible(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7,
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
               ),
               decoration: BoxDecoration(
-                color: isUser 
-                  ? const Color(0xFF2196F3)
-                  : Colors.grey.shade200,
+                gradient: isUser 
+                  ? LinearGradient(
+                      colors: [Colors.blue.shade400, Colors.blue.shade600],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+                color: isUser ? null : Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
@@ -60,15 +55,22 @@ class ChatBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 5,
+                    color: (isUser ? Colors.blue : Colors.grey)
+                      .withOpacity(0.1),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
+                border: isUser 
+                  ? null 
+                  : Border.all(
+                      color: Colors.grey.shade100,
+                      width: 1,
+                    ),
               ),
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 10,
+                vertical: 12,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,23 +80,59 @@ class ChatBubble extends StatelessWidget {
                     style: TextStyle(
                       color: isUser ? Colors.white : Colors.black87,
                       fontSize: 15,
+                      height: 1.4,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    _formatTimestamp(timestamp),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isUser 
-                        ? Colors.white.withOpacity(0.7)
-                        : Colors.grey.shade600,
-                    ),
-                  ),
+                  _buildTimestamp(),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade400, Colors.blue.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.assistant,
+        size: 16,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildTimestamp() {
+    return Container(
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(
+        _formatTimestamp(timestamp),
+        style: TextStyle(
+          fontSize: 12,
+          color: isUser 
+            ? Colors.white.withOpacity(0.7)
+            : Colors.grey.shade500,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }

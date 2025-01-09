@@ -29,12 +29,12 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     _initializeDialogFlowtter();
 
     _messages.add(
-    ChatMessage(
-      message: "Chào bạn, tôi có thể giúp gì cho bạn?",
-      isUser: false,
-      timestamp: DateTime.now(),
-    ),
-  );
+      ChatMessage(
+        message: "Chào bạn, tôi có thể giúp gì cho bạn?",
+        isUser: false,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> _initializeDialogFlowtter() async {
@@ -49,7 +49,12 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to initialize chat service: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red.shade400,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -69,9 +74,14 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     if (_messageController.text.trim().isEmpty) return;
     if (!_isInitialized || dialogFlowtter == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chat service is not ready yet. Please try again.'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Chat service is not ready yet. Please try again.'),
+          backgroundColor: Colors.orange.shade400,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       return;
@@ -133,7 +143,12 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
     );
     _scrollToBottom();
@@ -154,18 +169,19 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.blue.shade50,
-                Colors.white,
-              ],
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blue.shade50,
+              Colors.white,
+            ],
+            stops: const [0.0, 0.4],
           ),
+        ),
+        child: SafeArea(
           child: Column(
             children: [
               _buildAppBar(),
@@ -197,12 +213,16 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade400, Colors.blue.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               shape: BoxShape.circle,
             ),
-            child: Icon(
+            child: const Icon(
               Icons.chat_rounded,
-              color: Colors.blue.shade700,
+              color: Colors.white,
               size: 24,
             ),
           ),
@@ -212,42 +232,48 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              letterSpacing: 0.3,
             ),
           ),
           const Spacer(),
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.more_vert),
-            color: Colors.grey.shade700,
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.grey.shade50,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-Widget _buildChatList() {
-  return Expanded(
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ListView.builder(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(top: 16, bottom: 16),
-        itemCount: _messages.length,
-        itemBuilder: (context, index) {
-          final message = _messages[index];
-          return ChatBubble(
-            message: message.message,
-            isUser: message.isUser,
-            timestamp: message.timestamp,
-            showAvatar: !message.isUser && 
-              (index == 0 || _messages[index - 1].isUser),
-          );
-        },
+  Widget _buildChatList() {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(top: 16, bottom: 16),
+          itemCount: _messages.length,
+          itemBuilder: (context, index) {
+            final message = _messages[index];
+            return ChatBubble(
+              message: message.message,
+              isUser: message.isUser,
+              timestamp: message.timestamp,
+              showAvatar: !message.isUser && 
+                (index == 0 || _messages[index - 1].isUser),
+            );
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildTypingIndicator() {
     return Container(
@@ -256,20 +282,24 @@ Widget _buildChatList() {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(16),
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.grey.shade200,
+              ),
             ),
             child: Row(
               children: List.generate(3, (index) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade500,
-                    shape: BoxShape.circle,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade300,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox(width: 8, height: 8),
                   ),
                 );
               }),
@@ -298,24 +328,38 @@ Widget _buildChatList() {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
                   color: Colors.grey.shade200,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _messageController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "Type a message...",
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 15,
                         ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 15,
                       ),
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _handleSendMessage(),
@@ -328,21 +372,32 @@ Widget _buildChatList() {
           const SizedBox(width: 8),
           RotationTransition(
             turns: Tween(begin: 0.0, end: 0.1)
-              .animate(_sendButtonController),
+                .animate(_sendButtonController),
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.lightBlue],
+                  colors: [Colors.blue.shade400, Colors.blue.shade600],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: IconButton(
                 onPressed: _handleSendMessage,
                 icon: const Icon(
                   Icons.send_rounded,
                   color: Colors.white,
+                  size: 20,
+                ),
+                style: IconButton.styleFrom(
+                  padding: const EdgeInsets.all(12),
                 ),
               ),
             ),

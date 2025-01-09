@@ -1,5 +1,3 @@
-// lib/src/pages/map/search/map_search.dart
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -49,7 +47,6 @@ class _MapSearchBarState extends State<MapSearchBar> {
 
   void _onFocusChange() {
     if (!_focusNode.hasFocus) {
-      // Đóng danh sách kết quả khi mất focus
       Future.delayed(const Duration(milliseconds: 200), () {
         if (mounted) {
           setState(() => _searchResults = []);
@@ -58,7 +55,6 @@ class _MapSearchBarState extends State<MapSearchBar> {
     }
   }
 
-  // API Calls
   Future<List<dynamic>> _searchIndustrialDesigns(String query) async {
     try {
       final url = '${MainUrl.apiUrl}/industrial-design-locations-with-name?name=$query';
@@ -68,7 +64,7 @@ class _MapSearchBarState extends State<MapSearchBar> {
         return data['success'] ? data['data'] : [];
       }
     } catch (e) {
-      print('Error searching industrial designs: $e');
+      debugPrint('Error searching industrial designs: $e');
     }
     return [];
   }
@@ -82,7 +78,7 @@ class _MapSearchBarState extends State<MapSearchBar> {
         return data['success'] ? data['data'] : [];
       }
     } catch (e) {
-      print('Error searching trademarks: $e');
+      debugPrint('Error searching trademarks: $e');
     }
     return [];
   }
@@ -96,12 +92,11 @@ class _MapSearchBarState extends State<MapSearchBar> {
         return data['success'] ? data['data'] : [];
       }
     } catch (e) {
-      print('Error searching patents: $e');
+      debugPrint('Error searching patents: $e');
     }
     return [];
   }
 
-  // Search Handling
   Future<void> _performSearch(String query) async {
     if (query.isEmpty) {
       setState(() => _searchResults = []);
@@ -111,7 +106,7 @@ class _MapSearchBarState extends State<MapSearchBar> {
     setState(() => _isLoading = true);
 
     try {
-      final results = await Future.wait([
+      final futures = await Future.wait([
         _searchIndustrialDesigns(query),
         _searchTrademarks(query),
         _searchPatents(query),
@@ -120,15 +115,15 @@ class _MapSearchBarState extends State<MapSearchBar> {
       if (mounted) {
         setState(() {
           _searchResults = [
-            ...results[0].map((item) => {...item, 'type': 'industrial_design'}),
-            ...results[1].map((item) => {...item, 'type': 'trademark'}),
-            ...results[2].map((item) => {...item, 'type': 'patent'}),
+            ...futures[0].map((item) => {...item, 'type': 'industrial_design'}),
+            ...futures[1].map((item) => {...item, 'type': 'trademark'}),
+            ...futures[2].map((item) => {...item, 'type': 'patent'}),
           ];
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Search error: $e');
+      debugPrint('Search error: $e');
       if (mounted) {
         setState(() {
           _searchResults = [];
@@ -163,44 +158,43 @@ class _MapSearchBarState extends State<MapSearchBar> {
     }
   }
 
-  // UI Components
   Widget _buildSearchBar() {
     return Container(
-      height: 50,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 0,
-      ),
+      height: 46,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(23),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.search,
-            color: Colors.blue,
+            color: Colors.grey[600],
+            size: 20,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
             child: TextField(
               controller: _searchController,
               focusNode: _focusNode,
               onChanged: _onSearchChanged,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[800],
+              ),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm địa điểm...',
                 hintStyle: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 16,
+                  color: Colors.grey[400],
+                  fontSize: 15,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -210,7 +204,8 @@ class _MapSearchBarState extends State<MapSearchBar> {
           ),
           if (_searchController.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.clear, color: Colors.grey),
+              icon: const Icon(Icons.clear, size: 20),
+              color: Colors.grey[400],
               onPressed: _clearSearch,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -223,55 +218,64 @@ class _MapSearchBarState extends State<MapSearchBar> {
   Widget _buildActionButtons() {
     return Row(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: IconButton(
-            icon: Icon(
-              widget.isLegendVisible ? Icons.visibility : Icons.visibility_off,
-              color: Colors.purple,
-            ),
-            onPressed: widget.onToggleLegend,
-            padding: const EdgeInsets.all(12),
-          ),
+        _buildActionButton(
+          onPressed: widget.onToggleLegend,
+          icon: widget.isLegendVisible 
+              ? Icons.visibility
+              : Icons.visibility_off,
+          color: const Color(0xFF6750A4),
         ),
         const SizedBox(width: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: IconButton(
-            icon: Icon(
-              widget.isRightMenuOpen ? Icons.menu_open : Icons.menu,
-              color: Colors.blue,
-            ),
-            onPressed: widget.onToggleRightMenu,
-            padding: const EdgeInsets.all(12),
-          ),
+        _buildActionButton(
+          onPressed: widget.onToggleRightMenu,
+          icon: widget.isRightMenuOpen 
+              ? Icons.menu_open
+              : Icons.menu,
+          color: const Color(0xFF1A73E8),
         ),
       ],
     );
   }
 
-Widget _buildSearchResults() {
-    if (!_isLoading && _searchResults.isEmpty) return const SizedBox.shrink();
+  Widget _buildActionButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(23),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(23),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(23),
+          child: Icon(
+            icon,
+            color: color,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    if (!_isLoading && _searchResults.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -281,8 +285,8 @@ Widget _buildSearchResults() {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -293,47 +297,78 @@ Widget _buildSearchResults() {
             ? const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
                 ),
               )
             : ListView.separated(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 shrinkWrap: true,
                 itemCount: _searchResults.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  color: Colors.grey[200],
+                ),
                 itemBuilder: (context, index) {
-                  final Map<String, dynamic> result = Map<String, dynamic>.from(_searchResults[index] as Map);
-                  final String type = result['type'] as String;
-                  final String name = result['name'] as String? ?? '';
+                  final result = Map<String, dynamic>.from(_searchResults[index] as Map);
+                  final type = result['type'] as String;
+                  final name = result['name'] as String? ?? '';
                   
-                  return ListTile(
-                    onTap: () => _handleResultTap(result),
-                    title: Text(
-                      name,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    subtitle: Text(
-                      type == 'industrial_design'
-                          ? 'Kiểu dáng công nghiệp'
-                          : type == 'trademark'
-                              ? 'Nhãn hiệu'
-                              : 'Bằng sáng chế',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _handleResultTap(result),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              type == 'industrial_design'
+                                  ? Icons.design_services
+                                  : type == 'trademark'
+                                      ? Icons.bookmark
+                                      : Icons.lightbulb,
+                              color: type == 'industrial_design'
+                                  ? const Color(0xFF6750A4)
+                                  : type == 'trademark'
+                                      ? const Color(0xFF1A73E8)
+                                      : Colors.green,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    type == 'industrial_design'
+                                        ? 'Kiểu dáng công nghiệp'
+                                        : type == 'trademark'
+                                            ? 'Nhãn hiệu'
+                                            : 'Bằng sáng chế',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    leading: Icon(
-                      type == 'industrial_design'
-                          ? Icons.design_services
-                          : type == 'trademark'
-                              ? Icons.bookmark
-                              : Icons.lightbulb,
-                      color: type == 'industrial_design'
-                          ? Colors.purple
-                          : type == 'trademark'
-                              ? Colors.blue
-                              : Colors.green,
                     ),
                   );
                 },
