@@ -6,61 +6,89 @@ import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
 class InitiativeService {
   static String initiativeUrl = MainUrl.initiativeUrl;
 
-  Future<List<String>> fetchAvailableYears() async {
+  Future<List<InitiativeModel>> fetchInitiatives({
+    String? search,
+    String? year,
+  }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$initiativeUrl/stats/by-year'),
-      );
+      List<InitiativeModel> results = [];
+      Set<String> uniqueIds = {};
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        if (jsonResponse['data'] is List) {
-          final List<dynamic> data = jsonResponse['data'];
-          return data.map((year) => year['year'].toString()).toList()..sort();
+      if (search != null && search.isNotEmpty) {
+        // Search by name
+        final resultsByName = await _fetchWithParams({
+          'name': search,
+          if (year != null) 'recognition_year': year
+        });
+        for (var initiative in resultsByName) {
+          if (uniqueIds.add(initiative.id)) {
+            results.add(initiative);
+          }
         }
+
+        // Search by author
+        final resultsByAuthor = await _fetchWithParams({
+          'author': search,
+          if (year != null) 'recognition_year': year
+        });
+        for (var initiative in resultsByAuthor) {
+          if (uniqueIds.add(initiative.id)) {
+            results.add(initiative);
+          }
+        }
+
+        // Search by owner
+        final resultsByOwner = await _fetchWithParams({
+          'owner': search,
+          if (year != null) 'recognition_year': year
+        });
+        for (var initiative in resultsByOwner) {
+          if (uniqueIds.add(initiative.id)) {
+            results.add(initiative);
+          }
+        }
+
+        // Search by address
+        final resultsByAddress = await _fetchWithParams({
+          'address': search,
+          if (year != null) 'recognition_year': year
+        });
+        for (var initiative in resultsByAddress) {
+          if (uniqueIds.add(initiative.id)) {
+            results.add(initiative);
+          }
+        }
+
+        return results;
+      } else {
+        // If no search term, just apply year filter if present
+        return await _fetchWithParams(
+          year != null ? {'recognition_year': year} : {},
+        );
       }
-      return [];
     } catch (e) {
-      print('Error fetching years: $e');
-      return [];
+      print('Error in fetchInitiatives: $e');
+      throw Exception('Failed to load initiatives: $e');
     }
   }
 
-  Future<List<InitiativeModel>> fetchInitiatives({String? year}) async {
+  Future<List<InitiativeModel>> _fetchWithParams(Map<String, String> params) async {
     try {
-      final Uri uri;
-      if (year != null && year.isNotEmpty) {
-        uri = Uri.parse(initiativeUrl).replace(
-          queryParameters: {'recognition_year': year},
-        );
-      } else {
-        uri = Uri.parse(initiativeUrl);
-      }
-      print(uri);
-
+      final uri = Uri.parse(initiativeUrl).replace(queryParameters: params);
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        
         if (jsonResponse['status'] == 'success' && jsonResponse['data'] is List) {
-          final List<dynamic> initiatives = jsonResponse['data'];
-          return initiatives.map((item) {
-            try {
-              return InitiativeModel.fromJson(item);
-            } catch (e) {
-              print('Error parsing initiative: $e');
-              print('Initiative data: $item');
-              rethrow;
-            }
-          }).toList();
+          final List<dynamic> data = jsonResponse['data'];
+          return data.map((json) => InitiativeModel.fromJson(json)).toList();
         }
         return [];
       }
       throw Exception('Failed to load initiatives: ${response.statusCode}');
     } catch (e) {
-      print('Error in fetchInitiatives: $e');
-      throw Exception('Failed to load initiatives: $e');
+      print('Error in _fetchWithParams: $e');
+      return [];
     }
   }
 
@@ -72,11 +100,76 @@ class InitiativeService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        return jsonResponse['data'];
+        if (jsonResponse['status'] == 'success' && jsonResponse['data'] != null) {
+          return jsonResponse['data'];
+        }
+        throw Exception('Invalid detail data format');
       }
-      throw Exception('Không thể tải thông tin chi tiết sáng kiến');
+      throw Exception('Failed to load initiative detail');
     } catch (e) {
-      throw Exception('Không thể tải thông tin chi tiết sáng kiến');
+      print('Error fetching initiative detail: $e');
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<List<String>> fetchAvailableYears() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$initiativeUrl/stats/by-year'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['data'] is List) {
+          final List<dynamic> data = jsonResponse['data'];
+          return data
+              .map((year) => year['year'].toString())
+              .toList()
+            ..sort((a, b) => b.compareTo(a)); // Sort years in descending order
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching years: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchInitiativesByField() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$initiativeUrl/stats/by-field'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['data'] is List) {
+          return List<Map<String, dynamic>>.from(jsonResponse['data']);
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching fields stats: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchInitiativesByStatus() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$initiativeUrl/stats/by-status'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        if (jsonResponse['data'] is List) {
+          return List<Map<String, dynamic>>.from(jsonResponse['data']);
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching status stats: $e');
+      return [];
     }
   }
 }

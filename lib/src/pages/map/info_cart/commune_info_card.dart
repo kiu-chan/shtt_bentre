@@ -19,11 +19,11 @@ class CommuneInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.topRight,
+      alignment: Alignment.topCenter,
       child: Padding(
         padding: EdgeInsets.only(
           top: 70,
-          right: isRightMenuOpen ? 316 : 16,
+          right: isRightMenuOpen ? 158 : 0,
         ),
         child: Card(
           child: Container(

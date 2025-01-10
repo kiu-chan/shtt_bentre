@@ -227,6 +227,7 @@ class MapStateManager {
     selectedCommuneName = null;
     selectedPatent = null;
     selectedTrademark = null;
+    selectedIndustrialDesign = null;
     onStateChanged();
   }
 

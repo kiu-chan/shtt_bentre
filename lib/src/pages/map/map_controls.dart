@@ -19,7 +19,7 @@ class MapZoomControls extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: Padding(
         padding: EdgeInsets.only(
-          bottom: 40, // Để nút nằm phía trên thanh bottom navigation
+          bottom: 40,
           right: isRightMenuOpen ? 316 : 16,
         ),
         child: Container(
