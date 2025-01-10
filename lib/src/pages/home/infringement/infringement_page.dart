@@ -1,32 +1,30 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:shtt_bentre/src/mainData/data/home/warning.dart';
-import 'package:shtt_bentre/src/mainData/database/databases.dart';
-import 'package:shtt_bentre/src/pages/home/warning/warning_card.dart';
-import 'package:shtt_bentre/src/pages/home/warning/warning_filter_menu.dart';
+// lib/src/pages/infringement/infringement_page.dart
 
-class WarningPage extends StatefulWidget {
-  const WarningPage({super.key});
+import 'package:flutter/material.dart';
+import 'package:shtt_bentre/src/mainData/data/home/infringement.dart';
+import 'dart:async';
+import 'package:shtt_bentre/src/mainData/database/home/infringement.dart';
+import 'package:shtt_bentre/src/pages/home/infringement/infringement_card.dart';
+
+class InfringementPage extends StatefulWidget {
+  const InfringementPage({super.key});
 
   @override
-  State<WarningPage> createState() => _WarningPageState();
+  State<InfringementPage> createState() => _InfringementPageState();
 }
 
-class _WarningPageState extends State<WarningPage> {
-  late Future<List<WarningModel>> _warningsFuture;
+class _InfringementPageState extends State<InfringementPage> {
   final TextEditingController _searchController = TextEditingController();
-  final Database db = Database();
+  final InfringementService _service = InfringementService();
+  late Future<List<InfringementModel>> _infringementsFuture;
   Timer? _debounce;
-  
   String? _selectedStatus;
-  String? _selectedAssetType;
-  String? _selectedType;
   bool _isFiltered = false;
 
   @override
   void initState() {
     super.initState();
-    _loadWarnings();
+    _loadInfringements();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -40,17 +38,15 @@ class _WarningPageState extends State<WarningPage> {
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _loadWarnings();
+      _loadInfringements();
     });
   }
 
-  void _loadWarnings() {
+  void _loadInfringements() {
     setState(() {
-      _warningsFuture = db.fetchWarnings(
-        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+      _infringementsFuture = _service.fetchInfringements(
+        search: _searchController.text,
         status: _selectedStatus,
-        assetType: _selectedAssetType,
-        type: _selectedType
       );
     });
   }
@@ -59,21 +55,51 @@ class _WarningPageState extends State<WarningPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return WarningFilterMenu(
-          selectedStatus: _selectedStatus,
-          selectedAssetType: _selectedAssetType,
-          selectedType: _selectedType,
-          onStatusChanged: (value) => setState(() => _selectedStatus = value),
-          onAssetTypeChanged: (value) => setState(() => _selectedAssetType = value),
-          onTypeChanged: (value) => setState(() => _selectedType = value),
-          onApply: () {
-            Navigator.pop(context);
-            _isFiltered = _selectedStatus != null || 
-                         _selectedAssetType != null || 
-                         _selectedType != null;
-            _loadWarnings();
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Bộ lọc'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Trạng thái:'),
+                  DropdownButton<String>(
+                    isExpanded: true,
+                    value: _selectedStatus,
+                    hint: const Text('Chọn trạng thái'),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('Tất cả'),
+                      ),
+                      const DropdownMenuItem<String>(
+                        value: 'Đang điều tra',
+                        child: Text('Đang điều tra'),
+                      ),
+                    ],
+                    onChanged: (value) => setState(() => _selectedStatus = value),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    this.setState(() {
+                      _isFiltered = _selectedStatus != null;
+                      _loadInfringements();
+                    });
+                  },
+                  child: const Text('Áp dụng'),
+                ),
+              ],
+            );
           },
-          onCancel: () => Navigator.pop(context),
         );
       },
     );
@@ -82,11 +108,9 @@ class _WarningPageState extends State<WarningPage> {
   void _resetFilters() {
     setState(() {
       _selectedStatus = null;
-      _selectedAssetType = null;
-      _selectedType = null;
       _searchController.clear();
       _isFiltered = false;
-      _loadWarnings();
+      _loadInfringements();
     });
   }
 
@@ -97,7 +121,7 @@ class _WarningPageState extends State<WarningPage> {
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tiêu đề...',
+          hintText: 'Tìm kiếm vi phạm...',
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -105,7 +129,6 @@ class _WarningPageState extends State<WarningPage> {
                   onPressed: () {
                     _searchController.clear();
                     FocusScope.of(context).unfocus();
-                    _loadWarnings();
                   },
                 )
               : null,
@@ -149,37 +172,12 @@ class _WarningPageState extends State<WarningPage> {
               children: [
                 if (_selectedStatus != null)
                   Chip(
-                    label: Text(_getStatusText(_selectedStatus!)),
+                    label: Text(_selectedStatus!),
                     onDeleted: () {
                       setState(() {
                         _selectedStatus = null;
-                        _isFiltered = _selectedAssetType != null || 
-                                    _selectedType != null;
-                        _loadWarnings();
-                      });
-                    },
-                  ),
-                if (_selectedAssetType != null)
-                  Chip(
-                    label: Text(_selectedAssetType!),
-                    onDeleted: () {
-                      setState(() {
-                        _selectedAssetType = null;
-                        _isFiltered = _selectedStatus != null || 
-                                    _selectedType != null;
-                        _loadWarnings();
-                      });
-                    },
-                  ),
-                if (_selectedType != null)
-                  Chip(
-                    label: Text(_getTypeText(_selectedType!)),
-                    onDeleted: () {
-                      setState(() {
-                        _selectedType = null;
-                        _isFiltered = _selectedStatus != null || 
-                                    _selectedAssetType != null;
-                        _loadWarnings();
+                        _isFiltered = false;
+                        _loadInfringements();
                       });
                     },
                   ),
@@ -195,42 +193,19 @@ class _WarningPageState extends State<WarningPage> {
     );
   }
 
-  String _getStatusText(String status) {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'ĐANG CHỜ';
-      case 'completed':
-        return 'HOÀN THÀNH';
-      case 'rejected':
-        return 'TỪ CHỐI';
-      default:
-        return status.toUpperCase();
-    }
-  }
-
-  String _getTypeText(String type) {
-    switch (type.toLowerCase()) {
-      case 'alert':
-        return 'CẢNH BÁO';
-      case 'report':
-        return 'BÁO CÁO';
-      default:
-        return type.toUpperCase();
-    }
-  }
-
-  Future<void> _refreshWarnings() async {
-    _loadWarnings();
+  Future<void> _refreshInfringements() async {
+    _loadInfringements();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: const Text(
-          'Cảnh báo & Báo cáo',
+          'Vi phạm',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -270,9 +245,9 @@ class _WarningPageState extends State<WarningPage> {
           _buildActiveFilters(),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _refreshWarnings,
-              child: FutureBuilder<List<WarningModel>>(
-                future: _warningsFuture,
+              onRefresh: _refreshInfringements,
+              child: FutureBuilder<List<InfringementModel>>(
+                future: _infringementsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -295,7 +270,7 @@ class _WarningPageState extends State<WarningPage> {
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: _refreshWarnings,
+                            onPressed: _refreshInfringements,
                             child: const Text('Thử lại'),
                           ),
                         ],
@@ -303,9 +278,9 @@ class _WarningPageState extends State<WarningPage> {
                     );
                   }
 
-                  final warnings = snapshot.data ?? [];
-                  
-                  if (warnings.isEmpty) {
+                  final infringements = snapshot.data ?? [];
+
+                  if (infringements.isEmpty) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -313,15 +288,15 @@ class _WarningPageState extends State<WarningPage> {
                           Icon(
                             _searchController.text.isNotEmpty || _isFiltered
                                 ? Icons.search_off
-                                : Icons.notifications_off_outlined,
+                                : Icons.gavel,
                             size: 64,
                             color: Colors.grey[400],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             _searchController.text.isNotEmpty || _isFiltered
-                                ? 'Không tìm thấy cảnh báo phù hợp'
-                                : 'Chưa có cảnh báo nào',
+                                ? 'Không tìm thấy vi phạm phù hợp'
+                                : 'Chưa có vi phạm nào',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -334,17 +309,10 @@ class _WarningPageState extends State<WarningPage> {
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    itemCount: warnings.length,
+                    itemCount: infringements.length,
                     itemBuilder: (context, index) {
-                      final warning = warnings[index];
-                      return WarningCard(
-                        id: warning.id,
-                        type: warning.type,
-                        title: warning.title,
-                        description: warning.description,
-                        status: warning.status,
-                        createdAt: warning.createdAt,
-                        assetType: warning.assetType,
+                      return InfringementCard(
+                        infringement: infringements[index],
                       );
                     },
                   );

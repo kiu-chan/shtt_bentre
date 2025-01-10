@@ -7,6 +7,7 @@ import 'package:shtt_bentre/src/pages/home/chartPage/initiative_statistics_page.
 import 'package:shtt_bentre/src/pages/home/chartPage/product_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/science_innovation_statistics_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/trademark_statistics_page.dart';
+import 'package:shtt_bentre/src/pages/home/infringement/infringement_page.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_list_page.dart';
 import 'package:shtt_bentre/src/pages/home/chartPage/patent_statistics_page.dart';
@@ -186,6 +187,17 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
               context,
               MaterialPageRoute(
                 builder: (context) => const WarningPage(),
+              ),
+            );
+          }
+        ),
+        MenuItem(
+          title: "Vi phạm",
+          onTap: (context) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const InfringementPage(),
               ),
             );
           }

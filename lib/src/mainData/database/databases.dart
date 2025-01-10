@@ -162,8 +162,13 @@ class Database {
     return await product.fetchProductDetail(id);
   }
 
-  Future<List<WarningModel>> fetchWarnings() async {
-    return await warning.fetchWarnings();
+  Future<List<WarningModel>> fetchWarnings({
+    String? search,
+    String? status,
+    String? assetType,
+    String? type
+  }) async {
+    return await warning.fetchWarnings(search: search, status: status, assetType: assetType, type: type);
   }
 
   Future<WarningModel> fetchWarningDetail(int id) async {
