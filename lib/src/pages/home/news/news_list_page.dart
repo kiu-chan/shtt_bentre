@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/news.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/news/news_detail_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 // Định nghĩa màu chủ đạo
 const primaryColor = Color(0xFF64B5F6); // Màu xanh dương nhạt vừa
@@ -58,14 +59,15 @@ class _NewsListPageState extends State<NewsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: primaryColor,
-        title: const Text(
-          'Tin tức',
-          style: TextStyle(
+        title: Text(
+          l10n.news, // Add this to ARB files: "Tin tức"
+          style: const TextStyle( 
             fontWeight: FontWeight.bold,
             fontSize: 24,
             color: Colors.white,
@@ -104,6 +106,7 @@ class _NewsListPageState extends State<NewsListPage> {
     }
 
     if (_error != null) {
+    final l10n = AppLocalizations.of(context)!;
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -117,7 +120,7 @@ class _NewsListPageState extends State<NewsListPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Có lỗi xảy ra',
+                l10n.error,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -136,7 +139,7 @@ class _NewsListPageState extends State<NewsListPage> {
               ElevatedButton.icon(
                 onPressed: _loadNews,
                 icon: const Icon(Icons.refresh, color: Colors.white),
-                label: const Text('Thử lại', style: TextStyle(color: Colors.white)),
+                label: Text(l10n.tryAgain, style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   padding: const EdgeInsets.symmetric(
@@ -152,6 +155,7 @@ class _NewsListPageState extends State<NewsListPage> {
     }
 
     if (_newsList.isEmpty) {
+    final l10n = AppLocalizations.of(context)!;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -163,7 +167,7 @@ class _NewsListPageState extends State<NewsListPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Chưa có tin tức nào',
+              l10n.noNews,
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey[600],
@@ -198,6 +202,7 @@ class NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -243,7 +248,7 @@ class NewsCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Không thể tải ảnh',
+                              l10n.cannotLoadImage,
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 14,
@@ -352,9 +357,9 @@ class NewsCard extends StatelessWidget {
                           );
                         },
                         icon: const Icon(Icons.arrow_forward, color: primaryColor),
-                        label: const Text(
-                          'Xem chi tiết',
-                          style: TextStyle(color: primaryColor),
+                        label: Text(
+                          l10n.viewDetails,
+                          style: const TextStyle(color: primaryColor),
                         ),
                       ),
                     ],

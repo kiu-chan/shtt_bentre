@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:chewie/chewie.dart';
 import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GuideContent {
   final int id;
@@ -95,6 +96,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
   }
 
   Future<void> _fetchVideo() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final response = await http.get(
         Uri.parse('${MainUrl.apiUrl}/advisory-supports/video/${widget.videoId}'),
@@ -139,13 +141,14 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
       }
     } catch (e) {
       setState(() {
-        _videoError = 'Có lỗi khi tải video: $e';
+        _videoError = '${l10n.error}: $e';
         _isVideoLoading = false;
       });
     }
   }
 
   Future<void> _fetchList() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final response = await http.get(
         Uri.parse('${MainUrl.apiUrl}/advisory-supports/parent/${widget.parentId}'),
@@ -171,13 +174,14 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
       }
     } catch (e) {
       setState(() {
-        _error = 'Có lỗi xảy ra khi tải danh sách: $e';
+        _error = '${l10n.error}: $e';
         _isLoading = false;
       });
     }
   }
 
   Future<void> _fetchContent(int id) async {
+    final l10n = AppLocalizations.of(context)!;
     final itemIndex = _items.indexWhere((item) => item.id == id);
     if (itemIndex == -1) return;
 
@@ -209,7 +213,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
     } catch (e) {
       setState(() {
         _items[itemIndex].isLoading = false;
-        _error = 'Có lỗi xảy ra khi tải nội dung: $e';
+        _error = '${l10n.error}: $e';
       });
     }
   }
@@ -227,6 +231,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -276,7 +281,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
                         _fetchList();
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Thử lại'),
+                      label: Text(l10n.tryAgain),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -405,10 +410,11 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
   }
 
   Widget _buildSelectedContent() {
+    final l10n = AppLocalizations.of(context)!;
     if (_items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text('Không có nội dung'),
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(l10n.noContent),
       );
     }
 
@@ -431,7 +437,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Đang tải nội dung...',
+                    l10n.loadingContent,
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 15,
@@ -550,7 +556,7 @@ class _GuidePageState extends State<GuidePage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Không có nội dung hiển thị',
+                          l10n.noContent,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 16,

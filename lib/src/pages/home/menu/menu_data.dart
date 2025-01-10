@@ -177,11 +177,11 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
       ],
     ),
     MenuSection(
-      title: "Cảnh báo và phản ảnh xâm phạm",  // 'Liên hệ' in Vietnamese
+      title: l10n.warning,
       icon: Icons.warning,
       items: [
         MenuItem(
-          title: "Cảnh báo và phản ánh xâm phạm",
+          title: l10n.warningsAndReportsofViolations,
           onTap: (context) {
             Navigator.push(
               context,
@@ -192,7 +192,7 @@ List<MenuSection> getLocalizedMenuSections(BuildContext context) {
           }
         ),
         MenuItem(
-          title: "Vi phạm",
+          title: l10n.violation,
           onTap: (context) {
             Navigator.push(
               context,

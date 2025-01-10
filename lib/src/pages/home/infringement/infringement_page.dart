@@ -5,6 +5,7 @@ import 'package:shtt_bentre/src/mainData/data/home/infringement.dart';
 import 'dart:async';
 import 'package:shtt_bentre/src/mainData/database/home/infringement.dart';
 import 'package:shtt_bentre/src/pages/home/infringement/infringement_card.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InfringementPage extends StatefulWidget {
   const InfringementPage({super.key});
@@ -52,30 +53,31 @@ class _InfringementPageState extends State<InfringementPage> {
   }
 
   void _showFilterDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Bộ lọc'),
+              title: Text(l10n.filter),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Trạng thái:'),
+                  Text(l10n.status),
                   DropdownButton<String>(
                     isExpanded: true,
                     value: _selectedStatus,
-                    hint: const Text('Chọn trạng thái'),
+                    hint: Text(l10n.selectStatus),
                     items: [
-                      const DropdownMenuItem<String>(
+                      DropdownMenuItem<String>(
                         value: null,
-                        child: Text('Tất cả'),
+                        child: Text(l10n.all),
                       ),
-                      const DropdownMenuItem<String>(
+                      DropdownMenuItem<String>(
                         value: 'Đang điều tra',
-                        child: Text('Đang điều tra'),
+                        child: Text(l10n.investigatingStatus),
                       ),
                     ],
                     onChanged: (value) => setState(() => _selectedStatus = value),
@@ -85,7 +87,7 @@ class _InfringementPageState extends State<InfringementPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy'),
+                  child: Text(l10n.cancel),
                 ),
                 TextButton(
                   onPressed: () {
@@ -95,7 +97,7 @@ class _InfringementPageState extends State<InfringementPage> {
                       _loadInfringements();
                     });
                   },
-                  child: const Text('Áp dụng'),
+                  child: Text(l10n.apply),
                 ),
               ],
             );
@@ -115,13 +117,14 @@ class _InfringementPageState extends State<InfringementPage> {
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm vi phạm...',
+          hintText: l10n.searchInfringement,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -153,14 +156,15 @@ class _InfringementPageState extends State<InfringementPage> {
 
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
-            style: TextStyle(
+          Text(
+            l10n.filtering,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
             ),
@@ -186,7 +190,7 @@ class _InfringementPageState extends State<InfringementPage> {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -199,14 +203,15 @@ class _InfringementPageState extends State<InfringementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: const Text(
-          'Vi phạm',
-          style: TextStyle(
+        title: Text(
+          l10n.violation,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -265,13 +270,13 @@ class _InfringementPageState extends State<InfringementPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
+                            '${l10n.error}: ${snapshot.error}',
                             style: const TextStyle(color: Colors.red),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _refreshInfringements,
-                            child: const Text('Thử lại'),
+                            child: Text(l10n.tryAgain),
                           ),
                         ],
                       ),
@@ -295,8 +300,8 @@ class _InfringementPageState extends State<InfringementPage> {
                           const SizedBox(height: 16),
                           Text(
                             _searchController.text.isNotEmpty || _isFiltered
-                                ? 'Không tìm thấy vi phạm phù hợp'
-                                : 'Chưa có vi phạm nào',
+                                ? l10n.noMatchingViolations
+                                : l10n.noViolationsYet,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],

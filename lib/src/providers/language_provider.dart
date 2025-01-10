@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LanguageProvider with ChangeNotifier {
-  Locale _currentLocale = const Locale('en');
+  Locale _currentLocale = const Locale('vi');
 
   Locale get currentLocale => _currentLocale;
 

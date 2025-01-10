@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/infringement.dart';
 import 'package:shtt_bentre/src/pages/home/infringement/infringement_detail_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InfringementCard extends StatelessWidget {
   final InfringementModel infringement;
@@ -29,6 +30,7 @@ class InfringementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => _navigateToDetail(context),
       child: Card(
@@ -133,7 +135,7 @@ class InfringementCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Cập nhật: ${DateFormat('dd/MM/yyyy').format(infringement.updatedAt)}',
+                    '${l10n.update}: ${DateFormat('dd/MM/yyyy').format(infringement.updatedAt)}',
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 14,

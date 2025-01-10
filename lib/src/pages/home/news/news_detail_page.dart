@@ -3,6 +3,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/news.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NewsDetailPage extends StatefulWidget {
   final String newsId;
@@ -52,9 +53,10 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chi tiết tin tức'),
+        title: Text(l10n.newsDetail),
         centerTitle: true,
       ),
       body: _buildBody(),
@@ -62,6 +64,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
   }
 
   Widget _buildBody() {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -74,14 +77,14 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Có lỗi xảy ra\n$_error',
+              '${l10n.error}\n$_error',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.red[700]),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadNewsDetail,
-              child: const Text('Thử lại'),
+              child: Text(l10n.tryAgain),
             ),
           ],
         ),
@@ -89,8 +92,8 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
     }
 
     if (_news == null) {
-      return const Center(
-        child: Text('Không tìm thấy tin tức'),
+      return Center(
+        child: Text(l10n.noContent),
       );
     }
 

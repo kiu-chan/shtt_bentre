@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/infringement.dart';
 import 'package:shtt_bentre/src/mainData/database/home/infringement.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InfringementDetailPage extends StatefulWidget {
   final int id;
@@ -52,14 +53,15 @@ class _InfringementDetailPageState extends State<InfringementDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: const Text(
-          'Chi tiết vi phạm',
-          style: TextStyle(
+        title: Text(
+          l10n.violationDetails,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -85,13 +87,13 @@ class _InfringementDetailPageState extends State<InfringementDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _loadInfringementDetail,
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -179,9 +181,9 @@ class _InfringementDetailPageState extends State<InfringementDetailPage> {
                         const SizedBox(height: 16),
                         const Divider(),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Nội dung vi phạm:',
-                          style: TextStyle(
+                        Text(
+                          '${l10n.violationContent}:',
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -212,7 +214,7 @@ class _InfringementDetailPageState extends State<InfringementDetailPage> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Ngày: ${DateFormat('dd/MM/yyyy').format(infringement.date)}',
+                              '${l10n.date}: ${DateFormat('dd/MM/yyyy').format(infringement.date)}',
                               style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,
@@ -230,7 +232,7 @@ class _InfringementDetailPageState extends State<InfringementDetailPage> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Cập nhật lần cuối: ${DateFormat('dd/MM/yyyy HH:mm').format(infringement.updatedAt)}',
+                              '${l10n.lastUpdated}: ${DateFormat('dd/MM/yyyy HH:mm').format(infringement.updatedAt)}',
                               style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,
