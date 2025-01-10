@@ -22,7 +22,7 @@ class InfoCardBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.topCenter,
+      alignment: Alignment.center,
       child: Padding(
         padding: EdgeInsets.only(
           top: 70,
