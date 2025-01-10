@@ -83,19 +83,15 @@ class Database {
     return await geo.fetchGeoIndicationDetail(stt);
   }
 
- Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
-   String? search,
-   String? type,
-   String? year,
-   String? district,
- }) async {
-   return await industrialDesign.fetchIndustrialDesigns(
-     search: search,
-     type: type,
-     year: year,
-     district: district,
-     );
-     }
+Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
+    String? search,
+    String? type,
+    String? year,
+    String? district,
+    int page = 1,  // Add page parameter with default value
+  }) async {
+    return await industrialDesign.fetchIndustrialDesigns(search: search, type: type, year: year, district: district, page: page);
+  }
 
   Future<IndustrialDesignDetailModel> fetchIndustrialDesignDetail(String id) async {
     return await industrialDesign.fetchIndustrialDesignDetail(id);
@@ -105,8 +101,12 @@ class Database {
     return await industrialDesign.loadIndustrialDesignLocations();
   }
 
-  Future<List<InitiativeModel>> fetchInitiatives() async {
-    return await initiative.fetchInitiatives();
+  Future<List<InitiativeModel>> fetchInitiatives({
+    String? search,
+    String? year,
+    int page = 1,  // Add page parameter
+  }) async {
+    return await initiative.fetchInitiatives(search: search, year: year, page: page);
   }
 
   Future<Map<String, dynamic>> fetchInitiativeDetail(String id) async {
@@ -133,8 +133,9 @@ class Database {
     String? search,
     String? type,
     String? year,
+    int page = 1,  // Add page parameter
   }) async {
-    return await rp.fetchResearchProjects(search: search, type: type, year: year);
+    return await rp.fetchResearchProjects(search: search, type: type, year: year, page: page);
   }
 
   Future<ResearchProjectModel> fetchResearchProjectDetail(String id) async {

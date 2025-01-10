@@ -15,25 +15,37 @@ class ResearchProjectListPage extends StatefulWidget {
 class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
   final Database _service = Database();
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  
+  // Pagination state
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
+  List<ResearchProjectModel> _projects = [];
+  
+  // Filter state
   Timer? _debounce;
   String? _selectedType;
   String? _selectedYear;
   List<String> _availableTypes = [];
   List<String> _availableYears = [];
-  late Future<List<ResearchProjectModel>> _projectsFuture;
   bool _isFiltered = false;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     _loadFilterData();
-    _projectsFuture = _service.fetchResearchProjects();
+    _loadInitialData();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -51,10 +63,85 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
     }
   }
 
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMoreData) {
+      _loadMoreData();
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _currentPage = 1;
+      _projects = [];
+    });
+
+    try {
+      final projects = await _service.rp.fetchResearchProjects(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        type: _selectedType,
+        year: _selectedYear,
+        page: _currentPage,
+      );
+
+      setState(() {
+        _projects = projects;
+        _hasMoreData = projects.isNotEmpty;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading initial data: $e');
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final nextPage = _currentPage + 1;
+      final moreProjects = await _service.rp.fetchResearchProjects(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        type: _selectedType,
+        year: _selectedYear,
+        page: nextPage,
+      );
+
+      setState(() {
+        if (moreProjects.isNotEmpty) {
+          _projects.addAll(moreProjects);
+          _currentPage = nextPage;
+          _hasMoreData = moreProjects.length >= 10;
+        } else {
+          _hasMoreData = false;
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading more data: $e');
+    }
+  }
+
   void _onSearchChanged() {
+    setState(() {
+      _isSearching = _searchController.text.isNotEmpty;
+    });
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _refreshProjects();
+      _loadInitialData();
     });
   }
 
@@ -136,7 +223,7 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
   void _applyFilters() {
     setState(() {
       _isFiltered = _selectedType != null || _selectedYear != null;
-      _refreshProjects();
+      _loadInitialData();
     });
   }
 
@@ -145,17 +232,8 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
       _selectedType = null;
       _selectedYear = null;
       _isFiltered = false;
-      _refreshProjects();
-    });
-  }
-
-  void _refreshProjects() {
-    setState(() {
-      _projectsFuture = _service.rp.fetchResearchProjects(
-        search: _searchController.text.isEmpty ? null : _searchController.text,
-        type: _selectedType,
-        year: _selectedYear,
-      );
+      _searchController.clear();
+      _loadInitialData();
     });
   }
 
@@ -247,6 +325,48 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
     );
   }
 
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isSearching ? Icons.search_off : Icons.inbox,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _isSearching || _isFiltered
+                ? 'Không tìm thấy dự án phù hợp'
+                : 'Chưa có dự án nghiên cứu nào',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshProjects() async {
+    _searchController.clear();
+    _selectedType = null;
+    _selectedYear = null;
+    _isFiltered = false;
+    await _loadFilterData();
+    await _loadInitialData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -297,56 +417,32 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
           _buildActiveFilters(),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () async {
-                _refreshProjects();
-                await _loadFilterData();
-              },
-              child: FutureBuilder<List<ResearchProjectModel>>(
-                future: _projectsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Lỗi: ${snapshot.error}'),
-                    );
-                  }
-
-                  final projects = snapshot.data ?? [];
-                  if (projects.isEmpty) {
-                    return Center(
-                      child: Text(
-                        _isFiltered || _searchController.text.isNotEmpty
-                            ? 'Không tìm thấy dự án phù hợp'
-                            : 'Chưa có dự án nghiên cứu nào',
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: projects.length,
-                    itemBuilder: (context, index) {
-                      final project = projects[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ResearchProjectDetailPage(
-                                id: project.id,
+              onRefresh: _refreshProjects,
+              child: _projects.isEmpty && !_isLoading
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _projects.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _projects.length) {
+                          return _buildLoadingIndicator();
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ResearchProjectDetailPage(
+                                  id: _projects[index].id,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        child: ResearchProjectCard(project: project),
-                      );
-                    },
-                  );
-                },
-              ),
+                            );
+                          },
+                          child: ResearchProjectCard(project: _projects[index]),
+                        );
+                      },
+                    ),
             ),
           ),
         ],

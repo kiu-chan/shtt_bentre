@@ -11,6 +11,7 @@ class TechnicalCompetitionService {
     String? field,
     String? year,
     String? rank,
+    int page = 1,  // Add page parameter
   }) async {
     try {
       List<TechnicalCompetitionModel> results = [];
@@ -18,7 +19,13 @@ class TechnicalCompetitionService {
 
       if (search != null && search.isNotEmpty) {
         // Tìm theo tên dự án
-        final resultsByName = await _fetchWithParams({'name': search});
+        final resultsByName = await _fetchWithParams({
+          'name': search,
+          'page': page.toString(),
+          if (field != null) 'field': field,
+          if (year != null) 'year': year,
+          if (rank != null) 'rank': rank.toLowerCase(),
+        });
         for (var competition in resultsByName) {
           if (uniqueIds.add(competition.id)) {
             results.add(competition);
@@ -26,7 +33,13 @@ class TechnicalCompetitionService {
         }
 
         // Tìm theo đơn vị
-        final resultsByUnit = await _fetchWithParams({'unit_name': search});
+        final resultsByUnit = await _fetchWithParams({
+          'unit_name': search,
+          'page': page.toString(),
+          if (field != null) 'field': field,
+          if (year != null) 'year': year,
+          if (rank != null) 'rank': rank.toLowerCase(),
+        });
         for (var competition in resultsByUnit) {
           if (uniqueIds.add(competition.id)) {
             results.add(competition);
@@ -34,7 +47,12 @@ class TechnicalCompetitionService {
         }
 
         // Tìm theo lĩnh vực
-        final resultsByField = await _fetchWithParams({'field': search});
+        final resultsByField = await _fetchWithParams({
+          'field': search,
+          'page': page.toString(),
+          if (year != null) 'year': year,
+          if (rank != null) 'rank': rank.toLowerCase(),
+        });
         for (var competition in resultsByField) {
           if (uniqueIds.add(competition.id)) {
             results.add(competition);
@@ -43,7 +61,12 @@ class TechnicalCompetitionService {
 
         // Tìm theo năm nếu search là số
         if (RegExp(r'^\d{4}$').hasMatch(search)) {
-          final resultsByYear = await _fetchWithParams({'year': search});
+          final resultsByYear = await _fetchWithParams({
+            'year': search,
+            'page': page.toString(),
+            if (field != null) 'field': field,
+            if (rank != null) 'rank': rank.toLowerCase(),
+          });
           for (var competition in resultsByYear) {
             if (uniqueIds.add(competition.id)) {
               results.add(competition);
@@ -51,51 +74,31 @@ class TechnicalCompetitionService {
           }
         }
 
-        // Tìm theo submission_date nếu là định dạng ngày
-        if (RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(search)) {
-          final resultsByDate = await _fetchWithParams({'submission_date': search});
-          for (var competition in resultsByDate) {
-            if (uniqueIds.add(competition.id)) {
-              results.add(competition);
-            }
-          }
-        }
-
         // Tìm theo giải thưởng
-        final resultsByRank = await _fetchWithParams({'rank': search.toLowerCase()});
+        final resultsByRank = await _fetchWithParams({
+          'rank': search.toLowerCase(),
+          'page': page.toString(),
+          if (field != null) 'field': field,
+          if (year != null) 'year': year,
+        });
         for (var competition in resultsByRank) {
           if (uniqueIds.add(competition.id)) {
             results.add(competition);
           }
         }
 
+        return results;
       } else {
-        // Nếu không có search term, chỉ áp dụng các bộ lọc
-        var queryParams = <String, String>{};
+        // Nếu không có search term, chỉ áp dụng các bộ lọc và phân trang
+        var queryParams = <String, String>{
+          'page': page.toString(),
+        };
         if (field != null) queryParams['field'] = field;
         if (year != null) queryParams['year'] = year;
         if (rank != null) queryParams['rank'] = rank.toLowerCase();
         
-        results = await _fetchWithParams(queryParams);
+        return await _fetchWithParams(queryParams);
       }
-
-      // Nếu có kết quả search và có bộ lọc, thực hiện lọc thêm
-      if (results.isNotEmpty && (field != null || year != null || rank != null)) {
-        if (field != null) {
-          results = results.where((item) => item.field == field).toList();
-        }
-        if (year != null) {
-          results = results.where((item) => item.year.toString() == year).toList();
-        }
-        if (rank != null) {
-          results = results.where((item) => 
-            item.rank.toLowerCase() == rank.toLowerCase()
-          ).toList();
-        }
-      }
-
-      return results;
-
     } catch (e) {
       print('Error fetching competitions: $e');
       rethrow;

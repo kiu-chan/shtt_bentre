@@ -15,9 +15,15 @@ class TechnicalCompetitionListPage extends StatefulWidget {
 class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListPage> {
   final TechnicalCompetitionService _service = TechnicalCompetitionService();
   final TextEditingController _searchController = TextEditingController();
-  Timer? _debounce;
+  final ScrollController _scrollController = ScrollController();
   
-  late Future<List<TechnicalCompetitionModel>> _competitionsFuture;
+  // Pagination state
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
+  List<TechnicalCompetitionModel> _competitions = [];
+  
+  Timer? _debounce;
   List<Map<String, dynamic>> _availableYears = [];
   List<Map<String, dynamic>> _availableFields = [];
   List<Map<String, dynamic>> _availableRanks = [];
@@ -31,16 +37,93 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
   @override
   void initState() {
     super.initState();
-    _competitionsFuture = _service.fetchCompetitions();
+    _loadInitialData();
     _loadFilterData();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMoreData) {
+      _loadMoreData();
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _currentPage = 1;
+      _competitions = [];
+    });
+
+    try {
+      final competitions = await _service.fetchCompetitions(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        field: _selectedField,
+        year: _selectedYear,
+        rank: _selectedRank,
+        page: _currentPage,
+      );
+
+      setState(() {
+        _competitions = competitions;
+        _hasMoreData = competitions.isNotEmpty;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading initial data: $e');
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final nextPage = _currentPage + 1;
+      final moreCompetitions = await _service.fetchCompetitions(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        field: _selectedField,
+        year: _selectedYear,
+        rank: _selectedRank,
+        page: nextPage,
+      );
+
+      setState(() {
+        if (moreCompetitions.isNotEmpty) {
+          _competitions.addAll(moreCompetitions);
+          _currentPage = nextPage;
+          _hasMoreData = moreCompetitions.length >= 10;
+        } else {
+          _hasMoreData = false;
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading more data: $e');
+    }
   }
 
   Future<void> _loadFilterData() async {
@@ -60,17 +143,12 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
   }
 
   void _onSearchChanged() {
+    setState(() {
+      _isSearching = _searchController.text.isNotEmpty;
+    });
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _isSearching = _searchController.text.isNotEmpty;
-        _competitionsFuture = _service.fetchCompetitions(
-          search: _searchController.text,
-          year: _selectedYear,
-          field: _selectedField,
-          rank: _selectedRank,
-        );
-      });
+      _loadInitialData();
     });
   }
 
@@ -90,22 +168,21 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
           onRankChanged: (value) => setState(() => _selectedRank = value),
           onApply: () {
             Navigator.pop(context);
-            setState(() {
-              _isFiltered = _selectedYear != null || 
-                           _selectedField != null || 
-                           _selectedRank != null;
-              _competitionsFuture = _service.fetchCompetitions(
-                search: _searchController.text,
-                year: _selectedYear,
-                field: _selectedField,
-                rank: _selectedRank,
-              );
-            });
+            _applyFilters();
           },
           onCancel: () => Navigator.pop(context),
         );
       },
     );
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _isFiltered = _selectedYear != null || 
+                   _selectedField != null || 
+                   _selectedRank != null;
+      _loadInitialData();
+    });
   }
 
   void _resetFilters() {
@@ -115,21 +192,8 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
       _selectedRank = null;
       _isFiltered = false;
       _searchController.clear();
-      _competitionsFuture = _service.fetchCompetitions();
+      _loadInitialData();
     });
-  }
-
-  Future<void> _refreshData() async {
-    setState(() {
-      _searchController.clear();
-      _selectedYear = null;
-      _selectedField = null;
-      _selectedRank = null;
-      _isFiltered = false;
-      _isSearching = false;
-      _competitionsFuture = _service.fetchCompetitions();
-    });
-    await _loadFilterData();
   }
 
   Widget _buildSearchBar() {
@@ -194,11 +258,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
                     onDeleted: () {
                       setState(() {
                         _selectedYear = null;
-                        _competitionsFuture = _service.fetchCompetitions(
-                          search: _searchController.text,
-                          field: _selectedField,
-                          rank: _selectedRank,
-                        );
+                        _loadInitialData();
                       });
                     },
                   ),
@@ -208,11 +268,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
                     onDeleted: () {
                       setState(() {
                         _selectedField = null;
-                        _competitionsFuture = _service.fetchCompetitions(
-                          search: _searchController.text,
-                          year: _selectedYear,
-                          rank: _selectedRank,
-                        );
+                        _loadInitialData();
                       });
                     },
                   ),
@@ -222,11 +278,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
                     onDeleted: () {
                       setState(() {
                         _selectedRank = null;
-                        _competitionsFuture = _service.fetchCompetitions(
-                          search: _searchController.text,
-                          year: _selectedYear,
-                          field: _selectedField,
-                        );
+                        _loadInitialData();
                       });
                     },
                   ),
@@ -240,6 +292,50 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
         ],
       ),
     );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isSearching ? Icons.search_off : Icons.inbox,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _isSearching || _isFiltered
+                ? 'Không tìm thấy hồ sơ phù hợp'
+                : 'Không có dữ liệu hội thi',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshData() async {
+    _searchController.clear();
+    _selectedYear = null;
+    _selectedField = null;
+    _selectedRank = null;
+    _isFiltered = false;
+    _isSearching = false;
+    await _loadFilterData();
+    await _loadInitialData();
   }
 
   @override
@@ -293,80 +389,21 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
-              child: FutureBuilder<List<TechnicalCompetitionModel>>(
-                future: _competitionsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 60,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _refreshData,
-                            child: const Text('Thử lại'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final competitions = snapshot.data ?? [];
-
-                  if (competitions.isEmpty && (_isSearching || _isFiltered)) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không tìm thấy hồ sơ phù hợp',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (competitions.isEmpty) {
-                    return const Center(
-                      child: Text('Không có dữ liệu hội thi'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: competitions.length,
-                    itemBuilder: (context, index) {
-                      return CompetitionCard(
-                        competition: competitions[index],
-                      );
-                    },
-                  );
-                },
-              ),
+              child: _competitions.isEmpty && !_isLoading
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _competitions.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _competitions.length) {
+                          return _buildLoadingIndicator();
+                        }
+                        return CompetitionCard(
+                          competition: _competitions[index],
+                        );
+                      },
+                    ),
             ),
           ),
         ],

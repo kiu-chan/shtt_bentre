@@ -9,6 +9,7 @@ class InitiativeService {
   Future<List<InitiativeModel>> fetchInitiatives({
     String? search,
     String? year,
+    int page = 1,  // Add page parameter
   }) async {
     try {
       List<InitiativeModel> results = [];
@@ -18,6 +19,7 @@ class InitiativeService {
         // Search by name
         final resultsByName = await _fetchWithParams({
           'name': search,
+          'page': page.toString(),
           if (year != null) 'recognition_year': year
         });
         for (var initiative in resultsByName) {
@@ -29,6 +31,7 @@ class InitiativeService {
         // Search by author
         final resultsByAuthor = await _fetchWithParams({
           'author': search,
+          'page': page.toString(),
           if (year != null) 'recognition_year': year
         });
         for (var initiative in resultsByAuthor) {
@@ -40,6 +43,7 @@ class InitiativeService {
         // Search by owner
         final resultsByOwner = await _fetchWithParams({
           'owner': search,
+          'page': page.toString(),
           if (year != null) 'recognition_year': year
         });
         for (var initiative in resultsByOwner) {
@@ -51,6 +55,7 @@ class InitiativeService {
         // Search by address
         final resultsByAddress = await _fetchWithParams({
           'address': search,
+          'page': page.toString(),
           if (year != null) 'recognition_year': year
         });
         for (var initiative in resultsByAddress) {
@@ -61,10 +66,11 @@ class InitiativeService {
 
         return results;
       } else {
-        // If no search term, just apply year filter if present
-        return await _fetchWithParams(
-          year != null ? {'recognition_year': year} : {},
-        );
+        // If no search term, just apply year filter and pagination
+        return await _fetchWithParams({
+          'page': page.toString(),
+          if (year != null) 'recognition_year': year
+        });
       }
     } catch (e) {
       print('Error in fetchInitiatives: $e');

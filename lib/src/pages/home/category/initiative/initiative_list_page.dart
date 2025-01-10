@@ -15,9 +15,15 @@ class InitiativeListPage extends StatefulWidget {
 
 class _InitiativeListPageState extends State<InitiativeListPage> {
   final Database _initiativeService = Database();
-  late Future<List<InitiativeModel>> _initiativesFuture;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  
+  // Pagination state
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
+  List<InitiativeModel> _initiatives = [];
+  
   Timer? _debounce;
   bool _showBackToTopButton = false;
   String? _selectedYear;
@@ -28,7 +34,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
   @override
   void initState() {
     super.initState();
-    _initiativesFuture = _initiativeService.fetchInitiatives();
+    _loadInitialData();
     _scrollController.addListener(_scrollListener);
     _searchController.addListener(_onSearchChanged);
     _loadFilterData();
@@ -36,6 +42,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _searchController.dispose();
     _debounce?.cancel();
@@ -57,6 +64,12 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
     setState(() {
       _showBackToTopButton = _scrollController.offset >= 400;
     });
+    
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading && 
+        _hasMoreData) {
+      _loadMoreData();
+    }
   }
 
   void _scrollToTop() {
@@ -67,16 +80,75 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
     );
   }
 
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _currentPage = 1;
+      _initiatives = [];
+    });
+
+    try {
+      final initiatives = await _initiativeService.initiative.fetchInitiatives(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        year: _selectedYear,
+        page: _currentPage,
+      );
+
+      setState(() {
+        _initiatives = initiatives;
+        _hasMoreData = initiatives.isNotEmpty;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading initial data: $e');
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final nextPage = _currentPage + 1;
+      final moreInitiatives = await _initiativeService.initiative.fetchInitiatives(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        year: _selectedYear,
+        page: nextPage,
+      );
+
+      setState(() {
+        if (moreInitiatives.isNotEmpty) {
+          _initiatives.addAll(moreInitiatives);
+          _currentPage = nextPage;
+          _hasMoreData = moreInitiatives.length >= 10;
+        } else {
+          _hasMoreData = false;
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading more data: $e');
+    }
+  }
+
   void _onSearchChanged() {
+    setState(() {
+      _isSearching = _searchController.text.isNotEmpty;
+    });
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _initiativesFuture = _initiativeService.initiative.fetchInitiatives(
-          year: _selectedYear,
-          search: _searchController.text,
-        );
-        _isSearching = _searchController.text.isNotEmpty;
-      });
+      _loadInitialData();
     });
   }
 
@@ -100,11 +172,8 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
 
   void _applyFilters() {
     setState(() {
-      _initiativesFuture = _initiativeService.initiative.fetchInitiatives(
-        year: _selectedYear,
-        search: _searchController.text,
-      );
       _isFiltered = _selectedYear != null;
+      _loadInitialData();
     });
   }
 
@@ -112,7 +181,8 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
     setState(() {
       _selectedYear = null;
       _isFiltered = false;
-      _initiativesFuture = _initiativeService.fetchInitiatives();
+      _searchController.clear();
+      _loadInitialData();
     });
   }
 
@@ -203,14 +273,47 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
     );
   }
 
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isSearching ? Icons.search_off : Icons.inbox,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _isSearching || _isFiltered
+                ? 'Không tìm thấy sáng kiến phù hợp'
+                : 'Không có dữ liệu sáng kiến',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _refreshInitiatives() async {
     setState(() {
       _searchController.clear();
       _selectedYear = null;
       _isFiltered = false;
-      _initiativesFuture = _initiativeService.fetchInitiatives();
     });
     await _loadFilterData();
+    await _loadInitialData();
   }
 
   @override
@@ -264,81 +367,22 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshInitiatives,
-              child: FutureBuilder<List<InitiativeModel>>(
-                future: _initiativesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 60,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _refreshInitiatives,
-                            child: const Text('Thử lại'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final initiatives = snapshot.data ?? [];
-                  if (initiatives.isEmpty && (_isSearching || _isFiltered)) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không tìm thấy sáng kiến phù hợp',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (initiatives.isEmpty) {
-                    return const Center(
-                      child: Text('Không có dữ liệu sáng kiến'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: initiatives.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () => _onInitiativeTap(initiatives[index]),
-                        child: InitiativeCard(initiative: initiatives[index]),
-                      );
-                    },
-                  );
-                },
-              ),
+              child: _initiatives.isEmpty && !_isLoading
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _initiatives.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _initiatives.length) {
+                          return _buildLoadingIndicator();
+                        }
+                        return GestureDetector(
+                          onTap: () => _onInitiativeTap(_initiatives[index]),
+                          child: InitiativeCard(initiative: _initiatives[index]),
+                        );
+                      },
+                    ),
             ),
           ),
         ],

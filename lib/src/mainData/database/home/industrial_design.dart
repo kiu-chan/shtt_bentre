@@ -10,86 +10,83 @@ import 'package:shtt_bentre/src/mainData/database/database_exception.dart';
 class IndustrialDesignService {
  static String industrialDesignUrl = MainUrl.industrialDesignUrl;
 
-  Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
+Future<List<IndustrialDesignModel>> fetchIndustrialDesigns({
     String? search,
     String? type,
     String? year,
     String? district,
+    int page = 1,  // Add page parameter with default value
   }) async {
     try {
       List<IndustrialDesignModel> results = [];
       Set<int> uniqueIds = {};
 
       if (search != null && search.isNotEmpty) {
-        // Tìm theo tên
-        final resultsByName = await _fetchWithParams({'name': search});
+        // Add page parameter to each query
+        final resultsByName = await _fetchWithParams({
+          'name': search,
+          'page': page.toString(),
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+          if (district != null) 'district': district,
+        });
         for (var design in resultsByName) {
           if (uniqueIds.add(design.id)) {
             results.add(design);
           }
         }
 
-        // Tìm theo chủ sở hữu
-        final resultsByOwner = await _fetchWithParams({'owner': search});
+        final resultsByOwner = await _fetchWithParams({
+          'owner': search,
+          'page': page.toString(),
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+          if (district != null) 'district': district,
+        });
         for (var design in resultsByOwner) {
           if (uniqueIds.add(design.id)) {
             results.add(design);
           }
         }
 
-        // Tìm theo địa chỉ
-        final resultsByAddress = await _fetchWithParams({'address': search});
+        final resultsByAddress = await _fetchWithParams({
+          'address': search,
+          'page': page.toString(),
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+          if (district != null) 'district': district,
+        });
         for (var design in resultsByAddress) {
           if (uniqueIds.add(design.id)) {
             results.add(design);
           }
         }
 
-        // Tìm theo số đơn
-        final resultsByFilingNumber = await _fetchWithParams({'filing_number': search});
+        final resultsByFilingNumber = await _fetchWithParams({
+          'filing_number': search,
+          'page': page.toString(),
+          if (type != null) 'type': type,
+          if (year != null) 'year': year,
+          if (district != null) 'district': district,
+        });
         for (var design in resultsByFilingNumber) {
           if (uniqueIds.add(design.id)) {
             results.add(design);
           }
         }
+
+        return results;
       } else {
-        // Nếu không có search term, chỉ áp dụng các bộ lọc
-        var queryParams = <String, String>{};
+        // If no search term, just apply filters with pagination
+        var queryParams = <String, String>{
+          'page': page.toString(),
+        };
         if (type != null) queryParams['type'] = type;
         if (year != null) queryParams['year'] = year;
         if (district != null) queryParams['district'] = district;
         
-        results = await _fetchWithParams(queryParams);
-        return results;
+        return await _fetchWithParams(queryParams);
       }
-
-      // Nếu có kết quả search và có bộ lọc, thực hiện lọc thêm
-      if (type != null || year != null || district != null) {
-        // Gọi API để lấy kết quả theo type
-        if (type != null) {
-          final resultsByType = await _fetchWithParams({'type': type});
-          results = results.where((design) => 
-            resultsByType.any((typeDesign) => typeDesign.id == design.id)
-          ).toList();
-        }
-
-        // Lọc theo năm
-        if (year != null) {
-          results = results.where((design) => 
-            design.filingDate.year.toString() == year
-          ).toList();
-        }
-
-        // Lọc theo district
-        if (district != null) {
-          results = results.where((design) => 
-            design.address.toLowerCase().contains(district.toLowerCase())
-          ).toList();
-        }
-      }
-
-      return results;
-
     } catch (e) {
       if (e is DatabaseException) rethrow;
       throw DatabaseException('Unexpected error: $e');

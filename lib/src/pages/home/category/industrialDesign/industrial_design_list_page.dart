@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/industrialDesign/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/industrialDesign/industrial_design_detail_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class IndustrialDesignListPage extends StatefulWidget {
   const IndustrialDesignListPage({super.key});
@@ -15,8 +15,13 @@ class IndustrialDesignListPage extends StatefulWidget {
 
 class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   final Database _service = Database();
-  late Future<List<IndustrialDesignModel>> _designsFuture;
   final ScrollController _scrollController = ScrollController();
+  
+  // Pagination state
+  int _currentPage = 1;
+  bool _isLoading = false;
+  bool _hasMoreData = true;
+  List<IndustrialDesignModel> _designs = [];
 
   // Filter state
   String? _selectedType;
@@ -27,32 +32,27 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   List<Map<String, dynamic>> _availableDistricts = [];
   bool _isFiltered = false;
 
-  // Search controllers
+  // Search state
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
-  final bool _isSearchExpanded = false;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     _loadFilterData();
-    _designsFuture = _service.fetchIndustrialDesigns();
+    _loadInitialData();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
-  }
-
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      _refreshData();
-    });
   }
 
   Future<void> _loadFilterData() async {
@@ -71,6 +71,208 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
     } catch (e) {
       print('Error loading filter data: $e');
     }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMoreData) {
+      _loadMoreData();
+    }
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() {
+      _isLoading = true;
+      _currentPage = 1;
+      _designs = [];
+    });
+
+    try {
+      final designs = await _service.fetchIndustrialDesigns(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        type: _selectedType,
+        year: _selectedYear,
+        district: _selectedDistrict,
+        page: _currentPage,
+      );
+
+      setState(() {
+        _designs = designs;
+        _hasMoreData = designs.isNotEmpty;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading initial data: $e');
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final nextPage = _currentPage + 1;
+      final moreDesigns = await _service.fetchIndustrialDesigns(
+        search: _searchController.text.isNotEmpty ? _searchController.text : null,
+        type: _selectedType,
+        year: _selectedYear,
+        district: _selectedDistrict,
+        page: nextPage,
+      );
+
+      setState(() {
+        if (moreDesigns.isNotEmpty) {
+          _designs.addAll(moreDesigns);
+          _currentPage = nextPage;
+          _hasMoreData = moreDesigns.length >= 10; // Assuming 10 items per page
+        } else {
+          _hasMoreData = false;
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasMoreData = false;
+      });
+      print('Error loading more data: $e');
+    }
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _isSearching = _searchController.text.isNotEmpty;
+    });
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _loadInitialData();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    await _loadInitialData();
+  }
+
+  void _showFilterDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(l10n.filter),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Loại kiểu dáng:'),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedType,
+                      hint: const Text('Chọn loại kiểu dáng'),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: null,
+                          child: Text(l10n.all),
+                        ),
+                        ..._availableTypes.map((type) {
+                          return DropdownMenuItem<String>(
+                            value: type['type'],
+                            child: Text('${type['type']} (${type['count']})'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedType = value),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(l10n.year),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedYear,
+                      hint: Text(l10n.selectYear),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: null,
+                          child: Text(l10n.all),
+                        ),
+                        ..._availableYears.map((year) {
+                          return DropdownMenuItem<String>(
+                            value: year,
+                            child: Text('${l10n.year} $year'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedYear = value),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(l10n.districtLabel),
+                    DropdownButton<String>(
+                      isExpanded: true,
+                      value: _selectedDistrict,
+                      hint: Text(l10n.selectDistrict),
+                      items: [
+                        DropdownMenuItem<String>(
+                          value: null,
+                          child: Text(l10n.all),
+                        ),
+                        ..._availableDistricts.map((district) {
+                          return DropdownMenuItem<String>(
+                            value: district['district_name'],
+                            child: Text('${district['district_name']} (${district['count']})'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) => setState(() => _selectedDistrict = value),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.cancel),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _applyFilters();
+                  },
+                  child: Text(l10n.apply),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _isFiltered = _selectedType != null || _selectedYear != null || _selectedDistrict != null;
+      _loadInitialData();
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      _selectedType = null;
+      _selectedYear = null;
+      _selectedDistrict = null;
+      _isFiltered = false;
+      _searchController.clear();
+      _loadInitialData();
+    });
   }
 
   Widget _buildSearchBar() {
@@ -106,139 +308,6 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
             borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 1),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Bộ lọc'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Loại kiểu dáng:'),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      value: _selectedType,
-                      hint: const Text('Chọn loại kiểu dáng'),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('Tất cả'),
-                        ),
-                        ..._availableTypes.map((type) {
-                          return DropdownMenuItem<String>(
-                            value: type['type'],
-                            child: Text('${type['type']} (${type['count']})'),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) => setState(() => _selectedType = value),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Năm:'),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      value: _selectedYear,
-                      hint: const Text('Chọn năm'),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('Tất cả'),
-                        ),
-                        ..._availableYears.map((year) {
-                          return DropdownMenuItem<String>(
-                            value: year,
-                            child: Text('Năm $year'),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) => setState(() => _selectedYear = value),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Địa bàn:'),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      value: _selectedDistrict,
-                      hint: const Text('Chọn địa bàn'),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('Tất cả'),
-                        ),
-                        ..._availableDistricts.map((district) {
-                          return DropdownMenuItem<String>(
-                            value: district['district_name'],
-                            child: Text('${district['district_name']} (${district['count']})'),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) => setState(() => _selectedDistrict = value),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _applyFilters();
-                  },
-                  child: const Text('Áp dụng'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _applyFilters() {
-    setState(() {
-      _isFiltered = _selectedType != null || _selectedYear != null || _selectedDistrict != null;
-      _refreshData();
-    });
-  }
-
-  void _resetFilters() {
-    setState(() {
-      _selectedType = null;
-      _selectedYear = null;
-      _selectedDistrict = null;
-      _isFiltered = false;
-      _searchController.clear();
-      _refreshData();
-    });
-  }
-
-  Future<void> _refreshData() async {
-    setState(() {
-      _designsFuture = _service.fetchIndustrialDesigns(
-        search: _searchController.text.isNotEmpty ? _searchController.text : null,
-        type: _selectedType,
-        year: _selectedYear,
-        district: _selectedDistrict,
-      );
-    });
-  }
-
-  void _onDesignTap(IndustrialDesignModel design) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => IndustrialDesignDetailPage(id: design.id.toString()),
       ),
     );
   }
@@ -305,21 +374,13 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
   }
 
   Widget _buildDesignCard(IndustrialDesignModel design) {
-    Color getStatusColor(String status) {
-      switch (status.toLowerCase()) {
-        case 'đã cấp bằng':
-          return const Color(0xFF4CAF50);
-        case 'đang chờ xử lý':
-          return const Color(0xFFFFA726);
-        case 'từ chối':
-          return const Color(0xFFF44336);
-        default:
-          return const Color(0xFF9E9E9E);
-      }
-    }
-
     return GestureDetector(
-      onTap: () => _onDesignTap(design),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IndustrialDesignDetailPage(id: design.id.toString()),
+        ),
+      ),
       child: Card(
         margin: const EdgeInsets.only(bottom: 16),
         elevation: 2,
@@ -371,17 +432,17 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: getStatusColor(design.status).withOpacity(0.1),
+                      color: _getStatusColor(design.status).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: getStatusColor(design.status).withOpacity(0.2),
+                        color: _getStatusColor(design.status).withOpacity(0.2),
                         width: 1,
                       ),
                     ),
                     child: Text(
                       design.status,
                       style: TextStyle(
-                        color: getStatusColor(design.status),
+                        color: _getStatusColor(design.status),
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -398,7 +459,7 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
                   color: Color(0xFF263238),
                 ),
               ),
-              const SizedBox(height: 16),
+const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -503,16 +564,63 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
     );
   }
 
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'đã cấp bằng':
+        return const Color(0xFF4CAF50);
+      case 'đang chờ xử lý':
+        return const Color(0xFFFFA726);
+      case 'từ chối':
+        return const Color(0xFFF44336);
+      default:
+        return const Color(0xFF9E9E9E);
+    }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isSearching ? Icons.search_off : Icons.inbox,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _isSearching
+                ? 'Không tìm thấy kiểu dáng phù hợp'
+                : 'Không có dữ liệu kiểu dáng công nghiệp',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Kiểu dáng công nghiệp',
-          style: TextStyle(
+        title: Text(
+          l10n.industrialDesign,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -554,78 +662,19 @@ class _IndustrialDesignListPageState extends State<IndustrialDesignListPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
-              child: FutureBuilder<List<IndustrialDesignModel>>(
-                future: _designsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                            size: 60,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _refreshData,
-                            child: const Text('Thử lại'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final designs = snapshot.data ?? [];
-                  if (designs.isEmpty && _isSearchExpanded) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không tìm thấy kiểu dáng phù hợp',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (designs.isEmpty) {
-                    return const Center(
-                      child: Text('Không có dữ liệu kiểu dáng công nghiệp'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: designs.length,
-                    itemBuilder: (context, index) {
-                      return _buildDesignCard(designs[index]);
-                    },
-                  );
-                },
-              ),
+              child: _designs.isEmpty && !_isLoading
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _designs.length + (_isLoading ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _designs.length) {
+                          return _buildLoadingIndicator();
+                        }
+                        return _buildDesignCard(_designs[index]);
+                      },
+                    ),
             ),
           ),
         ],

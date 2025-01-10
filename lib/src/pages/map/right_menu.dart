@@ -68,7 +68,7 @@ class MapRightMenu extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
       color: Theme.of(context).primaryColor,
       child: Row(
         children: [

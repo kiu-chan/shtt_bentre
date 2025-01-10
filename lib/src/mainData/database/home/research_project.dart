@@ -10,16 +10,17 @@ class ResearchProjectService {
     String? search,
     String? type,
     String? year,
+    int page = 1,  // Add page parameter
   }) async {
     try {
-      // Build query parameters based on search criteria
-      final List<ResearchProjectModel> results = [];
-      final Set<String> uniqueIds = {};
+      List<ResearchProjectModel> results = [];
+      Set<String> uniqueIds = {};
 
       if (search != null && search.isNotEmpty) {
         // Search by project name
         final queryParamsName = {
           'name': search,
+          'page': page.toString(),
           if (type != null) 'type': type,
           if (year != null) 'year': year,
         };
@@ -33,6 +34,7 @@ class ResearchProjectService {
         // Search by type
         final queryParamsType = {
           'type': search,
+          'page': page.toString(),
           if (year != null) 'year': year,
         };
         final responseByType = await _fetchWithParams(queryParamsType);
@@ -45,6 +47,7 @@ class ResearchProjectService {
         // Search by leader name
         final queryParamsLeader = {
           'leader_name': search,
+          'page': page.toString(),
           if (type != null) 'type': type,
           if (year != null) 'year': year,
         };
@@ -58,6 +61,7 @@ class ResearchProjectService {
         // Search by institution
         final queryParamsInstitution = {
           'institution': search,
+          'page': page.toString(),
           if (type != null) 'type': type,
           if (year != null) 'year': year,
         };
@@ -72,6 +76,7 @@ class ResearchProjectService {
         if (RegExp(r'^\d{4}$').hasMatch(search)) {
           final queryParamsYear = {
             'year': search,
+            'page': page.toString(),
             if (type != null) 'type': type,
           };
           final responseByYear = await _fetchWithParams(queryParamsYear);
@@ -84,10 +89,13 @@ class ResearchProjectService {
 
         return results;
       } else {
-        // If no search term, just apply filters
-        final queryParams = <String, String>{};
+        // If no search term, just apply filters and pagination
+        final queryParams = <String, String>{
+          'page': page.toString(),
+        };
         if (type != null) queryParams['type'] = type;
         if (year != null) queryParams['year'] = year;
+        
         return await _fetchWithParams(queryParams);
       }
     } catch (e) {
@@ -149,7 +157,7 @@ class ResearchProjectService {
           return (jsonData['data'] as List)
               .map((item) => item['year'].toString())
               .toList()
-            ..sort((a, b) => b.compareTo(a)); // Sort years in descending order
+            ..sort((a, b) => b.compareTo(a));
         }
       }
       return [];
