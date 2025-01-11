@@ -8,7 +8,7 @@ class InitiativeStatisticsPage extends BaseStatisticsPage {
           title: 'Thống kê sáng kiến',
           baseUrl: MainUrl.initiativeUrl,
           primaryColor: Colors.amber,
-          showFieldChart: false, // Không có API by-type nên set false
+          showLineChart: true,
         );
 
   @override

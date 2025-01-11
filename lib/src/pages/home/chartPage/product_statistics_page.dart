@@ -8,7 +8,9 @@ class ProductStatisticsPage extends BaseStatisticsPage {
           title: 'Thống kê sản phẩm xây dựng, phát triển thương hiệu',
           baseUrl: MainUrl.productsUrl,
           primaryColor: Colors.cyan,
-          showFieldChart: false, // Chỉ hiển thị thống kê theo quận/huyện và năm
+          showFieldChart: false,
+          showLineChart: true,
+          showBarChart: true,
         );
 
   @override

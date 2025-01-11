@@ -9,6 +9,8 @@ class PatentStatisticsPage extends BaseStatisticsPage {
           baseUrl: MainUrl.patentUrl,
           primaryColor: Colors.blue,
           showFieldChart: true,
+          showBarChart: true,
+          showLineChart: true,
         );
 
   @override

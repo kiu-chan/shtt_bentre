@@ -9,6 +9,8 @@ class TrademarkStatisticsPage extends BaseStatisticsPage {
           baseUrl: MainUrl.trademarksUrl,
           primaryColor: Colors.orange,
           showFieldChart: true,
+          showBarChart: true,
+          showLineChart: true,
         );
 
   @override

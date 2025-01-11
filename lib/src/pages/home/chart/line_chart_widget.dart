@@ -1,17 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-
-class TimeSeriesItem {
-  final String label;
-  final double value;
-  final DateTime? date;
-
-  TimeSeriesItem({
-    required this.label,
-    required this.value,
-    this.date,
-  });
-}
+import 'package:shtt_bentre/src/pages/home/chart/chart_types.dart';
+import 'dart:math' as math;
 
 class LineChartWidget extends StatefulWidget {
   final List<TimeSeriesItem> data;
@@ -140,13 +130,25 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   FlGridData _buildGridData() {
+    // Tính khoảng cách cho lưới dọc và ngang với kiểm tra giá trị tối thiểu
+    final yInterval = math.max(widget.maxY / 4, 1.0); // Đảm bảo interval tối thiểu là 1
+    final xInterval = math.max((widget.data.length - 1) / 4, 1.0); // Đảm bảo interval tối thiểu là 1
+
     return FlGridData(
       show: widget.showGridLines,
-      drawVerticalLine: false,
-      horizontalInterval: widget.interval,
+      drawVerticalLine: true, // Hiển thị cả lưới dọc
+      horizontalInterval: yInterval,
+      verticalInterval: xInterval,
       getDrawingHorizontalLine: (value) {
         return FlLine(
-          color: Colors.black.withOpacity(0.05),
+          color: Colors.black.withOpacity(0.1),
+          strokeWidth: 1,
+          dashArray: [5, 5],
+        );
+      },
+      getDrawingVerticalLine: (value) {
+        return FlLine(
+          color: Colors.black.withOpacity(0.1),
           strokeWidth: 1,
           dashArray: [5, 5],
         );
@@ -155,35 +157,31 @@ class _LineChartWidgetState extends State<LineChartWidget> {
   }
 
   FlTitlesData _buildTitlesData() {
+    // Đảm bảo interval luôn lớn hơn 0
+    final xInterval = math.max((widget.data.length - 1) / 4, 1.0);
     return FlTitlesData(
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: 40,
+          interval: xInterval,
           getTitlesWidget: (value, meta) {
-            // Hiển thị 5 mốc đều nhau trên trục x
-            final dataLength = widget.data.length;
-            final interval = (dataLength - 1) / 4; // Chia thành 4 khoảng để có 5 điểm
-            final currentIndex = value.toInt();
-            
-            // Chỉ hiển thị label tại các điểm mốc
-            if (currentIndex == 0 || // Điểm đầu
-                currentIndex == dataLength - 1 || // Điểm cuối
-                (currentIndex % interval).round() == 0) { // Các điểm ở giữa
-              return Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  widget.data[currentIndex].label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black.withOpacity(0.7),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              );
+            final index = value.toInt();
+            if (index < 0 || index >= widget.data.length) {
+              return const SizedBox();
             }
-            return const SizedBox();
+            return Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                widget.data[index].label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            );
           },
         ),
       ),
@@ -191,7 +189,7 @@ class _LineChartWidgetState extends State<LineChartWidget> {
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: 40,
-          interval: widget.interval,
+          interval: math.max(widget.maxY / 4, 1.0), // Đảm bảo interval tối thiểu là 1
           getTitlesWidget: (value, meta) {
             return Padding(
               padding: const EdgeInsets.only(right: 8),

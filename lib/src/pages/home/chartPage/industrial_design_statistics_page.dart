@@ -9,6 +9,8 @@ class IndustrialDesignStatisticsPage extends BaseStatisticsPage {
           baseUrl: MainUrl.industrialDesignUrl,
           primaryColor: Colors.purple,
           showFieldChart: true,
+          showLineChart: true,
+          showBarChart: true,
         );
 
   @override

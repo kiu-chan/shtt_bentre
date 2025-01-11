@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-
-class BarChartItem {
-  final String label;
-  final double value;
-  final Color? color;
-
-  BarChartItem({
-    required this.label,
-    required this.value,
-    this.color,
-  });
-}
+import 'package:shtt_bentre/src/pages/home/chart/chart_types.dart';
 
 class BarChartWidget extends StatefulWidget {
   final List<BarChartItem> data;

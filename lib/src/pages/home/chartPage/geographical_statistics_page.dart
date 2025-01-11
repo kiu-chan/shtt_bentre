@@ -9,6 +9,8 @@ class GeographicalStatisticsPage extends BaseStatisticsPage {
           baseUrl: MainUrl.geoIndicationUrl,
           primaryColor: Colors.green,
           showFieldChart: false,
+          showBarChart: true,
+          showLineChart: true,
         );
 
   @override

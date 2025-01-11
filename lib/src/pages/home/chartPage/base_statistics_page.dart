@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shtt_bentre/src/pages/home/chart/chart_types.dart';
 import 'dart:convert';
 import 'package:shtt_bentre/src/pages/home/chart/line_chart_widget.dart';
 import 'package:shtt_bentre/src/pages/home/chart/bar_chart_widget.dart';
@@ -10,6 +11,8 @@ abstract class BaseStatisticsPage extends StatefulWidget {
   final String baseUrl;
   final Color primaryColor;
   final bool showFieldChart;
+  final bool showLineChart;
+  final bool showBarChart;
 
   const BaseStatisticsPage({
     super.key,
@@ -17,6 +20,8 @@ abstract class BaseStatisticsPage extends StatefulWidget {
     required this.baseUrl,
     required this.primaryColor,
     this.showFieldChart = false,
+    this.showLineChart = false,
+    this.showBarChart = false,
   });
 
   @override
@@ -39,13 +44,16 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
     try {
       setState(() => _isLoading = true);
 
-      final yearResponse = await http.get(
-        Uri.parse('${widget.baseUrl}/stats/by-year'),
-      );
+      var responses = [];
 
-      var responses = [yearResponse];
+      if (widget.showLineChart) {
+        final yearResponse = await http.get(
+          Uri.parse('${widget.baseUrl}/stats/by-year'),
+        );
+        responses.add(yearResponse);
+      }
       
-      if (!widget.baseUrl.contains('initiatives')) {
+      if (widget.showBarChart) {
         final districtResponse = await http.get(
           Uri.parse('${widget.baseUrl}/stats/by-district'),
         );
@@ -60,22 +68,26 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
       }
 
       if (responses.every((response) => response.statusCode == 200)) {
-        final yearData = json.decode(yearResponse.body);
-        _yearlyStatistics = (yearData['data'] as List).map((item) {
-          final year = item['year']?.toString() ?? '';
-          final count = item['count']?.toString() ?? '0';
-          return TimeSeriesItem(
-            label: year,
-            value: double.tryParse(count) ?? 0.0,
-          );
-        }).where((item) => item.label.isNotEmpty)
-        .toList()
-        ..sort((a, b) => int.tryParse(a.label) ?? 0
-            .compareTo(int.tryParse(b.label) ?? 0));
+        int responseIndex = 0;
 
-        if (!widget.baseUrl.contains('initiatives')) {
-          final districtResponse = responses[1];
-          final districtData = json.decode(districtResponse.body);
+        if (widget.showLineChart) {
+          final yearData = json.decode(responses[responseIndex].body);
+          _yearlyStatistics = (yearData['data'] as List).map((item) {
+            final year = item['year']?.toString() ?? '';
+            final count = item['count']?.toString() ?? '0';
+            return TimeSeriesItem(
+              label: year,
+              value: double.tryParse(count) ?? 0.0,
+            );
+          }).where((item) => item.label.isNotEmpty)
+          .toList()
+          ..sort((a, b) => int.tryParse(a.label) ?? 0
+              .compareTo(int.tryParse(b.label) ?? 0));
+          responseIndex++;
+        }
+
+        if (widget.showBarChart) {
+          final districtData = json.decode(responses[responseIndex].body);
           _locationStatistics = (districtData['data'] as List).map((item) {
             final districtName = item['district_name']?.toString() ?? 'Unknown';
             final percentage = item['percentage']?.toString() ?? '0';
@@ -84,17 +96,17 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
               value: double.tryParse(percentage) ?? 0.0,
             );
           }).toList();
+          responseIndex++;
         }
 
-        if (widget.showFieldChart && responses.length > 2) {
-          final typeData = json.decode(responses.last.body);
+        if (widget.showFieldChart) {
+          final typeData = json.decode(responses[responseIndex].body);
           _fieldStatistics = (typeData['data'] as List).map((item) {
             final type = item['type']?.toString() ?? 'Unknown';
             final percentage = item['percentage']?.toString() ?? '0';
             return ChartDataItem(
               title: type,
               value: double.tryParse(percentage) ?? 0.0,
-              color: _getFieldColor(type),
             );
           }).toList();
         }
@@ -105,24 +117,7 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showError('Có lỗi khi tải dữ liệu: ${e.toString()}');
-    }
-  }
-
-  Color _getFieldColor(String fieldType) {
-    switch (fieldType) {
-      case 'Không được phân loại':
-        return Colors.amber;
-      case 'Hóa học':
-        return Colors.blue;
-      case 'Kỹ thuật cơ khí':
-        return Colors.pink[100]!;
-      case 'Kỹ thuật điện':
-        return Colors.green[200]!;
-      case 'Dụng cụ':
-        return Colors.purple[200]!;
-      default:
-        return Colors.grey;
+      print('Có lỗi khi tải dữ liệu: ${e.toString()}');
     }
   }
 
@@ -131,42 +126,28 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
     return name.replaceAll(' ', '\n');
   }
 
-  void _showError(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: AppBar(
+        backgroundColor: widget.primaryColor,
+        elevation: 0,
+        title: Text(
+          widget.title,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
+            tooltip: 'Làm mới dữ liệu',
+          ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildBody(),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: widget.primaryColor,
-      elevation: 0,
-      title: Text(
-        widget.title,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: _loadData,
-          tooltip: 'Làm mới dữ liệu',
-        ),
-      ],
     );
   }
 
@@ -178,21 +159,51 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.showFieldChart && _fieldStatistics != null)
+            if (widget.showFieldChart && _fieldStatistics != null) ...[
               _buildChartCard(
-                child: _buildFieldStatistics(),
+                child: PieChartWidget(
+                  title: 'Thống kê theo loại lĩnh vực',
+                  data: _fieldStatistics!,
+                  showLegend: true,
+                  enableInteraction: true,
+                  height: 400,
+                ),
               ),
-            if (widget.showFieldChart && _fieldStatistics != null)
               const SizedBox(height: 24),
-            if (!widget.baseUrl.contains('initiatives'))
+            ],
+            if (widget.showBarChart && _locationStatistics.isNotEmpty) ...[
               _buildChartCard(
-                child: _buildLocationStatistics(),
+                child: BarChartWidget(
+                  title: 'Thống kê theo đơn vị hành chính',
+                  data: _locationStatistics,
+                  maxY: _calculateMaxY(_locationStatistics),
+                  interval: 5,
+                  enableTooltip: true,
+                  showGridLines: true,
+                  height: 400,
+                  barColor: widget.primaryColor,
+                  rotateLabels: true,
+                ),
               ),
-            if (!widget.baseUrl.contains('initiatives'))
               const SizedBox(height: 24),
-            _buildChartCard(
-              child: _buildYearlyStatistics(),
-            ),
+            ],
+            if (widget.showLineChart && _yearlyStatistics.isNotEmpty)
+              _buildChartCard(
+                child: LineChartWidget(
+                  title: 'Thống kê theo năm',
+                  data: _yearlyStatistics,
+                  maxY: _calculateMaxY(_yearlyStatistics),
+                  interval: 1,
+                  enableTooltip: true,
+                  showGridLines: true,
+                  height: 400,
+                  lineColor: widget.primaryColor,
+                  showDots: true,
+                  showArea: true,
+                  smoothLine: true,
+                  showEveryNthLabel: 1,
+                ),
+              ),
           ],
         ),
       ),
@@ -213,47 +224,6 @@ abstract class BaseStatisticsPageState<T extends BaseStatisticsPage> extends Sta
         padding: const EdgeInsets.all(20),
         child: child,
       ),
-    );
-  }
-
-  Widget _buildFieldStatistics() {
-    return PieChartWidget(
-      title: 'Thống kê theo loại lĩnh vực',
-      data: _fieldStatistics!,
-      showLegend: true,
-      enableInteraction: true,
-      height: 400,
-    );
-  }
-
-  Widget _buildLocationStatistics() {
-    return BarChartWidget(
-      title: 'Thống kê theo đơn vị hành chính',
-      data: _locationStatistics,
-      maxY: _calculateMaxY(_locationStatistics),
-      interval: 5,
-      enableTooltip: true,
-      showGridLines: true,
-      height: 400,
-      barColor: widget.primaryColor,
-      rotateLabels: true,
-    );
-  }
-
-  Widget _buildYearlyStatistics() {
-    return LineChartWidget(
-      title: 'Thống kê theo năm',
-      data: _yearlyStatistics,
-      maxY: _calculateMaxY(_yearlyStatistics),
-      interval: 1,
-      enableTooltip: true,
-      showGridLines: true,
-      height: 400,
-      lineColor: widget.primaryColor,
-      showDots: true,
-      showArea: true,
-      smoothLine: true,
-      showEveryNthLabel: 1,
     );
   }
 

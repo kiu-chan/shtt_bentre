@@ -8,7 +8,9 @@ class ScienceInnovationStatisticsPage extends BaseStatisticsPage {
           title: 'Thống kê nghiên cứu khoa học và đổi mới sáng tạo',
           baseUrl: MainUrl.scienceInnovationsUrl,
           primaryColor: Colors.indigo,
+          showBarChart: true,
           showFieldChart: true,
+          showLineChart: true,
         );
 
   @override
