@@ -54,7 +54,9 @@ class CompetitionCard extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      competition.field,
+                      competition.field.length > 20
+                          ? competition.field.substring(0, 20) + '...'
+                          : competition.field,
                       style: const TextStyle(
                         color: Color(0xFF512DA8),
                         fontSize: 12,
@@ -79,12 +81,6 @@ class CompetitionCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.emoji_events,
-                          size: 16,
-                          color: Color(0xFFF57C00),
-                        ),
-                        const SizedBox(width: 4),
                         Text(
                           competition.resultStatus,
                           style: const TextStyle(
