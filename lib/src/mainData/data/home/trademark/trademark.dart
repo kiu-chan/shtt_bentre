@@ -34,7 +34,7 @@ class TrademarkModel {
       filingDate: _parseDate(json['filing_date']?.toString()),
       status: json['status']?.toString() ?? '',
       type: '', // API response doesn't include type
-      typeName: '', // API response doesn't include type_name
+      typeName:  json['type_name']?.toString() ?? '', // API response doesn't include type_name
     );
   }
 
