@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shtt_bentre/src/mainData/config/text.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_data.dart';
 import 'package:shtt_bentre/src/pages/home/menu/menu_models.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -238,9 +239,9 @@ Widget _buildMenuSection(BuildContext context, MenuSection section) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             color: Colors.black12,
             offset: Offset(0, -1),
@@ -297,7 +298,7 @@ Widget _buildMenuSection(BuildContext context, MenuSection section) {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '+8490 403 11 03',
+                      TextConfig.phoneNumber,
                       style: TextStyle(
                         color: Colors.grey[800],
                         fontSize: 14,
@@ -315,7 +316,7 @@ Widget _buildMenuSection(BuildContext context, MenuSection section) {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'girc.tuaf@gmail.com',
+                      TextConfig.email,
                       style: TextStyle(
                         color: Colors.grey[800],
                         fontSize: 14,

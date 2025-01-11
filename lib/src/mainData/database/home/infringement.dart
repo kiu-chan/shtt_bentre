@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shtt_bentre/src/mainData/config/url.dart';
 import 'package:shtt_bentre/src/mainData/data/home/infringement.dart';
 
 class InfringementService {
