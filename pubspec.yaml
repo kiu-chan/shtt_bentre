@@ -2,7 +2,7 @@ name: shtt_bentre
 description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.7.12+5
+version: 0.7.18+5
 
 environment:
   sdk: ^3.5.3
@@ -31,6 +31,7 @@ dependencies:
   chewie: ^1.8.5
   dialog_flowtter: ^0.3.3
   shared_preferences: ^2.2.2
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

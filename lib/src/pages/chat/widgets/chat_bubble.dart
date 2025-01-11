@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatBubble extends StatelessWidget {
   final String message;
@@ -13,6 +14,97 @@ class ChatBubble extends StatelessWidget {
     required this.timestamp,
     this.showAvatar = true,
   });
+
+  List<InlineSpan> _buildMessageContent() {
+    final List<InlineSpan> spans = [];
+    
+    // Regex cho URL và số điện thoại
+    final RegExp urlRegex = RegExp(
+      r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)',
+      caseSensitive: false,
+    );
+    
+    final RegExp phoneRegex = RegExp(
+      r'(?:\+84|0)(?:\d{9,10})',
+      caseSensitive: false,
+    );
+
+    String remainingText = message;
+    int lastMatchEnd = 0;
+
+    // Tìm tất cả các matches (URL và số điện thoại)
+    List<Match> allMatches = [];
+    allMatches.addAll(urlRegex.allMatches(message));
+    allMatches.addAll(phoneRegex.allMatches(message));
+    
+    // Sắp xếp các matches theo vị trí
+    allMatches.sort((a, b) => a.start.compareTo(b.start));
+
+    for (final Match match in allMatches) {
+      final String matchedText = match.group(0)!;
+      final int startIndex = match.start;
+      
+      // Thêm text thường trước match
+      if (startIndex > lastMatchEnd) {
+        spans.add(TextSpan(
+          text: message.substring(lastMatchEnd, startIndex),
+          style: TextStyle(
+            color: isUser ? Colors.white : Colors.black87,
+            fontSize: 15,
+            height: 1.4,
+          ),
+        ));
+      }
+
+      // Xác định loại match (URL hay số điện thoại)
+      final bool isPhone = phoneRegex.hasMatch(matchedText);
+      
+      spans.add(WidgetSpan(
+        child: GestureDetector(
+          onTap: () => isPhone ? _launchPhone(matchedText) : _launchURL(matchedText),
+          child: Text(
+            matchedText,
+            style: TextStyle(
+              color: isUser ? Colors.white : Colors.blue,
+              decoration: TextDecoration.underline,
+              fontSize: 15,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ));
+
+      lastMatchEnd = match.end;
+    }
+
+    // Thêm phần text còn lại
+    if (lastMatchEnd < message.length) {
+      spans.add(TextSpan(
+        text: message.substring(lastMatchEnd),
+        style: TextStyle(
+          color: isUser ? Colors.white : Colors.black87,
+          fontSize: 15,
+          height: 1.4,
+        ),
+      ));
+    }
+
+    return spans;
+  }
+
+  void _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  void _launchPhone(String phone) async {
+    final Uri uri = Uri(scheme: 'tel', path: phone);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +167,9 @@ class ChatBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : Colors.black87,
-                      fontSize: 15,
-                      height: 1.4,
+                  RichText(
+                    text: TextSpan(
+                      children: _buildMessageContent(),
                     ),
                   ),
                   const SizedBox(height: 4),
