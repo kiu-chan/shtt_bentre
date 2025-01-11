@@ -123,7 +123,7 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                               ),
                               child: Text(
                                 project.type.length > 20
-                                    ? '${project.type.substring(0, 20)}...'
+                                    ? project.type.substring(0, 20) + '...'
                                     : project.type,
                                 style: const TextStyle(
                                   color: Color(0xFF7B1FA2),
@@ -172,7 +172,7 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Research Team Card
+                // Research Team Information Card
                 Card(
                   elevation: 2,
                   shadowColor: Colors.black.withOpacity(0.1),
@@ -236,15 +236,105 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                           'Ngày bắt đầu',
                           DateFormat('dd/MM/yyyy').format(project.startDate),
                         ),
-                        if (project.type.isNotEmpty) ...[
-                          const Divider(height: 24),
-                          _buildDescriptionSection(
-                            'Phân loại',
-                            project.type,
+                        const Divider(height: 24),
+                        _buildDescriptionSection(
+                          'Công tác/viên đối tác',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Nguồn tài trợ',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Ngành/chuyên ngành dự án',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Mục tiêu dự án',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Tác động và ứng dụng thực tiễn',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Nội dung',
+                          'Chưa có thông tin',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Documents and Publications Card
+                Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Tài liệu và ấn phẩm',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E88E5),
                           ),
-                        ],
-                        if (project.image.isNotEmpty) ...[
-                          const SizedBox(height: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Các ấn phẩm khoa học liên quan',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Bằng sáng chế liên quan',
+                          'Chưa có thông tin',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildDescriptionSection(
+                          'Các tài liệu đối chứng',
+                          'Chưa có thông tin',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Images Card
+                Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Hình ảnh',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E88E5),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (project.image.isNotEmpty)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
@@ -265,8 +355,27 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                                 );
                               },
                             ),
+                          )
+                        else
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: const Text(
+                              'Chưa có hình ảnh',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF546E7A),
+                              ),
+                            ),
                           ),
-                        ],
                       ],
                     ),
                   ),
@@ -320,9 +429,9 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
               ),
               const SizedBox(height: 4),
               Text(
-                value,
-                style: const TextStyle(
-                  color: Color(0xFF263238),
+                value.isNotEmpty ? value : 'Chưa có thông tin',
+                style: TextStyle(
+                  color: value.isNotEmpty ? const Color(0xFF263238) : Colors.grey,
                   fontSize: 16,
                 ),
               ),
@@ -359,9 +468,11 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
           ),
           child: Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Color(0xFF546E7A),
+              color: content != 'Chưa có thông tin' 
+                  ? const Color(0xFF546E7A)
+                  : Colors.grey,
             ),
           ),
         ),

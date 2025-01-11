@@ -252,7 +252,7 @@ class MapPageView extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
-          top: MediaQuery.of(context).padding.top + 80 // Adjusted to accommodate search bar
+          top: MediaQuery.of(context).padding.top + 80
         ),
         child: SlideTransition(
           position: legendSlideAnimation,
