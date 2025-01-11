@@ -148,116 +148,69 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.white, Color(0xFFFAFAFA)],
+                      ),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInfoSection(l10n.productName, detail.tenSanPham),
-                        if (detail.soDon != null) ...[
-                          const SizedBox(height: 16),
-                          _buildInfoSection(l10n.applicationNumber, detail.soDon!),
-                        ],
-                        if (detail.soDangKy != null) ...[
-                          const SizedBox(height: 16),
-                          _buildInfoSection(l10n.registrationNumber, detail.soDangKy!),
-                        ],
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4CAF50).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF4CAF50).withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            l10n.geoIndications,
+                            style: const TextStyle(
+                              color: Color(0xFF2E7D32),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
-                        _buildInfoSection(l10n.registrationDate, _formatDate(detail.ngayDangKy)),
-                        const SizedBox(height: 16),
-                        _buildInfoSection(l10n.managementUnit, detail.donViQuanLy),
-                        if (detail.donViUyQuyen != null) ...[
-                          const SizedBox(height: 16),
-                          _buildInfoSection(l10n.authorizedUnit, detail.donViUyQuyen!),
-                        ],
-                        if (detail.quyetDinhBaoHo != null) ...[
-                          const SizedBox(height: 16),
-                          _buildInfoSection(l10n.protectionDecision, detail.quyetDinhBaoHo!),
-                        ],
-                        const SizedBox(height: 16),
-                        _buildInfoSection(l10n.decisionDate, _formatDate(detail.ngayQuyetDinh)),
-                        const SizedBox(height: 16),
-                        _buildInfoSection(l10n.protectedCommunes, detail.cacXaDuocBaoHo),
-                        if (detail.updatedAt != null) ...[
-                          const SizedBox(height: 16),
-                          _buildInfoSection(l10n.updatedAt, _formatDateTime(detail.updatedAt)),
-                        ],
+                        Text(
+                          detail.tenSanPham,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF263238),
+                            height: 1.3,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildBasicInfo(detail, l10n),
                       ],
                     ),
                   ),
                 ),
                 if (detail.moTa != null && detail.moTa!.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Mô tả:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E88E5),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Html(
-                            data: _formatHtmlContent(detail.moTa),
-                            style: {
-                              "body": Style(
-                                fontSize: FontSize(14),
-                                lineHeight: const LineHeight(1.5),
-                                color: const Color(0xFF455A64),
-                              ),
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildDescriptionSection(detail.moTa!, l10n),
                 ],
                 if (detail.noiDung.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.message,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E88E5),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Html(
-                            data: _formatHtmlContent(detail.noiDung),
-                            style: {
-                              "body": Style(
-                                fontSize: FontSize(14),
-                                lineHeight: const LineHeight(1.5),
-                                color: const Color(0xFF455A64),
-                              ),
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildContentSection(detail.noiDung, l10n),
                 ],
               ],
             ),
@@ -267,27 +220,238 @@ class _GeoIndicationDetailPageState extends State<GeoIndicationDetailPage> {
     );
   }
 
-  Widget _buildInfoSection(String label, String value) {
+  Widget _buildBasicInfo(GeoIndicationDetailModel detail, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Color(0xFF1E88E5),
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+        _buildInfoRow(
+          Icons.numbers,
+          l10n.applicationNumber,
+          detail.soDon ?? '',
+        ),
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.verified,
+          l10n.registrationNumber,
+          detail.soDangKy ?? '',
+        ),
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.calendar_today,
+          l10n.registrationDate,
+          _formatDate(detail.ngayDangKy),
+        ),
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.business,
+          l10n.managementUnit,
+          detail.donViQuanLy,
+        ),
+        if (detail.donViUyQuyen != null) ...[
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            Icons.assignment_ind,
+            l10n.authorizedUnit,
+            detail.donViUyQuyen!,
+          ),
+        ],
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.gavel,
+          l10n.protectionDecision,
+          detail.quyetDinhBaoHo ?? '',
+        ),
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.event,
+          l10n.decisionDate,
+          _formatDate(detail.ngayQuyetDinh),
+        ),
+        const SizedBox(height: 16),
+        _buildInfoRow(
+          Icons.location_on,
+          l10n.protectedCommunes,
+          detail.cacXaDuocBaoHo,
+        ),
+        if (detail.updatedAt != null) ...[
+          const SizedBox(height: 16),
+          _buildInfoRow(
+            Icons.update,
+            l10n.updatedAt,
+            _formatDateTime(detail.updatedAt),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E88E5).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: const Color(0xFF1E88E5),
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Color(0xFF263238),
-            fontSize: 16,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Color(0xFF263238),
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDescriptionSection(String description, AppLocalizations l10n) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, Color(0xFFFAFAFA)],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.description,
+                  color: Color(0xFF1E88E5),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Mô tả',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Html(
+              data: _formatHtmlContent(description),
+              style: {
+                "body": Style(
+                  fontSize: FontSize(15),
+                  lineHeight: const LineHeight(1.6),
+                  color: const Color(0xFF455A64),
+                  margin: Margins.zero,
+                  padding: HtmlPaddings.zero,
+                  textAlign: TextAlign.justify,
+                ),
+                "figure": Style(
+                  margin: Margins.zero,
+                  padding: HtmlPaddings.zero,
+                ),
+                "img": Style(
+                  width: Width.auto(),
+                  height: Height.auto(),
+                  margin: Margins.only(top: 12, bottom: 12),
+                  alignment: Alignment.center,
+                  display: Display.block,
+                ),
+                "p": Style(
+                  margin: Margins.only(bottom: 16),
+                ),
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentSection(String content, AppLocalizations l10n) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, Color(0xFFFAFAFA)],
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.article,
+                  color: Color(0xFF1E88E5),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.message,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Html(
+              data: _formatHtmlContent(content),
+              style: {
+                "body": Style(
+                  fontSize: FontSize(15),
+                  lineHeight: const LineHeight(1.6),
+                  color: const Color(0xFF455A64),
+                  margin: Margins.zero,
+                  padding: HtmlPaddings.zero,
+                ),
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

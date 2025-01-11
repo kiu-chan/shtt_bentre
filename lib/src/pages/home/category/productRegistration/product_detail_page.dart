@@ -99,16 +99,76 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title Card
+                // Header Card with Status and Title
                 Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Padding(
+                  child: Container(
                     padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.blue.shade50,
+                          Colors.white,
+                        ],
+                      ),
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFA726).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0xFFFFA726).withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.business_center,
+                                    size: 16,
+                                    color: Color(0xFFE65100),
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Sản phẩm',
+                                    style: TextStyle(
+                                      color: Color(0xFFE65100),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              'Mã: ${product['id'] ?? ''}',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           product['name'] ?? '',
                           style: const TextStyle(
@@ -123,8 +183,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Main Info Card
+                // Owner Information Card
                 Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -133,9 +195,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Text(
+                          'Thông tin chủ sở hữu',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E88E5),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         _buildInfoRow(
                           Icons.business,
-                          'Chủ nhãn hiệu',
+                          'Chủ sở hữu',
                           product['owner'] ?? '',
                         ),
                         const Divider(height: 24),
@@ -146,38 +217,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
-                          Icons.contact_phone,
-                          'Liên hệ',
-                          product['contact'] ?? '',
-                        ),
-                        const Divider(height: 24),
-                        _buildInfoRow(
                           Icons.person,
                           'Đại diện pháp luật',
                           product['representatives'] ?? '',
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
-                          Icons.calendar_today,
-                          'Ngày đăng ký',
-                          _formatDateTime(product['created_at']),
+                          Icons.contact_phone,
+                          'Liên hệ',
+                          product['contact'] ?? '',
                         ),
-                        if (product['updated_at'] != null) ...[
-                          const Divider(height: 24),
-                          _buildInfoRow(
-                            Icons.update,
-                            'Cập nhật lúc',
-                            _formatDateTime(product['updated_at']),
-                          ),
-                        ],
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // Additional Info Card
+                // Timeline Card
                 Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -187,7 +246,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Thông tin bổ sung',
+                          'Thời gian',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -195,21 +254,71 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildSection('Ghi chú', product['note']),
-                        const SizedBox(height: 16),
-                        _buildSection('Tài liệu kèm', product['attachments']),
-                        const SizedBox(height: 16),
-                        _buildSection('Hình ảnh', product['images']),
+                        _buildTimelineRow(
+                          Icons.add_circle_outline,
+                          'Ngày đăng ký',
+                          _formatDateTime(product['created_at']),
+                          isFirst: true,
+                          isLast: product['updated_at'] == null,
+                        ),
+                        if (product['updated_at'] != null)
+                          _buildTimelineRow(
+                            Icons.update,
+                            'Cập nhật lúc',
+                            _formatDateTime(product['updated_at']),
+                            isFirst: false,
+                            isLast: true,
+                          ),
                       ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Additional Information Card
+                if (_hasAdditionalInfo(product))
+                  Card(
+                    elevation: 2,
+                    shadowColor: Colors.black.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Thông tin bổ sung',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E88E5),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          if (product['note'] != null && product['note'].isNotEmpty)
+                            _buildSection('Ghi chú', product['note']),
+                          if (product['attachments'] != null)
+                            _buildSection('Tài liệu kèm', product['attachments']),
+                          if (product['images'] != null)
+                            _buildSection('Hình ảnh', product['images']),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
         },
       ),
     );
+  }
+
+  bool _hasAdditionalInfo(Map<String, dynamic> product) {
+    return (product['note']?.isNotEmpty ?? false) ||
+        (product['attachments']?.isNotEmpty ?? false) ||
+        (product['images']?.isNotEmpty ?? false);
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
@@ -255,6 +364,65 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
+  Widget _buildTimelineRow(IconData icon, String label, String value,
+      {required bool isFirst, required bool isLast}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 36,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E88E5).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: const Color(0xFF1E88E5),
+                ),
+              ),
+              if (!isLast)
+                Container(
+                  width: 2,
+                  height: 32,
+                  color: const Color(0xFF1E88E5).withOpacity(0.2),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Color(0xFF263238),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (!isLast) const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSection(String title, dynamic content) {
     String displayContent = 'Không có thông tin';
     
@@ -266,26 +434,40 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF455A64),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF455A64),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          displayContent,
-          style: const TextStyle(
-            fontSize: 15,
-            color: Color(0xFF546E7A),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.grey.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              displayContent,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Color(0xFF546E7A),
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

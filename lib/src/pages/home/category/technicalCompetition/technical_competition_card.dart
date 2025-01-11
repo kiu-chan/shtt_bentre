@@ -11,12 +11,12 @@ class CompetitionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TechnicalCompetitionDetailPage(competition: competition),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => TechnicalCompetitionDetailPage(competition: competition),
+        //   ),
+        // );
       },
       child: Card(
         margin: const EdgeInsets.only(bottom: 16),

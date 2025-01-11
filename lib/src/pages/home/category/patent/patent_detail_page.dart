@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PatentDetailPage extends StatefulWidget {
   final String id;
@@ -24,10 +25,10 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
     _patentFuture = _database.fetchPatentDetail(widget.id);
   }
 
-  String _formatAbstract(String? abstract) {
-    if (abstract == null) return '';
+  String _formatContent(String? content) {
+    if (content == null) return '';
     
-    return abstract
+    return content
         .replaceAll('&aacute;', 'á')
         .replaceAll('&agrave;', 'à')
         .replaceAll('&atilde;', 'ã')
@@ -50,12 +51,37 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
         .replaceAll('\\u003C', '<');
   }
 
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'đã cấp bằng':
+        return const Color(0xFF4CAF50);
+      case 'hết hiệu lực':
+        return const Color(0xFFF44336);
+      case 'chờ xử lý':
+        return const Color(0xFFFFA726);
+      default:
+        return const Color(0xFF9E9E9E);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text('Chi tiết sáng chế'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          l10n.patentDetailTitle,
+          style: const TextStyle(
+            color: Color(0xFF1E88E5),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xFF1E88E5)),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _patentFuture,
@@ -76,7 +102,7 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -86,7 +112,7 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                         _patentFuture = _database.fetchPatentDetail(widget.id);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -94,89 +120,293 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
           }
 
           final patent = snapshot.data!;
-          String formattedAbstract = _formatAbstract(patent['abstract']);
-
           return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (patent['images'] != null && (patent['images'] as List).isNotEmpty)
-                  Image.network(
-                    patent['images'][0]['file_url'],
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: double.infinity,
-                        height: 200,
-                        color: Colors.grey.withOpacity(0.1),
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 48,
-                          color: Colors.grey.withOpacity(0.3),
-                        ),
-                      );
-                    },
+                // Main Info Card
+                Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoSection('Số đơn:', patent['filing_number'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Loại đơn:', patent['application_type'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Tên sáng chế:', patent['title'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Lĩnh vực:', patent['type'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Phân loại IPC:', patent['ipc_classes'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Chủ đơn:', patent['applicant'] ?? ''),
-                      const SizedBox(height: 8),
-                      _buildInfoSection('Địa chỉ chủ đơn:', patent['applicant_address'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Tác giả:', patent['inventor'] ?? ''),
-                      const SizedBox(height: 8),
-                      _buildInfoSection('Địa chỉ tác giả:', patent['inventor_address'] ?? ''),
-                      if (patent['other_inventor'] != null && patent['other_inventor'].toString().isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        _buildInfoSection('Đồng tác giả:', patent['other_inventor']),
-                      ],
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Ngày nộp đơn:', patent['filing_date'] ?? ''),
-                      const SizedBox(height: 8),
-                      _buildInfoSection('Số công bố:', patent['publication_number'] ?? ''),
-                      const SizedBox(height: 8),
-                      _buildInfoSection('Ngày công bố:', patent['publication_date'] ?? ''),
-                      const SizedBox(height: 16),
-                      _buildInfoSection('Trạng thái:', patent['status'] ?? ''),
-                      if (formattedAbstract.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Tóm tắt:',
-                          style: TextStyle(
-                            fontSize: 14,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.white, Color(0xFFFAFAFA)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E88E5).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0xFF1E88E5).withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                patent['type'] ?? '',
+                                style: const TextStyle(
+                                  color: Color(0xFF1565C0),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(patent['status']).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _getStatusColor(patent['status']).withOpacity(0.2),
+                                ),
+                              ),
+                              child: Text(
+                                patent['status'],
+                                style: TextStyle(
+                                  color: _getStatusColor(patent['status']),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          patent['title'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue,
+                            color: Color(0xFF263238),
+                            height: 1.3,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Html(
-                          data: formattedAbstract,
-                          style: {
-                            "body": Style(
-                              fontSize: FontSize(16),
-                              lineHeight: const LineHeight(1.5),
-                            ),
-                          },
+                        const SizedBox(height: 24),
+                        _buildInfoSection(
+                          'Thông tin đăng ký',
+                          Icons.description_outlined,
+                          [
+                            _buildInfoRow(Icons.numbers, 'Số đơn', patent['filing_number'] ?? ''),
+                            _buildInfoRow(Icons.category, 'Loại đơn', patent['application_type'] ?? ''),
+                            _buildInfoRow(Icons.calendar_today, 'Ngày nộp đơn', patent['filing_date'] ?? ''),
+                            _buildInfoRow(Icons.public, 'Số công bố', patent['publication_number'] ?? ''),
+                            _buildInfoRow(Icons.event, 'Ngày công bố', patent['publication_date'] ?? ''),
+                            _buildInfoRow(Icons.class_, 'Phân loại IPC', patent['ipc_classes'] ?? ''),
+                          ],
                         ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
+
+                // Owner Info Card
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.white, Color(0xFFFAFAFA)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoSection(
+                          'Thông tin chủ sở hữu',
+                          Icons.people_outline,
+                          [
+                            _buildInfoRow(Icons.person, 'Chủ đơn', patent['applicant'] ?? ''),
+                            _buildInfoRow(Icons.location_on, 'Địa chỉ chủ đơn', patent['applicant_address'] ?? ''),
+                            _buildInfoRow(Icons.engineering, 'Tác giả', patent['inventor'] ?? ''),
+                            _buildInfoRow(Icons.home_work, 'Địa chỉ tác giả', patent['inventor_address'] ?? ''),
+                            if (patent['other_inventor'] != null && patent['other_inventor'].toString().isNotEmpty)
+                              _buildInfoRow(Icons.group, 'Đồng tác giả', patent['other_inventor']),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Abstract Card
+                if (patent['abstract'] != null && patent['abstract'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    elevation: 2,
+                    shadowColor: Colors.black.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.white, Color(0xFFFAFAFA)],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.description_outlined,
+                                color: Color(0xFF1E88E5),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Tóm tắt',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E88E5),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Html(
+                            data: _formatContent(patent['abstract']),
+                            style: {
+                              "body": Style(
+                                fontSize: FontSize(15),
+                                lineHeight: const LineHeight(1.6),
+                                color: const Color(0xFF455A64),
+                                margin: Margins.zero,
+                                padding: HtmlPaddings.zero,
+                                textAlign: TextAlign.justify,
+                              ),
+                              "img": Style(
+                                width: Width.auto(),
+                                height: Height.auto(),
+                                margin: Margins.only(top: 12, bottom: 12),
+                                alignment: Alignment.center,
+                                display: Display.block,
+                              ),
+                              "p": Style(
+                                margin: Margins.only(bottom: 16),
+                              ),
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
+                // Images Gallery
+                if (patent['images'] != null && (patent['images'] as List).isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    elevation: 2,
+                    shadowColor: Colors.black.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.white, Color(0xFFFAFAFA)],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.photo_library_outlined,
+                                color: Color(0xFF1E88E5),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Hình ảnh',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1E88E5),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: (patent['images'] as List).length,
+                              itemBuilder: (context, index) {
+                                final image = patent['images'][index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 12),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.network(
+                                      image['file_url'],
+                                      width: 200,
+                                      height: 200,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          width: 200,
+                                          height: 200,
+                                          color: Colors.grey[200],
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 48,
+                                            color: Colors.grey,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           );
@@ -185,26 +415,77 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
     );
   }
 
-  Widget _buildInfoSection(String label, String content) {
+  Widget _buildInfoSection(String title, IconData icon, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: const Color(0xFF1E88E5),
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E88E5),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          content,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
-        ),
+        const SizedBox(height: 20),
+        ...children,
       ],
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E88E5).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: const Color(0xFF1E88E5),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Color(0xFF263238),
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
