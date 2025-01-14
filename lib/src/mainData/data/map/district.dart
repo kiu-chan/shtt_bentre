@@ -4,6 +4,9 @@ import 'package:latlong2/latlong.dart';
 class District {
   final int id;
   final String name;
+  final double area;
+  final int population;
+  final int updated_year;
   final List<List<LatLng>> polygons;
   final Color color;
   bool isVisible;
@@ -11,6 +14,9 @@ class District {
   District({
     required this.id,
     required this.name,
+    required this.area,
+    required this.population,
+    required this.updated_year,
     required this.polygons,
     required this.color,
     this.isVisible = true,
@@ -26,6 +32,9 @@ class District {
     return District(
       id: id ?? this.id,
       name: name ?? this.name,
+      area: area,
+      population: population,
+      updated_year: updated_year,
       polygons: polygons ?? this.polygons,
       color: color ?? this.color,
       isVisible: isVisible ?? this.isVisible,

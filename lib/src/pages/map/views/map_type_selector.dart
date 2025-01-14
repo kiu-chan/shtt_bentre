@@ -44,7 +44,7 @@ class MapTypeSelector extends StatelessWidget {
                 color: Colors.black87,
               ),
               const SizedBox(width: 4),
-              Icon(
+              const Icon(
                 Icons.arrow_drop_down,
                 size: 20,
                 color: Colors.black87,

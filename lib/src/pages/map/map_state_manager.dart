@@ -68,11 +68,11 @@ class MapStateManager {
 
   void toggleLegend() {
     if (isLegendAnimating) return;
-    
+
     isLegendVisible = !isLegendVisible;
     isLegendAnimating = true;
     onStateChanged();
-    
+
     if (isLegendVisible) {
       _legendAnimationController.forward().then((_) {
         isLegendAnimating = false;
@@ -156,16 +156,19 @@ class MapStateManager {
 
   void showDistrictInfo(String name) {
     if (isLegendAnimating) return;
+
+    // Tìm district tương ứng
+    final district = districts.firstWhere((d) => d.name == name);
+
     selectedDistrictName = name;
     selectedCommuneName = null;
     selectedPatent = null;
     selectedTrademark = null;
     onStateChanged();
-    
-    final l10n = AppLocalizations.of(_context)!;
+
     ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(
-        content: Text('${l10n.districtLabel}: $name'),
+        content: Text('Huyện: ${district.name}\nID: ${district.id}'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -178,7 +181,7 @@ class MapStateManager {
     selectedPatent = null;
     selectedTrademark = null;
     onStateChanged();
-    
+
     final l10n = AppLocalizations.of(_context)!;
     ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(

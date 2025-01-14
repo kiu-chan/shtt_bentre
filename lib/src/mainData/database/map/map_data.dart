@@ -173,7 +173,7 @@ class MapData {
     }
   }
 
-    Future<List<District>> loadDistrictData() async {
+  Future<List<District>> loadDistrictData() async {
     try {
       final response = await http.get(Uri.parse(districtsUrl));
       
@@ -190,17 +190,43 @@ class MapData {
       for (var i = 0; i < data['data'].length; i++) {
         final item = data['data'][i];
         try {
+          // Safe number conversions
+          double area = 0.0;
+          if (item['area'] is num) {
+            area = (item['area'] as num).toDouble();
+          } else if (item['area'] is String) {
+            area = double.tryParse(item['area'].toString()) ?? 0.0;
+          }
+
+          int population = 0;
+          if (item['population'] is num) {
+            population = (item['population'] as num).toInt();
+          } else if (item['population'] is String) {
+            population = int.tryParse(item['population'].toString()) ?? 0;
+          }
+
+          int updatedYear = 0;
+          if (item['updated_year'] is num) {
+            updatedYear = (item['updated_year'] as num).toInt();
+          } else if (item['updated_year'] is String) {
+            updatedYear = int.tryParse(item['updated_year'].toString()) ?? 0;
+          }
+
           List<List<LatLng>> polygons = _parseMultiPolygon(item['geom_text']);
           if (polygons.isNotEmpty) {
             districts.add(District(
               id: item['id'],
               name: item['name'],
+              area: area,
+              population: population,
+              updated_year: updatedYear,
               polygons: polygons,
               color: districtColors[i % districtColors.length],
             ));
           }
         } catch (e) {
           print('Error processing district data at index $i: $e');
+          print('Data causing error: ${item.toString()}');
           continue;
         }
       }
