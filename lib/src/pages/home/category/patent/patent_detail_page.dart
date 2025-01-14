@@ -281,14 +281,14 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.description_outlined,
                                 color: Color(0xFF1E88E5),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
+                              SizedBox(width: 8),
+                              Text(
                                 'Tóm tắt',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -350,14 +350,14 @@ class _PatentDetailPageState extends State<PatentDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.photo_library_outlined,
                                 color: Color(0xFF1E88E5),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
+                              SizedBox(width: 8),
+                              Text(
                                 'Hình ảnh',
                                 style: TextStyle(
                                   fontSize: 18,

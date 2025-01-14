@@ -6,7 +6,7 @@ class District {
   final String name;
   final double area;
   final int population;
-  final int updated_year;
+  final int updatedYear;
   final List<List<LatLng>> polygons;
   final Color color;
   bool isVisible;
@@ -16,7 +16,7 @@ class District {
     required this.name,
     required this.area,
     required this.population,
-    required this.updated_year,
+    required this.updatedYear,
     required this.polygons,
     required this.color,
     this.isVisible = true,
@@ -34,7 +34,7 @@ class District {
       name: name ?? this.name,
       area: area,
       population: population,
-      updated_year: updated_year,
+      updatedYear: updatedYear,
       polygons: polygons ?? this.polygons,
       color: color ?? this.color,
       isVisible: isVisible ?? this.isVisible,

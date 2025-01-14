@@ -21,8 +21,6 @@ class MapLegend extends StatelessWidget {
   final String? selectedDistrictName;
   final String? selectedCommuneName;
   final Function(int) onToggleDistrictVisibility;
-  final Function(String) onShowDistrictInfo;
-  final Function(Commune) onShowCommuneInfo;
 
   const MapLegend({
     super.key,
@@ -39,8 +37,6 @@ class MapLegend extends StatelessWidget {
     required this.selectedDistrictName,
     required this.selectedCommuneName,
     required this.onToggleDistrictVisibility,
-    required this.onShowDistrictInfo,
-    required this.onShowCommuneInfo,
   });
 
   @override
@@ -138,7 +134,7 @@ class MapLegend extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => onShowDistrictInfo(district.name),
+        // onTap: () => onShowDistrictInfo(district.name),
         borderRadius: BorderRadius.circular(8),
         child: Opacity(
           opacity: district.isVisible ? 1.0 : 0.5,

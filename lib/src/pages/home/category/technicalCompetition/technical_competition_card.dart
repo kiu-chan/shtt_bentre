@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technical_competition.dart';
-import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_detail_page.dart';
 
 class CompetitionCard extends StatelessWidget {
   final TechnicalCompetitionModel competition;
@@ -55,7 +54,7 @@ class CompetitionCard extends StatelessWidget {
                     ),
                     child: Text(
                       competition.field.length > 20
-                          ? competition.field.substring(0, 20) + '...'
+                          ? '${competition.field.substring(0, 20)}...'
                           : competition.field,
                       style: const TextStyle(
                         color: Color(0xFF512DA8),

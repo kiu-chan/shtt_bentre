@@ -29,7 +29,6 @@ class ChatBubble extends StatelessWidget {
       caseSensitive: false,
     );
 
-    String remainingText = message;
     int lastMatchEnd = 0;
 
     // Tìm tất cả các matches (URL và số điện thoại)

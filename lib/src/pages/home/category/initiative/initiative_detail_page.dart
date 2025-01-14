@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InitiativeDetailPage extends StatefulWidget {
   final String id;
@@ -46,15 +45,14 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Chi tiết sáng kiến',
-          style: const TextStyle(
+          style: TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -243,14 +241,14 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.description_outlined,
                                 color: Color(0xFF1E88E5),
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
+                              SizedBox(width: 8),
+                              Text(
                                 'Mô tả',
                                 style: TextStyle(
                                   fontSize: 18,

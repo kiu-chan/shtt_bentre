@@ -65,8 +65,6 @@ class MapPageView extends StatelessWidget {
   final Function(int) onToggleDistrictVisibility;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
-  final Function(String) onShowDistrictInfo;
-  final Function(Commune) onShowCommuneInfo;
   final Function(Patent) onShowPatentInfo;
   final Function(TrademarkMapModel) onShowTrademarkInfo;
   final Function(IndustrialDesignMapModel) onShowIndustrialDesignInfo;
@@ -119,8 +117,6 @@ class MapPageView extends StatelessWidget {
     required this.onToggleDistrictVisibility,
     required this.onZoomIn,
     required this.onZoomOut,
-    required this.onShowDistrictInfo,
-    required this.onShowCommuneInfo,
     required this.onShowPatentInfo,
     required this.onShowTrademarkInfo,
     required this.onShowIndustrialDesignInfo,
@@ -216,8 +212,6 @@ class MapPageView extends StatelessWidget {
             selectedDistrictName: selectedDistrictName,
             selectedCommuneName: selectedCommuneName,
             onToggleDistrictVisibility: onToggleDistrictVisibility,
-            onShowDistrictInfo: onShowDistrictInfo,
-            onShowCommuneInfo: onShowCommuneInfo,
           ),
         ),
       ),

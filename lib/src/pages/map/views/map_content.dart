@@ -102,7 +102,7 @@ class MapContent extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text('Diện tích: ${district.area} km²'),
                         const SizedBox(height: 8),
-                        Text('Cập nhật lần cuối: ${district.updated_year}'),
+                        Text('Cập nhật lần cuối: ${district.updatedYear}'),
                       ],
                     ),
                     actions: [

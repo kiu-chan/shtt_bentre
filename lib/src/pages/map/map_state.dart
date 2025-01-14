@@ -103,8 +103,6 @@ class MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
      onToggleDistrictVisibility: _stateManager.toggleDistrictVisibility,
      onZoomIn: () => _stateManager.zoom(_mapController, true),
      onZoomOut: () => _stateManager.zoom(_mapController, false),
-     onShowDistrictInfo: _stateManager.showDistrictInfo,
-     onShowCommuneInfo: _stateManager.showCommuneInfo,
      onShowPatentInfo: _stateManager.showPatentInfo,
      onShowTrademarkInfo: _stateManager.showTrademarkInfo,
      onShowIndustrialDesignInfo: _stateManager.showIndustrialDesignInfo,

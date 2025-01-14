@@ -123,7 +123,7 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                               ),
                               child: Text(
                                 project.type.length > 20
-                                    ? project.type.substring(0, 20) + '...'
+                                    ? '${project.type.substring(0, 20)}...'
                                     : project.type,
                                 style: const TextStyle(
                                   color: Color(0xFF7B1FA2),

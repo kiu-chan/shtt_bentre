@@ -89,7 +89,7 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
               strokeWidth: 3,
             ),

@@ -219,7 +219,7 @@ class MapData {
               name: item['name'],
               area: area,
               population: population,
-              updated_year: updatedYear,
+              updatedYear: updatedYear,
               polygons: polygons,
               color: districtColors[i % districtColors.length],
             ));
