@@ -6,6 +6,7 @@ import 'package:shtt_bentre/src/mainData/config/map.dart';
 import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
 import 'package:shtt_bentre/src/mainData/data/map/district.dart';
+import 'package:shtt_bentre/src/mainData/data/map/map_type.dart';
 import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
 import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/commune_info_card.dart';

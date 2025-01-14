@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shtt_bentre/src/mainData/config/map.dart';
+import 'package:shtt_bentre/src/mainData/data/map/map_type.dart';
 
 class MapTypeSelector extends StatelessWidget {
   final MapType currentMapType;

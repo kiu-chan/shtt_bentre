@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shtt_bentre/src/mainData/config/file_path.dart';
 import 'package:shtt_bentre/src/mainData/config/map.dart';
 import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
+import 'package:shtt_bentre/src/mainData/data/map/map_type.dart';
 import 'package:shtt_bentre/src/mainData/data/map/patent.dart';
 import 'package:shtt_bentre/src/mainData/data/map/trademark.dart';
 import 'package:shtt_bentre/src/pages/map/map_utils.dart';

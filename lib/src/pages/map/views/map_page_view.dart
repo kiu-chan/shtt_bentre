@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shtt_bentre/src/mainData/config/file_path.dart';
 import 'package:shtt_bentre/src/mainData/config/map.dart';
 import 'package:shtt_bentre/src/mainData/data/map/industrial_design.dart';
 import 'package:shtt_bentre/src/mainData/data/map/commune.dart';
