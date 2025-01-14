@@ -16,8 +16,9 @@ import 'package:shtt_bentre/src/pages/map/views/map_controls.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/patent_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/info_cart/trademark_info_card.dart';
 import 'package:shtt_bentre/src/pages/map/right_menu.dart';
-import 'package:shtt_bentre/src/pages/map/map_utils.dart';
 import 'package:shtt_bentre/src/pages/map/search/map_search.dart';
+import 'package:shtt_bentre/src/pages/map/views/map_content.dart';
+import 'package:shtt_bentre/src/pages/map/views/map_type_selector.dart';
 
 class MapPageView extends StatelessWidget {
  final MapController mapController;
@@ -139,7 +140,28 @@ class MapPageView extends StatelessWidget {
    return Scaffold(
      body: Stack(
        children: [
-         _buildMap(),
+         MapContent(
+           mapController: mapController,
+           currentZoom: currentZoom,
+           center: center,
+           currentMapType: currentMapType,
+           isPatentEnabled: isPatentEnabled,
+           isTrademarkEnabled: isTrademarkEnabled,
+           isIndustrialDesignEnabled: isIndustrialDesignEnabled,
+           patents: patents,
+           trademarks: trademarks,
+           industrialDesigns: industrialDesigns,
+           selectedPatent: selectedPatent,
+           selectedTrademark: selectedTrademark,
+           selectedIndustrialDesign: selectedIndustrialDesign,
+           onShowPatentInfo: onShowPatentInfo,
+           onShowTrademarkInfo: onShowTrademarkInfo,
+           onShowIndustrialDesignInfo: onShowIndustrialDesignInfo,
+           onMapTap: onMapTap,
+           onZoomChanged: onZoomChanged,
+           polygons: polygons,
+           borderLines: borderLines,
+         ),
          MapSearchBar(
            onLocationSelected: _onLocationSelected,
            isRightMenuOpen: isRightMenuOpen,
@@ -162,191 +184,12 @@ class MapPageView extends StatelessWidget {
            isTrademarkLoading: isTrademarkLoading,
            isIndustrialDesignLoading: isIndustrialDesignLoading,
          ),
-         _buildMapTypeSelector(context),
+         MapTypeSelector(
+           currentMapType: currentMapType, 
+           onChangeMapType: onChangeMapType
+         ),
        ],
      ),
-   );
- }
-
-Widget _buildMapTypeSelector(BuildContext context) {
-  return Positioned(
-    right: 16,
-    top: MediaQuery.of(context).padding.top + 80, // Dịch xuống dưới thanh search và nút menu
-    child: PopupMenuButton<MapType>(
-      onSelected: onChangeMapType,
-      offset: const Offset(0, 40), // Điều chỉnh menu popup hiện phía dưới
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Icon(
-              currentMapType == MapType.streets 
-                ? Icons.map
-                : currentMapType == MapType.satellite
-                  ? Icons.satellite 
-                  : Icons.terrain,
-              size: 20,
-              color: Colors.black87, 
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.arrow_drop_down,
-              size: 20,
-              color: Colors.black87,
-            ),
-          ],
-        ),
-      ),
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<MapType>>[
-        const PopupMenuItem<MapType>(
-          value: MapType.streets,
-          child: Row(
-            children: [
-              Icon(Icons.map, size: 20),
-              SizedBox(width: 12),
-              Text('Đường phố'),
-            ],
-          ),
-        ),
-        const PopupMenuItem<MapType>(
-          value: MapType.satellite,
-          child: Row(
-            children: [
-              Icon(Icons.satellite, size: 20),  
-              SizedBox(width: 12),
-              Text('Vệ tinh'),
-            ],
-          ),
-        ),
-        const PopupMenuItem<MapType>(
-          value: MapType.terrain,
-          child: Row(
-            children: [
-              Icon(Icons.terrain, size: 20),
-              SizedBox(width: 12), 
-              Text('Địa hình'),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
- Widget _buildMapTypeButton({
-   required IconData icon,
-   required String label,
-   required MapType mapType,
- }) {
-   return InkWell(
-     onTap: () => onChangeMapType(mapType),
-     child: Padding(
-       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-       child: Row(
-         mainAxisSize: MainAxisSize.min,
-         children: [
-           Icon(icon, size: 20),
-           const SizedBox(width: 8),
-           Text(label),
-           if (currentMapType == mapType) const Icon(Icons.check, size: 16),
-         ],
-       ),
-     ),
-   );
- }
-
- Widget _buildMap() {
-   return FlutterMap(
-     mapController: mapController,
-     options: MapOptions(
-       center: center,
-       zoom: currentZoom,
-       onTap: onMapTap,
-       onPositionChanged: (position, hasGesture) {
-         if (hasGesture && position.zoom != null) {
-           onZoomChanged(position.zoom!);
-         }
-       },
-     ),
-     children: [
-       TileLayer(
-         urlTemplate: currentMapType == MapType.streets
-             ? MapConfig.streetsMapUrl
-             : currentMapType == MapType.satellite
-                 ? MapConfig.satelliteMapUrl
-                 : MapConfig.terrainMapUrl,
-         userAgentPackageName: MapConfig.mapPackage,
-       ),
-       PolygonLayer(polygons: polygons),
-       if (borderLines.isNotEmpty) PolylineLayer(polylines: borderLines),
-       if (isPatentEnabled) _buildClusteredMarkers<Patent>(
-         patents,
-         isPatentEnabled,
-         FilePath.patentPath,
-         onShowPatentInfo,
-         selectedPatent,
-       ),
-       if (isTrademarkEnabled) _buildClusteredMarkers<TrademarkMapModel>(
-         trademarks,
-         isTrademarkEnabled,
-         FilePath.trademarkPath,
-         onShowTrademarkInfo,
-         selectedTrademark,
-       ),
-       if (isIndustrialDesignEnabled) _buildClusteredMarkers<IndustrialDesignMapModel>(
-         industrialDesigns,
-         isIndustrialDesignEnabled,
-         FilePath.industrialDesignPath,
-         onShowIndustrialDesignInfo,
-         selectedIndustrialDesign,
-       ),
-     ],
-   );
- }
-
- Widget _buildClusteredMarkers<T>(
-   List<T> items,
-   bool isEnabled,
-   String assetPath,
-   Function(T) onShowInfo,
-   T? selectedItem) {
-   if (!isEnabled || items.isEmpty) return const SizedBox.shrink();
-
-   final allPoints = items.map((item) => (item as dynamic).location as LatLng).toList();
-   final visiblePoints = MapUtils.clusterPoints(allPoints, currentZoom);
-
-   return MarkerLayer(
-     markers: visiblePoints.map((point) {
-       final item = items.firstWhere(
-         (item) => (item as dynamic).location.latitude == point.latitude 
-                 && (item as dynamic).location.longitude == point.longitude
-       );
-
-       return Marker(
-         width: 30.0,
-         height: 30.0,
-         point: point,
-         builder: (ctx) => GestureDetector(
-           onTap: () => onShowInfo(item),
-           child: Image.asset(
-             assetPath,
-             width: (selectedItem as dynamic)?.id == (item as dynamic).id ? 30 : 24,
-             height: (selectedItem as dynamic)?.id == (item as dynamic).id ? 30 : 24,
-           ),
-         ),
-       );
-     }).toList(),
    );
  }
 

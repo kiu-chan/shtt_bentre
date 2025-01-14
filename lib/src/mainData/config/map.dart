@@ -37,5 +37,17 @@ class MapConfig {
 
  static double mapSearch = 18.0;
  static String mapUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+ 
+  static const String streetsMapUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  
+  static const String satelliteMapUrl = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+  
+  static const String terrainMapUrl = 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}';
  static String mapPackage = 'com.example.app';
+}
+
+enum MapType {
+  streets,    // Bản đồ đường phố
+  satellite,  // Bản đồ vệ tinh
+  terrain     // Bản đồ địa hình
 }

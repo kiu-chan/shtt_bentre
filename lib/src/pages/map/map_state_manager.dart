@@ -34,6 +34,7 @@ class MapStateManager {
   Patent? selectedPatent;
   TrademarkMapModel? selectedTrademark;
   IndustrialDesignMapModel? selectedIndustrialDesign;
+  MapType currentMapType = MapType.streets;
 
   MapStateManager({
     required this.vsync,
@@ -82,6 +83,11 @@ class MapStateManager {
         onStateChanged();
       });
     }
+  }
+
+  void changeMapType(MapType newType) {
+    currentMapType = newType;
+    onStateChanged();
   }
 
   void toggleRightMenu() {
