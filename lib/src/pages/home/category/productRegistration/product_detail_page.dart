@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String id;
@@ -40,14 +41,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chi tiết sản phẩm',
-          style: TextStyle(
+        title: Text(
+          l10n.productDetailTitle,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -75,7 +77,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -85,7 +87,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         _productFuture = fetchProductDetail();
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -93,7 +95,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           }
 
           final product = snapshot.data!;
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -137,18 +138,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   width: 1,
                                 ),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.business_center,
                                     size: 16,
                                     color: Color(0xFFE65100),
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    'Sản phẩm',
-                                    style: TextStyle(
+                                    l10n.productCard,
+                                    style: const TextStyle(
                                       color: Color(0xFFE65100),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -159,7 +160,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                             const Spacer(),
                             Text(
-                              'Mã: ${product['id'] ?? ''}',
+                              '${l10n.numberLabel}: ${product['id'] ?? ''}',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 12,
@@ -195,9 +196,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thông tin chủ sở hữu',
-                          style: TextStyle(
+                        Text(
+                          l10n.ownerInformation,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -206,25 +207,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
                         _buildInfoRow(
                           Icons.business,
-                          'Chủ sở hữu',
+                          l10n.ownerLabel,
                           product['owner'] ?? '',
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.location_on,
-                          'Địa chỉ',
+                          l10n.addressLabel,
                           product['address'] ?? '',
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.person,
-                          'Đại diện pháp luật',
+                          l10n.legalRepLabel,
                           product['representatives'] ?? '',
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.contact_phone,
-                          'Liên hệ',
+                          l10n.contactLabel,
                           product['contact'] ?? '',
                         ),
                       ],
@@ -245,9 +246,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thời gian',
-                          style: TextStyle(
+                        Text(
+                          l10n.timeLabel,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -256,7 +257,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
                         _buildTimelineRow(
                           Icons.add_circle_outline,
-                          'Ngày đăng ký',
+                          l10n.registrationDate,
                           _formatDateTime(product['created_at']),
                           isFirst: true,
                           isLast: product['updated_at'] == null,
@@ -264,7 +265,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         if (product['updated_at'] != null)
                           _buildTimelineRow(
                             Icons.update,
-                            'Cập nhật lúc',
+                            l10n.updatedAtLabel,
                             _formatDateTime(product['updated_at']),
                             isFirst: false,
                             isLast: true,
@@ -288,9 +289,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Thông tin bổ sung',
-                            style: TextStyle(
+                          Text(
+                            l10n.additionalInfoTitle,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E88E5),
@@ -424,7 +425,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildSection(String title, dynamic content) {
-    String displayContent = 'Không có thông tin';
+    final l10n = AppLocalizations.of(context)!;
+    String displayContent = l10n.noInformation;
     
     if (content != null) {
       if (content is List && content.isNotEmpty) {

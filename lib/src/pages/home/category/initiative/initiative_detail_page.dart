@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/config/format.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InitiativeDetailPage extends StatefulWidget {
   final String id;
@@ -45,14 +46,15 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chi tiết sáng kiến',
-          style: TextStyle(
+        title: Text(
+          l10n.initiativeDetailTitle,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -80,7 +82,7 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -90,7 +92,7 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
                         _initiativeFuture = _service.fetchInitiativeDetail(widget.id);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -185,32 +187,32 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
                         ),
                         const SizedBox(height: 24),
                         _buildInfoSection(
-                          'Thông tin chung',
+                          l10n.overviewSection,
                           Icons.info_outline,
                           [
                             _buildInfoRow(
                               Icons.edit,
-                              'Tác giả',
+                              l10n.designerLabel,
                               initiative['author'] ?? '',
                             ),
                             _buildInfoRow(
                               Icons.person,
-                              'Chủ sở hữu',
+                              l10n.ownerLabel,
                               initiative['owner'] ?? '',
                             ),
                             _buildInfoRow(
                               Icons.location_on,
-                              'Địa chỉ',
+                              l10n.addressLabel,
                               initiative['address'] ?? '',
                             ),
                             _buildInfoRow(
                               Icons.calendar_today,
-                              'Ngày tạo',
+                              l10n.createDateLabel,
                               _formatDate(createdAt),
                             ),
                             _buildInfoRow(
                               Icons.schedule,
-                              'Năm công nhận',
+                              l10n.recognitionYearLabel,
                               initiative['recognition_year']?.toString() ?? '',
                             ),
                           ],
@@ -241,16 +243,16 @@ class _InitiativeDetailPageState extends State<InitiativeDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.description_outlined,
                                 color: Color(0xFF1E88E5),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
-                                'Mô tả',
-                                style: TextStyle(
+                                l10n.descriptionLabel,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF1E88E5),

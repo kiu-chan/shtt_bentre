@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/product/product.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductRegistrationCard extends StatelessWidget {
   final ProductRegistrationModel product;
@@ -11,6 +12,7 @@ class ProductRegistrationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -46,18 +48,18 @@ class ProductRegistrationCard extends StatelessWidget {
                       width: 1,
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.business_center,
                         size: 16,
                         color: Color(0xFFE65100),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
-                        'Sản phẩm',
-                        style: TextStyle(
+                        l10n.productCard,
+                        style: const TextStyle(
                           color: Color(0xFFE65100),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -68,7 +70,7 @@ class ProductRegistrationCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'Mã: ${product.id}',
+                  '${l10n.numberLabel}: ${product.id}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 12,
@@ -110,7 +112,7 @@ class ProductRegistrationCard extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Chủ sở hữu: ${product.owner}',
+                          '${l10n.ownerLabel}: ${product.owner}',
                           style: const TextStyle(
                             color: Color(0xFF455A64),
                             fontSize: 14,
@@ -153,7 +155,7 @@ class ProductRegistrationCard extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Đại diện: ${product.representative}',
+                          '${l10n.representativeLabel}: ${product.representative}',
                           style: const TextStyle(
                             color: Color(0xFF455A64),
                             fontSize: 14,
@@ -185,7 +187,7 @@ class ProductRegistrationCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Thời gian: ${DateFormat('dd.MM.yyyy HH:mm').format(product.createdAt)}',
+                    '${l10n.time}: ${DateFormat('dd.MM.yyyy HH:mm').format(product.createdAt)}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,

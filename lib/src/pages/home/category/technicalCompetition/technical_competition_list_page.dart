@@ -4,6 +4,7 @@ import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technica
 import 'package:shtt_bentre/src/mainData/database/home/technical_competition.dart';
 import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/technicalCompetition/technical_competition_filter_menu.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TechnicalCompetitionListPage extends StatefulWidget {
   const TechnicalCompetitionListPage({super.key});
@@ -197,13 +198,14 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên, đơn vị...',
+          hintText: l10n.searchCompetitionPlaceholder,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -235,13 +237,14 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
 
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
+          Text(
+            '${l10n.filtering}:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
@@ -287,7 +290,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -303,6 +306,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -313,10 +317,7 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            _isSearching || _isFiltered
-                ? 'Không tìm thấy hồ sơ phù hợp'
-                : 'Không có dữ liệu hội thi',
+          Text(l10n.noMatchingResults,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -340,14 +341,15 @@ class _TechnicalCompetitionListPageState extends State<TechnicalCompetitionListP
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Hội thi sáng tạo kỹ thuật',
-          style: TextStyle(
+        title: Text(
+          l10n.technicalCompetitions,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,

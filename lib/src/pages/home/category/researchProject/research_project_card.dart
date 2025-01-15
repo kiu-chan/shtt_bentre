@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResearchProjectCard extends StatelessWidget {
   final ResearchProjectModel project;
@@ -11,6 +12,7 @@ class ResearchProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -142,7 +144,7 @@ class ResearchProjectCard extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Nhà nghiên cứu: ${project.researcher}',
+                                '${l10n.researcher}: ${project.researcher}',
                                 style: const TextStyle(
                                   color: Color(0xFF455A64),
                                   fontSize: 14,
@@ -163,7 +165,7 @@ class ResearchProjectCard extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Tổ chức: ${project.organization}',
+                                '${l10n.organizationLabel}: ${project.organization}',
                                 style: const TextStyle(
                                   color: Color(0xFF455A64),
                                   fontSize: 14,
@@ -195,7 +197,7 @@ class ResearchProjectCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Ngày bắt đầu: ${DateFormat('dd.MM.yyyy').format(project.startDate)}',
+                          '${l10n.startDate}: ${DateFormat('dd.MM.yyyy').format(project.startDate)}',
                           style: const TextStyle(
                             color: Color(0xFF1565C0),
                             fontSize: 13,

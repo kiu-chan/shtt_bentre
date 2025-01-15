@@ -5,6 +5,7 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_detail_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/initiative/initiative_filter_menu.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InitiativeListPage extends StatefulWidget {
   const InitiativeListPage({super.key});
@@ -196,13 +197,14 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên, tác giả, chủ sở hữu, địa chỉ...',
+          hintText: l10n.enterSearchContent,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -234,14 +236,15 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
 
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
-            style: TextStyle(
+          Text(
+            '${l10n.filtering}:',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
             ),
@@ -253,7 +256,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
               children: [
                 if (_selectedYear != null)
                   Chip(
-                    label: Text('Năm $_selectedYear'),
+                    label: Text('${l10n.year} $_selectedYear'),
                     onDeleted: () {
                       setState(() {
                         _selectedYear = null;
@@ -266,7 +269,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -282,6 +285,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -292,10 +296,7 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            _isSearching || _isFiltered
-                ? 'Không tìm thấy sáng kiến phù hợp'
-                : 'Không có dữ liệu sáng kiến',
+          Text(l10n.noDataAvailable,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -318,14 +319,15 @@ class _InitiativeListPageState extends State<InitiativeListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Sáng kiến',
-          style: TextStyle(
+        title: Text(
+          l10n.initiatives,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,

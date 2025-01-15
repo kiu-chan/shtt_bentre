@@ -5,6 +5,7 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_detail_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/productRegistration/product_filter_menu.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductRegistrationListPage extends StatefulWidget {
   const ProductRegistrationListPage({super.key});
@@ -196,13 +197,14 @@ class _ProductRegistrationListPageState extends State<ProductRegistrationListPag
   }
 
 Widget _buildSearchBar() {
+  final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm theo tên dự án, lĩnh vực, nhà nghiên cứu, đơn vị, năm...',
+          hintText: l10n.searchProductPlaceholder,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -234,13 +236,14 @@ Widget _buildSearchBar() {
 
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
+          Text(
+            '${l10n.filtering}:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
@@ -276,7 +279,7 @@ Widget _buildSearchBar() {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -292,6 +295,7 @@ Widget _buildSearchBar() {
   }
 
   Widget _buildEmptyState(bool isFiltered) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -302,10 +306,7 @@ Widget _buildSearchBar() {
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            isFiltered
-                ? 'Không tìm thấy sản phẩm phù hợp'
-                : 'Không có dữ liệu sản phẩm',
+          Text(l10n.noResultsFound,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -318,14 +319,14 @@ Widget _buildSearchBar() {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Sản phẩm đăng ký xây dựng',
-          style: TextStyle(
+        title: Text(l10n.productRegistrations,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,

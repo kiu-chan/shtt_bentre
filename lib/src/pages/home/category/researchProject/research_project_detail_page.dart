@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/researchProject/research_project.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResearchProjectDetailPage extends StatefulWidget {
   final String id;
@@ -24,14 +25,15 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chi tiết dự án nghiên cứu',
-          style: TextStyle(
+        title: Text(
+          l10n.researchProjectDetailTitle,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -59,7 +61,7 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -69,7 +71,7 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                         _projectFuture = _service.fetchResearchProjectDetail(widget.id);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -184,9 +186,9 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Thông tin nghiên cứu',
-                          style: TextStyle(
+                        Text(
+                          l10n.researchInformation,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -195,13 +197,13 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                         const SizedBox(height: 16),
                         _buildInfoRow(
                           Icons.person,
-                          'Chủ nhiệm dự án',
+                          l10n.researcherLabel,
                           project.researcher,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.business,
-                          'Tổ chức/cơ sở nghiên cứu',
+                          l10n.organizationLabel,
                           project.organization,
                         ),
                       ],
@@ -222,9 +224,9 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Chi tiết dự án',
-                          style: TextStyle(
+                        Text(
+                          l10n.projectDetails,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -233,38 +235,38 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                         const SizedBox(height: 16),
                         _buildInfoRow(
                           Icons.calendar_today,
-                          'Ngày bắt đầu',
+                          l10n.startDate,
                           DateFormat('dd/MM/yyyy').format(project.startDate),
                         ),
                         const Divider(height: 24),
                         _buildDescriptionSection(
-                          'Công tác/viên đối tác',
-                          'Chưa có thông tin',
+                          l10n.contactInfoLabel,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Nguồn tài trợ',
-                          'Chưa có thông tin',
+                          l10n.fundingSourceLabel,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Ngành/chuyên ngành dự án',
-                          'Chưa có thông tin',
+                          l10n.projectFieldLabel,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Mục tiêu dự án',
-                          'Chưa có thông tin',
+                          l10n.projectObjectiveLabel,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Tác động và ứng dụng thực tiễn',
-                          'Chưa có thông tin',
+                          l10n.impactLabel,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Nội dung',
-                          'Chưa có thông tin',
+                          l10n.message,
+                          l10n.noIn4,
                         ),
                       ],
                     ),
@@ -284,9 +286,9 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Tài liệu và ấn phẩm',
-                          style: TextStyle(
+                        Text(
+                          l10n.document,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E88E5),
@@ -294,18 +296,18 @@ class ResearchProjectDetailPageState extends State<ResearchProjectDetailPage> {
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Các ấn phẩm khoa học liên quan',
-                          'Chưa có thông tin',
+                          l10n.scientificRelatedPublications,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Bằng sáng chế liên quan',
-                          'Chưa có thông tin',
+                          l10n.relatedPatents,
+                          l10n.noIn4,
                         ),
                         const SizedBox(height: 16),
                         _buildDescriptionSection(
-                          'Các tài liệu đối chứng',
-                          'Chưa có thông tin',
+                          l10n.referenceDocuments,
+                          l10n.noIn4,
                         ),
                       ],
                     ),

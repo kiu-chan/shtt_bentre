@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TechnicalCompetitionFilterMenu extends StatelessWidget {
   final String? selectedYear;
@@ -30,42 +31,43 @@ class TechnicalCompetitionFilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Bộ lọc'),
+      title: Text(l10n.filter),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Năm:'),
+            Text('${l10n.year}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedYear,
-              hint: const Text('Chọn năm'),
+              hint: Text(l10n.selectYear),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableYears.map((year) {
                   return DropdownMenuItem<String>(
                     value: year['year'].toString(),
-                    child: Text('${year['year']} (${year['count']} hồ sơ)'),
+                    child: Text('${year['year']} (${year['count']} ${l10n.awardCount})'),
                   );
                 }),
               ],
               onChanged: onYearChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Lĩnh vực:'),
+            Text('${l10n.fieldLabel}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedField,
-              hint: const Text('Chọn lĩnh vực'),
+              hint: Text(l10n.selectField),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableFields.map((field) {
                   return DropdownMenuItem<String>(
@@ -77,21 +79,21 @@ class TechnicalCompetitionFilterMenu extends StatelessWidget {
               onChanged: onFieldChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Giải thưởng:'),
+            Text(l10n.rank),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedRank,
-              hint: const Text('Chọn giải thưởng'),
+              hint: Text(l10n.selectRank),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableRanks.map((rank) {
                   // Lưu giá trị chữ thường vào value
                   return DropdownMenuItem<String>(
                     value: rank['rank'].toString().toLowerCase(),
-                    child: Text('${rank['rank']} (${rank['count']} hồ sơ)'),
+                    child: Text('${rank['rank']} (${rank['count']} ${l10n.awardCount})'),
                   );
                 }),
               ],
@@ -103,11 +105,11 @@ class TechnicalCompetitionFilterMenu extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: const Text('Hủy'),
+          child: Text(l10n.cancel),
         ),
         TextButton(
           onPressed: onApply,
-          child: const Text('Áp dụng'),
+          child: Text(l10n.apply),
         ),
       ],
     );

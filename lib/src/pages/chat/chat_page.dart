@@ -50,7 +50,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to initialize chat service: $e'),
+            content: Text(TextConfig.errorMessage),
             backgroundColor: Colors.red.shade400,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
@@ -77,7 +77,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     if (!_isInitialized || dialogFlowtter == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Chat service is not ready yet. Please try again.'),
+          content: const Text(TextConfig.errorMessage),
           backgroundColor: Colors.orange.shade400,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -115,7 +115,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
         setState(() {
           _messages.add(
             ChatMessage(
-              message: response?.message?.text?.text?[0] ?? "No response",
+              message: response?.message?.text?.text?[0] ?? TextConfig.noRep,
               isUser: false,
               timestamp: DateTime.now(),
             ),
@@ -136,7 +136,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
       _isLoading = false;
       _messages.add(
         ChatMessage(
-          message: "Sorry, I encountered an error. Please try again.",
+          message: TextConfig.tryAgain,
           isUser: false,
           timestamp: DateTime.now(),
         ),
@@ -349,7 +349,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: "Type a message...",
+                        hintText: TextConfig.messInput,
                         hintStyle: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 15,

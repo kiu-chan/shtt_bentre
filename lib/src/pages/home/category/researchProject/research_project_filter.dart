@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResearchProjectFilterMenu extends StatelessWidget {
   final String? selectedField;
@@ -24,36 +25,37 @@ class ResearchProjectFilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Bộ lọc'),
+      title: Text(l10n.filter),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Lĩnh vực:'),
+            Text('${l10n.fieldLabel}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedField,
-              hint: const Text('Chọn lĩnh vực'),
+              hint: Text(l10n.selectField),
               items: [null, ...availableFields].map((String? value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value ?? 'Tất cả'),
+                  child: Text(value ?? l10n.all),
                 );
               }).toList(),
               onChanged: onFieldChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Năm:'),
+            Text('${l10n.year}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedYear,
-              hint: const Text('Chọn năm'),
+              hint: Text(l10n.selectYear),
               items: [null, ...availableYears].map((String? value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value ?? 'Tất cả'),
+                  child: Text(value ?? l10n.all),
                 );
               }).toList(),
               onChanged: onYearChanged,
@@ -64,11 +66,11 @@ class ResearchProjectFilterMenu extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: const Text('Hủy'),
+          child: Text(l10n.cancel),
         ),
         TextButton(
           onPressed: onApply,
-          child: const Text('Áp dụng'),
+          child: Text(l10n.apply),
         ),
       ],
     );

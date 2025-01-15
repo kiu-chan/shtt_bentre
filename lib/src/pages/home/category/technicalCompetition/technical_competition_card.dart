@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technical_competition.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompetitionCard extends StatelessWidget {
   final TechnicalCompetitionModel competition;
@@ -8,6 +9,7 @@ class CompetitionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () {
         // Navigator.push(
@@ -124,7 +126,7 @@ class CompetitionCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Đơn vị: ${competition.organization}',
+                        '${l10n.organizationLabel}: ${competition.organization}',
                         style: const TextStyle(
                           color: Color(0xFF455A64),
                           fontSize: 14,
@@ -155,7 +157,7 @@ class CompetitionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Năm thi: ${competition.year}',
+                      '${l10n.competitionYearLabel}: ${competition.year}',
                       style: const TextStyle(
                         color: Color(0xFF1565C0),
                         fontSize: 13,

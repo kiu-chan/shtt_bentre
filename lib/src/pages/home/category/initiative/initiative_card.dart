@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shtt_bentre/src/mainData/data/home/initiative/initiative.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class InitiativeCard extends StatelessWidget {
   final InitiativeModel initiative;
@@ -10,6 +11,7 @@ class InitiativeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -112,7 +114,7 @@ class InitiativeCard extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Tác giả: ${initiative.author}',
+                          '${l10n.inventorLabel}: ${initiative.author}',
                           style: const TextStyle(
                             color: Color(0xFF455A64),
                             fontSize: 14,
@@ -133,7 +135,7 @@ class InitiativeCard extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Chủ sở hữu: ${initiative.owner}',
+                          '${l10n.ownerLabel}: ${initiative.owner}',
                           style: const TextStyle(
                             color: Color(0xFF455A64),
                             fontSize: 14,
@@ -185,7 +187,7 @@ class InitiativeCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Năm công nhận: ${initiative.recognitionYear}',
+                    '${l10n.recognitionYearLabel}: ${initiative.recognitionYear}',
                     style: const TextStyle(
                       color: Color(0xFF1565C0),
                       fontSize: 13,

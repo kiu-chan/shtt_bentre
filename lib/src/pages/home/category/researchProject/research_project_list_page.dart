@@ -4,6 +4,7 @@ import 'package:shtt_bentre/src/mainData/database/databases.dart';
 import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/researchProject/research_project_detail_page.dart';
 import 'dart:async';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResearchProjectListPage extends StatefulWidget {
   const ResearchProjectListPage({super.key});
@@ -149,24 +150,25 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Bộ lọc'),
+              title: Text(l10n.filter),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Lĩnh vực:'),
+                    Text('${l10n.fieldLabel}:'),
                     DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedType,
-                      hint: const Text('Chọn lĩnh vực'),
+                      hint: Text(l10n.selectField),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: null,
-                          child: Text('Tất cả'),
+                          child: Text(l10n.all),
                         ),
                         ..._availableTypes.map((type) {
                           return DropdownMenuItem<String>(
@@ -178,15 +180,15 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
                       onChanged: (value) => setState(() => _selectedType = value),
                     ),
                     const SizedBox(height: 16),
-                    const Text('Năm:'),
+                    Text('${l10n.year}:'),
                     DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedYear,
-                      hint: const Text('Chọn năm'),
+                      hint: Text(l10n.selectYear),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: null,
-                          child: Text('Tất cả'),
+                          child: Text(l10n.all),
                         ),
                         ..._availableYears.map((year) {
                           return DropdownMenuItem<String>(
@@ -203,14 +205,14 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy'),
+                  child: Text(l10n.cancel),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                     _applyFilters();
                   },
-                  child: const Text('Áp dụng'),
+                  child: Text(l10n.apply),
                 ),
               ],
             );
@@ -238,13 +240,14 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên dự án, nhà nghiên cứu...',
+          hintText: l10n.searchProjectPlaceholder,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -276,13 +279,13 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
 
   Widget _buildActiveFilters() {
     if (!_isFiltered) return const SizedBox.shrink();
-
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
+          Text(
+            '${l10n.filtering}:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
@@ -318,7 +321,7 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -334,6 +337,7 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -344,10 +348,7 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            _isSearching || _isFiltered
-                ? 'Không tìm thấy dự án phù hợp'
-                : 'Chưa có dự án nghiên cứu nào',
+          Text(l10n.noMatchingResults,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -369,14 +370,15 @@ class _ResearchProjectListPageState extends State<ResearchProjectListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'NCKH & ĐMST',
-          style: TextStyle(
+        title: Text(
+          l10n.scienceAndInnovation,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,

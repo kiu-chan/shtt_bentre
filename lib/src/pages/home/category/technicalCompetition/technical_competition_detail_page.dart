@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/technicalCompetition/technical_competition.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TechnicalCompetitionDetailPage extends StatelessWidget {
   final TechnicalCompetitionModel competition;
@@ -11,6 +12,7 @@ class TechnicalCompetitionDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -32,11 +34,11 @@ class TechnicalCompetitionDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoSection('Đơn vị:', competition.organization),
-            _buildInfoSection('Lĩnh vực:', competition.field),
-            _buildInfoSection('Ngày nộp hồ sơ:', DateFormat('dd/MM/yyyy').format(DateTime.parse(competition.submissionDate))),
-            _buildInfoSection('Năm thi:', competition.year.toString()),  
-            _buildInfoSection('Giải:', competition.resultStatus),
+            _buildInfoSection('${l10n.organizationLabel}:', competition.organization),
+            _buildInfoSection('${l10n.chartField}:', competition.field),
+            _buildInfoSection('${l10n.submissionDateLabel}:', DateFormat('dd/MM/yyyy').format(DateTime.parse(competition.submissionDate))),
+            _buildInfoSection('${l10n.competitionYearLabel}:', competition.year.toString()),  
+            _buildInfoSection('${l10n.resultLabel}:', competition.resultStatus),
 
             // Hiển thị các thông tin khác nếu có
           ],
