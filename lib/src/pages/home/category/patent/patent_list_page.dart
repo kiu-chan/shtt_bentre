@@ -4,6 +4,7 @@ import 'package:shtt_bentre/src/mainData/database/home/patents.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_card.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_detail_page.dart';
 import 'package:shtt_bentre/src/pages/home/category/patent/patent_filter_menu.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PatentListPage extends StatefulWidget {
   const PatentListPage({super.key});
@@ -171,13 +172,14 @@ class _PatentListPageState extends State<PatentListPage> {
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên, chủ sở hữu, số đơn...',
+          hintText: l10n.enterSearchContent,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -219,9 +221,9 @@ class _PatentListPageState extends State<PatentListPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.filter,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
             ),
@@ -243,7 +245,7 @@ class _PatentListPageState extends State<PatentListPage> {
                   ),
                 if (_selectedYear != null)
                   Chip(
-                    label: Text('Năm $_selectedYear'),
+                    label: Text('${AppLocalizations.of(context)!.year} $_selectedYear'),
                     onDeleted: () {
                       setState(() {
                         _selectedYear = null;
@@ -266,7 +268,7 @@ class _PatentListPageState extends State<PatentListPage> {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
         ],
       ),
@@ -280,9 +282,9 @@ class _PatentListPageState extends State<PatentListPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Sáng chế toàn văn',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.inventions,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -343,13 +345,13 @@ class _PatentListPageState extends State<PatentListPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
+                            '${AppLocalizations.of(context)!.error}: ${snapshot.error}',
                             style: const TextStyle(color: Colors.red),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _refreshPatents,
-                            child: const Text('Thử lại'),
+                            child: Text(AppLocalizations.of(context)!.tryAgain),
                           ),
                         ],
                       ),
@@ -368,7 +370,7 @@ class _PatentListPageState extends State<PatentListPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Không tìm thấy sáng chế phù hợp',
+                            AppLocalizations.of(context)!.noDataAvailable,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -380,8 +382,8 @@ class _PatentListPageState extends State<PatentListPage> {
                   }
 
                   if (_filteredPatents.isEmpty) {
-                    return const Center(
-                      child: Text('Không có dữ liệu sáng chế'),
+                    return Center(
+                      child: Text(AppLocalizations.of(context)!.noDataAvailable),
                     );
                   }
 

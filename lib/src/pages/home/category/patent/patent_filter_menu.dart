@@ -1,5 +1,5 @@
-// patent_filter_menu.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PatentFilterMenu extends StatelessWidget {
   final String? selectedField;
@@ -32,49 +32,49 @@ class PatentFilterMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Bộ lọc'),
+      title: Text(AppLocalizations.of(context)!.filter),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Lĩnh vực:'),
+            Text('${AppLocalizations.of(context)!.field}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedField,
-              hint: const Text('Chọn lĩnh vực'),
+              hint: Text(AppLocalizations.of(context)!.selectField),
               items: [null, ...availableFields].map((String? value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value ?? 'Tất cả'),
+                  child: Text(value ?? AppLocalizations.of(context)!.all),
                 );
               }).toList(),
               onChanged: onFieldChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Năm:'),
+            Text('${AppLocalizations.of(context)!.year}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedYear,
-              hint: const Text('Chọn năm'),
+              hint: Text(AppLocalizations.of(context)!.selectYear),
               items: [null, ...availableYears].map((String? value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value ?? 'Tất cả'),
+                  child: Text(value ?? AppLocalizations.of(context)!.all),
                 );
               }).toList(),
               onChanged: onYearChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Huyện:'),
+            Text('${AppLocalizations.of(context)!.districtLabel}:'),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedDistrict,
-              hint: const Text('Chọn huyện'),
+              hint: Text(AppLocalizations.of(context)!.selectDistrict),
               items: [null, ...availableDistricts].map((String? value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value ?? 'Tất cả'),
+                  child: Text(value ?? AppLocalizations.of(context)!.all),
                 );
               }).toList(),
               onChanged: onDistrictChanged,
@@ -85,11 +85,11 @@ class PatentFilterMenu extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: const Text('Hủy'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: onApply,
-          child: const Text('Áp dụng'),
+          child: Text(AppLocalizations.of(context)!.apply),
         ),
       ],
     );

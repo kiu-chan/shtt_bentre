@@ -162,13 +162,14 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
   }
 
   Widget _buildSearchBar() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
       child: TextField(
         controller: _searchController,
         decoration: InputDecoration(
-          hintText: 'Tìm kiếm theo tên sản phẩm hoặc số đơn...',
+          hintText: l10n.enterSearchContent,
           prefixIcon: const Icon(Icons.search, color: Color(0xFF1E88E5)),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
@@ -199,15 +200,16 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
   }
 
   Widget _buildActiveFilters() {
+    final l10n = AppLocalizations.of(context)!;
     if (!_isFiltered) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Text(
-            'Đang lọc:',
-            style: TextStyle(
+          Text(
+            '${l10n.filtering}:',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E88E5),
             ),
@@ -242,7 +244,7 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
           ),
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Xóa lọc'),
+            child: Text(l10n.clearFilter),
           ),
         ],
       ),
@@ -262,14 +264,15 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chỉ dẫn địa lý',
-          style: TextStyle(
+        title: Text(
+          l10n.geographicalIndications,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -330,13 +333,13 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Có lỗi xảy ra: ${snapshot.error}',
+                            '${l10n.error}: ${snapshot.error}',
                             style: const TextStyle(color: Colors.red),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _refreshData,
-                            child: const Text('Thử lại'),
+                            child: Text(l10n.tryAgain),
                           ),
                         ],
                       ),
@@ -357,7 +360,7 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Không tìm thấy chỉ dẫn địa lý phù hợp',
+                            l10n.noMatchingResults,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -369,8 +372,8 @@ class _GeoIndicationListPageState extends State<GeoIndicationListPage> {
                   }
 
                   if (geoIndications.isEmpty) {
-                    return const Center(
-                      child: Text('Không có dữ liệu chỉ dẫn địa lý'),
+                    return Center(
+                      child: Text(l10n.noDataAvailable),
                     );
                   }
 

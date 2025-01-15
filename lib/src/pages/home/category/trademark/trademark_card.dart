@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrademarkCard extends StatelessWidget {
   final TrademarkModel trademark;
@@ -11,6 +12,7 @@ class TrademarkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -185,7 +187,7 @@ class TrademarkCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Ngày nộp đơn: ${DateFormat('dd/MM/yyyy').format(trademark.filingDate)}',
+                            '${l10n.filingDateLabel}: ${DateFormat('dd/MM/yyyy').format(trademark.filingDate)}',
                             style: const TextStyle(
                               color: Color(0xFF1565C0),
                               fontSize: 13,

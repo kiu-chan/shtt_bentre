@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrademarkFilterMenu extends StatelessWidget {
   final String? selectedType;
@@ -30,22 +31,23 @@ class TrademarkFilterMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Bộ lọc'),
+      title: Text(l10n.filter),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Loại nhãn hiệu:'),
+            Text(l10n.trademarkType),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedType,
-              hint: const Text('Chọn loại nhãn hiệu'),
+              hint: Text(l10n.selectTrademarkType),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableTypes.map((type) {
                   return DropdownMenuItem<String>(
@@ -57,35 +59,35 @@ class TrademarkFilterMenu extends StatelessWidget {
               onChanged: onTypeChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Năm:'),
+            Text(l10n.year),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedYear,
-              hint: const Text('Chọn năm'),
+              hint: Text(l10n.selectYear),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableYears.map((year) {
                   return DropdownMenuItem<String>(
                     value: year,
-                    child: Text('Năm $year'),
+                    child: Text('${l10n.year} $year'),
                   );
                 }),
               ],
               onChanged: onYearChanged,
             ),
             const SizedBox(height: 16),
-            const Text('Địa bàn:'),
+            Text(l10n.district),
             DropdownButton<String>(
               isExpanded: true,
               value: selectedDistrict,
-              hint: const Text('Chọn địa bàn'),
+              hint: Text(l10n.selectDistrict),
               items: [
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: null,
-                  child: Text('Tất cả'),
+                  child: Text(l10n.all),
                 ),
                 ...availableDistricts.map((district) {
                   return DropdownMenuItem<String>(
@@ -102,11 +104,11 @@ class TrademarkFilterMenu extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: const Text('Hủy'),
+          child: Text(l10n.cancel),
         ),
         TextButton(
           onPressed: onApply,
-          child: const Text('Áp dụng'),
+          child: Text(l10n.apply),
         ),
       ],
     );

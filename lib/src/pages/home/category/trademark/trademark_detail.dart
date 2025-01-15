@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shtt_bentre/src/mainData/data/home/trademark/trademark_detail.dart';
 import 'package:shtt_bentre/src/mainData/database/databases.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrademarkDetailPage extends StatefulWidget {
   final int id;
@@ -31,14 +32,15 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Chi tiết nhãn hiệu',
-          style: TextStyle(
+        title: Text(
+          l10n.trademarkDetailTitle,
+          style: const TextStyle(
             color: Color(0xFF1E88E5),
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -55,7 +57,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
           }
 
           if (snapshot.hasError) {
-            print('Error: ${snapshot.error}');
+            print('${l10n.error}: ${snapshot.error}');
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +69,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Có lỗi xảy ra: ${snapshot.error}',
+                    '${l10n.error}: ${snapshot.error}',
                     style: const TextStyle(color: Colors.red),
                   ),
                   const SizedBox(height: 16),
@@ -77,7 +79,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                         _trademarkFuture = _service.fetchTrademarkDetail(widget.id);
                       });
                     },
-                    child: const Text('Thử lại'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -207,43 +209,43 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       children: [
                         _buildInfoRow(
                           Icons.confirmation_number,
-                          'Số đơn',
+                          l10n.filingNumber,
                           trademark.filingNumber,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.confirmation_number_outlined,
-                          'Số công bố',
+                          l10n.publicationNumber,
                           trademark.publicationNumber,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.verified,
-                          'Số đăng ký',
+                          l10n.registrationNumber,
                           trademark.registrationNumber,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.calendar_today,
-                          'Ngày nộp đơn',
+                          l10n.filingDateLabel,
                           _formatDate(trademark.filingDate),
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.calendar_month,
-                          'Ngày đăng ký',
+                          l10n.registrationDate,
                           _formatDate(trademark.registrationDate),
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.date_range,
-                          'Ngày công bố',
+                          l10n.publicationDateLabel,
                           _formatDate(trademark.publicationDate),
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.timer_off,
-                          'Ngày hết hạn',
+                          l10n.expirationDate,
                           _formatDate(trademark.expirationDate),
                         ),
                       ],
@@ -264,13 +266,13 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       children: [
                         _buildInfoRow(
                           Icons.business,
-                          'Chủ sở hữu',
+                          l10n.ownerLabel,
                           trademark.owner,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.location_on,
-                          'Địa chỉ',
+                          l10n.addressLabel,
                           trademark.address,
                         ),
                       ],
@@ -291,13 +293,13 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       children: [
                         _buildInfoRow(
                           Icons.person,
-                          'Đại diện',
+                          l10n.representativeLabel,
                           trademark.representativeName,
                         ),
                         const Divider(height: 24),
                         _buildInfoRow(
                           Icons.location_city,
-                          'Địa chỉ đại diện',
+                          l10n.representativeAddressLabel,
                           trademark.representativeAddress,
                         ),
                       ],
@@ -316,7 +318,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: _buildInfoRow(
                         Icons.category,
-                        'Phân loại Vienna',
+                        l10n.viennaClassesLabel,
                         trademark.viennaClasses,
                       ),
                     ),
@@ -334,7 +336,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: _buildInfoRow(
                         Icons.format_paint,
-                        'Đặc điểm nhãn hiệu',
+                        l10n.markFeatureLabel,
                         trademark.markFeature!,
                       ),
                     ),
@@ -352,7 +354,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: _buildInfoRow(
                         Icons.palette,
-                        'Màu sắc nhãn hiệu',
+                        l10n.markColorsLabel,
                         trademark.markColors!,
                       ),
                     ),
@@ -370,7 +372,7 @@ class _TrademarkDetailPageState extends State<TrademarkDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: _buildInfoRow(
                         Icons.info_outline,
-                        'Tuyên bố từ bỏ độc quyền',
+                        l10n.disclaimerLabel,
                         trademark.disclaimer!,
                       ),
                     ),
